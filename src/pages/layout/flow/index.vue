@@ -7,6 +7,7 @@
 
 <script>
 import flowData from './data.json';
+import nodes from './nodes.json'
 
 export default {
   name: 'flow',

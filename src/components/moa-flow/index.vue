@@ -1,23 +1,24 @@
 <template>
   <div>
-    DATA:{{ flowData }}
   </div>
 </template>
 
 <script>
 export default {
-  name: 'moa-flow',
+  name: 'moa-node',
   props: {
     flowData: {
-      type: Array,
+      type: Object,
       default() {
-        return []
+        return {}
       }
     }
+  },
+  methods: {
+    parse
   }
 }
 </script>
-
 <style lang="scss" scoped>
 
 </style>

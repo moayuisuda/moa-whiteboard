@@ -1,6 +1,9 @@
 import Vue from 'vue'
 
 const context = require.context('./', true, /index.vue$/)
+const excludes = [
+  'vuetify'
+]
 
 export default {
   install() {

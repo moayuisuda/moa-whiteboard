@@ -20,7 +20,6 @@ const routes = [
   { path: '/', redirect: '/layout/flow' },
   ...contextRoutes
 ]
-console.log(routes)
 
 const router = new VueRouter({
   routes,

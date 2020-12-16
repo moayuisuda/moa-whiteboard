@@ -1,17 +1,17 @@
 import Vue from 'vue'
 import components from '@/components'
-import VueMaterial from 'vue-material'
-import 'vue-material/dist/vue-material.min.css'
-import 'vue-material/dist/theme/default.css'
+import vuetify from '@/components/vuetify';
 import app from './pages/app.vue'
-import './theme/base.scss'
 import router from './router'
 
-Vue.use(VueMaterial)
+import 'vuetify/dist/vuetify.min.css'
+import './theme/base.scss'
+
 Vue.use(components)
 
 new Vue({
   router,
+  vuetify,
   el: '#app',
   render: (h) => h(app),
 })
