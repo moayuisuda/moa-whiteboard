@@ -1,12 +1,12 @@
 <template>
   <div>
-    MOA-FLOW
+    <router-view />
   </div>
 </template>
 
 <script>
 export default {
-  
+  name: 'layout'
 }
 </script>
 

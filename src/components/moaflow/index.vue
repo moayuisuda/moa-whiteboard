@@ -1,16 +1,17 @@
 <template>
   <div>
-    <moa-flow :data = data>
-    </moa-flow>
+    DATA:{{ flowData }}
   </div>
 </template>
 
 <script>
 export default {
-  data() {
-    return {
-      data: {
-        
+  name: 'moa-flow',
+  props: {
+    flowData: {
+      type: Array,
+      default() {
+        return []
       }
     }
   }

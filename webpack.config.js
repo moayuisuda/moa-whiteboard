@@ -58,6 +58,15 @@ module.exports = {
           },
         ],
       },
+      {
+        test: /\.css$/,
+        loaders: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+          },
+          "css-loader",
+        ],
+      },
     ],
   },
   plugins: [

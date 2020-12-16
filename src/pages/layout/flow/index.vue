@@ -1,17 +1,19 @@
 <template>
   <div>
-    <moa-flow :data = data>
+    <moa-flow :flowData="flowData" :editable="editable">
     </moa-flow>
   </div>
 </template>
 
 <script>
+import flowData from './data.json';
+
 export default {
+  name: 'flow',
   data() {
     return {
-      data: {
-        
-      }
+      flowData,
+      editable: false
     }
   }
 }
