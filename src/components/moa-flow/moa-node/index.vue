@@ -1,8 +1,11 @@
 <template>
-  <svg :width="data.width" :height="data.height" :viewBox="_viewBox">
-    <moa-node v-for="node in nodes" :key="node.id" :data="node.data">
-    </moa-node>
-  </svg>
+  <g>
+    <moa-flow v-if="data.childFlow" :data="node.data"/>
+    <g v-else>
+    <!-- <rect /> -->
+    <text>{{ data.text }}</text>
+    </g>
+  </g>
 </template>
 
 <script>
@@ -15,7 +18,7 @@ export default {
   },
   computed: {
     _viewBox() {
-      return `${this.data.width * this.zoom} ${this.data.height * this.data.zoom} 0 0`
+      return `${this.data.width * this.zoom} ${this.data.height * this.zoom} 0 0`
     },
   },
   props: {
@@ -27,6 +30,7 @@ export default {
     },
   },
   methods: {
+
   },
 }
 </script>

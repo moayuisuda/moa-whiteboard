@@ -3,8 +3,10 @@ const { resolve, join } = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { env } = require('./config')
 
 module.exports = {
+  stats: env === 'development' ? 'errors-only' : 'normal',
   entry: "./src/main.js",
   output: {
     path: resolve(__dirname, "dist"),
@@ -70,6 +72,11 @@ module.exports = {
     ],
   },
   plugins: [
+    new webpack.DefinePlugin({
+      process: {
+        env,
+      },
+    }),
     new HtmlWebpackPlugin({
       template: "./template.html",
     }),
