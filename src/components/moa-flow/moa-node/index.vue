@@ -1,9 +1,9 @@
 <template>
-  <g>
-    <moa-flow v-if="data.childFlow" :data="node.data"/>
+  <g :transform="_transform">
+    <moa-flow v-if="data.recursion" :data="node.data" />
     <g v-else>
-    <!-- <rect /> -->
-    <text>{{ data.text }}</text>
+      <rect :width="data.bounds.w" :height="data.bounds.h" />
+      <text>{{ data.text }}</text>
     </g>
   </g>
 </template>
@@ -13,12 +13,11 @@ export default {
   name: 'moa-flow',
   data() {
     return {
-      zoom: 1
     }
   },
   computed: {
-    _viewBox() {
-      return `${this.data.width * this.zoom} ${this.data.height * this.zoom} 0 0`
+    _transform() {
+      return `translate(${x}, ${y})`
     },
   },
   props: {
@@ -29,9 +28,7 @@ export default {
       },
     },
   },
-  methods: {
-
-  },
+  methods: {},
 }
 </script>
 

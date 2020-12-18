@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
-    "dev": "webpack serve",
-    "build": "webpack --mode=production"
+    "dev": "cross-env NODE_ENV=development webpack serve",
+    "build": "cross-env NODE_ENV=production webpack --mode=production"
   },
   "license": "none",
   "private": true,
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "css-loader": "^1.0.0",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^4.5.0",
