@@ -6,7 +6,7 @@
 
 <script>
 export default {
-  name: 'layout'
+  name: 'layout',
 }
 </script>
 
@@ -15,4 +15,3 @@ div {
   color: $success-color;
 }
 </style>
-

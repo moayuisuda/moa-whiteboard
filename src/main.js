@@ -5,8 +5,10 @@ import app from './pages/app.vue'
 import router from './router'
 import 'vuetify/dist/vuetify.min.css'
 import './theme/base.scss'
+import color from './theme/variable'
 
 Vue.use(components)
+Vue.use(color)
 
 new Vue({
   router,

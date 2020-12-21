@@ -1,48 +1,100 @@
 [
   {
     "id": "0",
-    "recursion": false,
     "text": "this is 0",
+    "style": {
+      "color": "#3782ff",
+      "shape": "rect",
+      "border": "dashed"
+    },
     "bounds": {
       "x": 0,
       "y": 0,
-      "w": 50,
-      "h": 50
+      "w": 100,
+      "h": 100
     },
-    "out": {
-      "l": [],
-      "r": ["1"],
-      "t": [],
-      "b": []
-    },
-    "in": {
-      "l": [],
-      "r": [],
-      "t": [],
-      "b": []
-    }
+    "lineTo": ["1"]
   },
   {
     "id": "1",
-    "recursion": false,
     "text": "this is 1",
+    "style": {
+      "color": "#ffffff",
+      "shape": "rect",
+      "border": "none"
+    },
+    "flowData": [
+      {
+        "id": "0",
+        "text": "this is 1-0",
+        "style": {
+          "color": "#3782ff",
+          "shape": "rect",
+          "border": "dashed"
+        },
+        "bounds": {
+          "x": 50,
+          "y": 50,
+          "w": 100,
+          "h": 100
+        },
+        "lineTo": ["1"]
+      },
+      {
+        "id": "1",
+        "text": "this is 1-1--rec",
+        "style": {
+          "color": "#ffffff",
+          "shape": "rect",
+          "border": "none"
+        },
+        "bounds": {
+          "x": 200,
+          "y": 200,
+          "w": 100,
+          "h": 100
+        },
+        "flowData": [
+          {
+            "id": "0",
+            "text": "this is 1-1-0",
+            "style": {
+              "color": "#3782ff",
+              "shape": "rect",
+              "border": "dashed"
+            },
+            "bounds": {
+              "x": 50,
+              "y": 50,
+              "w": 100,
+              "h": 100
+            },
+            "lineTo": ["1"]
+          },
+          {
+            "id": "1",
+            "text": "this is 1-1-1",
+            "style": {
+              "color": "#ffffff",
+              "shape": "rect",
+              "border": "none"
+            },
+            "bounds": {
+              "x": 200,
+              "y": 200,
+              "w": 100,
+              "h": 100
+            }
+          }
+        ]
+      }
+    ],
     "bounds": {
       "x": 0,
-      "y": 0,
-      "w": 50,
-      "h": 50
+      "y": 300,
+      "w": 400,
+      "h": 400
     },
-    "out": {
-      "l": [],
-      "r": [],
-      "t": [],
-      "b": []
-    },
-    "in": {
-      "l": ["0"],
-      "r": [],
-      "t": [],
-      "b": []
-    }
+    "lineTo": ["0"]
   }
 ]

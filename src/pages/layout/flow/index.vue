@@ -1,23 +1,26 @@
 <template>
   <div>
-    <moa-flow :data="data" :editable="editable">
+    <moa-flow :flowData="flowData" :editable="editable">
     </moa-flow>
   </div>
 </template>
 
 <script>
-import data from './data.json';
+import flowData from './data.json';
 
 export default {
   name: 'flow',
   data() {
     return {
-      data,
+      flowData,
       editable: false
     }
   },
-  methods() {
+  methods: {
     
+  },
+  mounted() {
+    console.log(flowData)
   }
 }
 </script>
