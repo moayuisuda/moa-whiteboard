@@ -16,29 +16,34 @@
         <!-- this contains the element that the filter is applied to -->
       </feMerge>
     </filter>
-    <moa-node @move="onNodeMove" v-for="node in nodes" :key="node.id" :nodeData="node"></moa-node>
-    <moa-line v-for="line in lines" :key="line.id" :lineData="line"></moa-line>
+    <moa-line v-for="lineData in lines" :key="lineData.id" :lineData="lineData"></moa-line>
+    <moa-node @move="onNodeMove" v-for="nodeData in nodes" :key="nodeData.id" :nodeData="nodeData"></moa-node>
   </svg>
 </template>
 
 <script>
 import { hotKey } from './state'
-const cache = {
-  nodes: {},
-  lines: {},
-}
 
 export default {
   name: 'moa-flow',
   data() {
     return {
-      x: 0,
-      y: 0,
-      zoom: 1,
+      panelOps: {
+        x: 0,
+        y: 0,
+        zoom: 1,
+      },
       nodes: [],
       lines: [],
       onCmd: false,
+      cache: {
+        nodes: [],
+        lines: [],
+      },
     }
+  },
+  created() {
+    this.panelOps = this.panelData.panelOps
   },
   mounted() {
     this.parseData()
@@ -46,7 +51,8 @@ export default {
   },
   computed: {
     _viewBox() {
-      return `${this.x} ${this.y} ${this.width / this.zoom} ${this.height / this.zoom}`
+      return `${this.panelOps.x} ${this.panelOps.y} ${this.width / this.panelOps.zoom} ${this.height /
+        this.panelOps.zoom}`
     },
   },
   props: {
@@ -54,10 +60,10 @@ export default {
       type: Boolean,
       default: true,
     },
-    flowData: {
-      type: Array,
+    panelData: {
+      type: Object,
       default() {
-        return []
+        return {}
       },
     },
     width: {
@@ -72,16 +78,16 @@ export default {
   methods: {
     onWheel(e) {
       if (hotKey.MetaLeft) {
-        this.zoom += e.deltaY * 0.005
-        if (this.zoom < 0.01) this.zoom = 0.1
-        if (this.zoom > 100) this.zoom = 100
+        this.panelOps.zoom += e.deltaY * 0.005
+        if (this.panelOps.zoom < 0.01) this.panelOps.zoom = 0.1
+        if (this.panelOps.zoom > 100) this.panelOps.zoom = 100
       }
 
-      this.x += e.deltaX
-      this.y += e.deltaY
+      this.panelOps.x += e.deltaX
+      this.panelOps.y += e.deltaY
     },
     initRoot() {
-      this.$refs['container'].addEventListener('wheel', e => {
+      this.$refs['container'].addEventListener('wheel', (e) => {
         this.onWheel(e)
       })
       window.addEventListener('keydown', (e) => {
@@ -98,27 +104,21 @@ export default {
       })
     },
     parseData() {
-      for (let node of this.flowData) {
-        cache[node.id] = node
+      const { flowData } = this.panelData
+
+      for (let node of flowData) {
+        if (this.cache[node.id]) throw `[moa-flow] The node's id in a flow must be unique.`
+        this.cache[node.id] = node
       }
-      const { nodes, lines } = cache
 
-      this.nodes = this.flowData
+      this.nodes = flowData
 
-      for (let item of this.flowData) {
-        for (let direction in item.out) {
-          for (let nodeId of item.out[direction]) {
-            this.lines.push({
-              start: {
-                node: item,
-                direction: direction,
-              },
-              end: {
-                node: cache[nodeId],
-                direction: this.getInDirection(item, cache[nodeId]),
-              },
-            })
-          }
+      for (let startNode of flowData) {
+        for (let endNodeId in startNode.lineTo) {
+          this.lines.push({
+            startNode,
+            endNode: this.cache[endNodeId],
+          })
         }
       }
     },

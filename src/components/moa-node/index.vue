@@ -1,6 +1,6 @@
 <template>
   <!-- 如果是子流程，则递归渲染 -->
-  <g @wheel.stop="onWheel" v-if="nodeData.flowData" :transform="_transform">
+  <g @wheel.stop="onWheel" v-if="nodeData.panelData" :transform="_transform">
     <rect
       rx="6"
       ry="6"
@@ -13,7 +13,7 @@
       ref="childFlow"
       :class="`moa-node-${nodeData.id}`"
       :isRoot="false"
-      :flowData="nodeData.flowData"
+      :panelData="nodeData.panelData"
       :width="nodeData.bounds.w"
       :height="nodeData.bounds.h"
     />

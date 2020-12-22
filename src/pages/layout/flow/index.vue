@@ -1,18 +1,18 @@
 <template>
   <div>
-    <moa-flow :flowData="flowData" :editable="editable">
+    <moa-flow :panelData="panelData" :editable="editable">
     </moa-flow>
   </div>
 </template>
 
 <script>
-import flowData from './data.json';
+import panelData from './data.json';
 
 export default {
   name: 'flow',
   data() {
     return {
-      flowData,
+      panelData,
       editable: false
     }
   },
@@ -20,7 +20,6 @@ export default {
     
   },
   mounted() {
-    console.log(flowData)
   }
 }
 </script>
