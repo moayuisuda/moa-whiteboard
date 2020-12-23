@@ -1,7 +1,7 @@
 <template>
   <div>
-    <moa-flow :panelData="panelData" :editable="editable">
-    </moa-flow>
+    <moa-chart :panelData="panelData" :editable="editable">
+    </moa-chart>
   </div>
 </template>
 

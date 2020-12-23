@@ -1,5 +1,5 @@
 <template>
-  <svg class="moa-container" ref="container" :width="width" :height="height" :viewBox="_viewBox">
+  <svg class="moa-chart" ref="svg" :width="width" :height="height" :viewBox="_viewBox">
     <filter id="dropshadow" height="130%" v-if="isRoot">
       <feGaussianBlur in="SourceAlpha" stdDeviation="4" />
       <!-- stdDeviation is how much to blur -->
@@ -22,17 +22,19 @@
 </template>
 
 <script>
-import { hotKey } from './state'
+import { eventBus, hotKey } from './state'
 
 export default {
-  name: 'moa-flow',
+  name: 'moa-chart',
+  provide: function() {
+    return {
+      container: this,
+      [this.isRoot ? 'root' : 'container']: this
+    }
+  },
   data() {
     return {
-      panelOps: {
-        x: 0,
-        y: 0,
-        zoom: 1,
-      },
+      panelOps: this.panelData.panelOps,
       nodes: [],
       lines: [],
       onCmd: false,
@@ -42,12 +44,11 @@ export default {
       },
     }
   },
-  created() {
-    this.panelOps = this.panelData.panelOps
-  },
+  created() {},
   mounted() {
     this.parseData()
     if (this.isRoot) this.initRoot()
+    this.initChart()
   },
   computed: {
     _viewBox() {
@@ -86,9 +87,19 @@ export default {
       this.panelOps.x += e.deltaX
       this.panelOps.y += e.deltaY
     },
+    initChart() {
+      this.svg = this.$refs['svg']
+      this.pt = this.svg.createSVGPoint()
+    },
     initRoot() {
-      this.$refs['container'].addEventListener('wheel', (e) => {
+      this.$refs['svg'].addEventListener('wheel', (e) => {
         this.onWheel(e)
+      })
+      window.addEventListener('mouseup', e => {
+        eventBus.$emit('mouseup')
+      })
+      window.addEventListener('mousemove', (e) => {
+        eventBus.$emit('mousemove', e)
       })
       window.addEventListener('keydown', (e) => {
         switch (e.code) {
@@ -104,21 +115,23 @@ export default {
       })
     },
     parseData() {
-      const { flowData } = this.panelData
+      const { chartData } = this.panelData
 
-      for (let node of flowData) {
-        if (this.cache[node.id]) throw `[moa-flow] The node's id in a flow must be unique.`
+      for (let node of chartData) {
+        if (this.cache[node.id]) throw `[moa-chart] The node's id in a flow must be unique.`
         this.cache[node.id] = node
       }
 
-      this.nodes = flowData
+      this.nodes = chartData
 
-      for (let startNode of flowData) {
-        for (let endNodeId in startNode.lineTo) {
-          this.lines.push({
-            startNode,
-            endNode: this.cache[endNodeId],
-          })
+      for (let startNode of chartData) {
+        if (startNode.lineTo) {
+          for (let endNodeId of startNode.lineTo) {
+            this.lines.push({
+              startNode,
+              endNode: this.cache[endNodeId],
+            })
+          }
         }
       }
     },
@@ -135,7 +148,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.moa-container {
+.moa-chart {
   pointer-events: bounding-box;
 }
 </style>
