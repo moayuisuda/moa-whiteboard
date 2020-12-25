@@ -17,7 +17,7 @@ context.keys().forEach(key => {
 })
 
 const routes = [
-  { path: '/', redirect: '/layout/flow' },
+  { path: '/', redirect: '/layout/whiteboard' },
   ...contextRoutes
 ]
 
