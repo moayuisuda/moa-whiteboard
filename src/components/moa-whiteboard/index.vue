@@ -1,5 +1,5 @@
 <template>
-  <svg class="moa-chart" ref="svg" :width="width" :height="height" :viewBox="_viewBox">
+  <svg class="moa-whiteboard" ref="svg" :width="width" :height="height" :viewBox="_viewBox">
     <filter id="dropshadow" height="130%" v-if="isRoot">
       <feGaussianBlur in="SourceAlpha" stdDeviation="4" />
       <!-- stdDeviation is how much to blur -->
@@ -25,7 +25,7 @@
 import { eventBus, hotKey } from './state'
 
 export default {
-  name: 'moa-chart',
+  name: 'moa-whiteboard',
   provide: function() {
     return {
       container: this,
@@ -118,7 +118,7 @@ export default {
       const { chartData } = this.panelData
 
       for (let node of chartData) {
-        if (this.cache[node.id]) throw `[moa-chart] The node's id in a flow must be unique.`
+        if (this.cache[node.id]) throw `[moa-whiteboard] The node's id in a flow must be unique.`
         this.cache[node.id] = node
       }
 
@@ -148,7 +148,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.moa-chart {
+.moa-whiteboard {
   pointer-events: bounding-box;
 }
 </style>

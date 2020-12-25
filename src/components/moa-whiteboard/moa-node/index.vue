@@ -10,7 +10,7 @@
         fill="white"
         style="filter:url(#dropshadow)"
       />
-      <moa-chart
+      <moa-whiteboard
         ref="childFlow"
         :class="`moa-node-${nodeData.id}`"
         :isRoot="false"

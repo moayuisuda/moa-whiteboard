@@ -1,7 +1,7 @@
 <template>
   <div>
-    <moa-chart :panelData="panelData" :editable="editable">
-    </moa-chart>
+    <moa-whiteboard :panelData="panelData" :editable="editable">
+    </moa-whiteboard>
   </div>
 </template>
 
