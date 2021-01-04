@@ -23,13 +23,14 @@
 
 <script>
 import { eventBus, hotKey } from './state'
+import { getCoords } from '@/utils/coords'
 
 export default {
   name: 'moa-whiteboard',
   provide: function() {
     return {
       container: this,
-      [this.isRoot ? 'root' : 'container']: this
+      [this.isRoot ? 'root' : 'container']: this,
     }
   },
   data() {
@@ -77,15 +78,25 @@ export default {
     },
   },
   methods: {
+    onNodeMove() {},
     onWheel(e) {
+      e.preventDefault()
       if (hotKey.MetaLeft) {
-        this.panelOps.zoom += e.deltaY * 0.005
-        if (this.panelOps.zoom < 0.01) this.panelOps.zoom = 0.1
-        if (this.panelOps.zoom > 100) this.panelOps.zoom = 100
-      }
+        const oldCoords = getCoords(this.svg, this.pt, e)
+        this.panelOps.zoom = this.panelOps.zoom + e.deltaY * 0.005
 
-      this.panelOps.x += e.deltaX
-      this.panelOps.y += e.deltaY
+        if (this.panelOps.zoom < 0.1) this.panelOps.zoom = 0.1
+        if (this.panelOps.zoom > 10) this.panelOps.zoom = 10
+
+        this.svg.setAttribute('viewBox', this._viewBox)
+        const newCoords = getCoords(this.svg, this.pt, e)
+
+        this.panelOps.x -= newCoords.x - oldCoords.x
+        this.panelOps.y -= newCoords.y - oldCoords.y
+      } else {
+        this.panelOps.x += e.deltaX
+        this.panelOps.y += e.deltaY
+      }
     },
     initChart() {
       this.svg = this.$refs['svg']
@@ -95,7 +106,7 @@ export default {
       this.$refs['svg'].addEventListener('wheel', (e) => {
         this.onWheel(e)
       })
-      window.addEventListener('mouseup', e => {
+      window.addEventListener('mouseup', (e) => {
         eventBus.$emit('mouseup')
       })
       window.addEventListener('mousemove', (e) => {
@@ -135,7 +146,6 @@ export default {
         }
       }
     },
-    onNodeMove(node) {},
     getInDirection(outNode, inNode) {
       for (let direction in inNode.in) {
         for (let nodeId of inNode.in[direction]) {
