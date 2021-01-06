@@ -1,3 +1,57 @@
 text {
   cursor: default;
 }
+
+.shadow {
+  box-shadow: 0 0 4px 0px rgba(0, 0, 0, .3);  
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes to {
+  from {
+    stroke-dashoffset: 0;
+    stroke-dasharray: 10 10;
+  }
+
+  to {
+    stroke-dashoffset: -100;
+    stroke-dasharray: 10 10;
+  }
+}
+
+@keyframes inverse {
+  from {
+    stroke-dashoffset: 0;
+    stroke-dasharray: 10 10;
+  }
+
+  to {
+    stroke-dashoffset: 100;
+    stroke-dasharray: 10 10;
+  }
+}
+
+.line--to {
+  animation-duration: 2s;
+  animation-timing-function: linear;
+  animation-name: to;
+  animation-iteration-count: infinite;
+  animation-direction: normal;
+}
+
+.line--inverse {
+  animation-duration: 2s;
+  animation-timing-function: linear;
+  animation-name: inverse;
+  animation-iteration-count: infinite;
+  animation-direction: normal;
+}
+
+body {
+  box-sizing: border-box;
+}

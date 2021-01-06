@@ -1,10 +1,9 @@
 <template>
-  <path :d="_d" stroke="#8E8E8E" stroke-width="4" stroke-linecap="round" />
+  <path class="line--to" :d="_d" fill="none" :stroke="$color['line']" stroke-width="3" stroke-linecap="round" />
 </template>
 
 <script>
 // 线的两端距离结点的距离
-const margin = 10
 
 export default {
   name: 'moa-line',
@@ -13,7 +12,10 @@ export default {
   },
   computed: {
     _d() {
-      return `M${this._x1} ${this._y1} L${this._x2} ${this._y2}`
+      const length = Math.abs(this._x1 - this._x2) * 0.6
+      if (this._x1 < this._x2) {
+        return `M${this._x1},${this._y1} C${this._x1 + length},${this._y1} ${this._x2 - length},${this._y2} ${this._x2},${this._y2}`
+      } else return `M${this._x1},${this._y1} C${this._x1 - length},${this._y1} ${this._x2 + length},${this._y2} ${this._x2},${this._y2}`
     },
     _x1() {
       const {
@@ -52,4 +54,5 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+</style>

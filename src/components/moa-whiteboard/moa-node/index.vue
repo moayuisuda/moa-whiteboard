@@ -1,18 +1,25 @@
 <template>
-  <!-- 如果是子图表，则递归渲染 -->
-  <g @mousedown.stop="onMousedown" @click="onClick" :transform="_transform" :class="`moa-node-${nodeData.id}`">
-    <g @wheel.stop="onWheel" v-if="nodeData.panelData">
+  <g
+    @mousedown.stop="onMousedown"
+    @click.stop
+    :transform="_transform"
+    :style="{
+      filter: `url(#${_isFocus ? 'focus' : 'dropshadow'})`,
+    }"
+    :class="`moa-node node-${nodeData.id}`"
+  >
+    <!-- 如果是子图表，则递归渲染 -->
+    <g v-if="nodeData.panelData" @wheel.stop="onWheel">
       <rect
         rx="6"
         ry="6"
         :width="nodeData.bounds.w"
         :height="nodeData.bounds.h"
-        fill="white"
-        style="filter:url(#dropshadow)"
+        :fill="$color['background']"
+        stroke=""
       />
-      <moa-whiteboard
+      <moa-board
         ref="childFlow"
-        :class="`moa-node-${nodeData.id}`"
         :isRoot="false"
         :panelData="nodeData.panelData"
         :width="nodeData.bounds.w"
@@ -20,88 +27,48 @@
       />
     </g>
     <!-- 如果不是子图表则直接渲染对应结点 -->
-    <g v-else>
-      <component
-        style="filter:url(#dropshadow)"
-        :is="`moa-${nodeData.style.shape}`"
-        :nodeData="nodeData"
-        :fill="_fill"
-        :stroke="_stroke"
-        stroke-dasharray="10 10"
-        stroke-width="3"
-      />
-      <text text-anchor="middle" dominant-baseline="middle;" :x="nodeData.bounds.w / 2" :y="nodeData.bounds.h / 2">{{
-        nodeData.text
-      }}</text>
-    </g>
-    <!-- <path> -->
+    <component v-else :is="`moa-${nodeData.style.shape}`" :nodeData="nodeData" />
   </g>
 </template>
 
 <script>
-import { getCoords } from '@/utils/coords'
-import { hexToRgb } from '@/utils/style'
-import { eventBus } from '../state'
-
-const alpha = 0.4
+import { getCoords, getSVGScale } from '@/utils/coords'
+import { eventBus, wbState } from '@/state'
+const moveThreshold = 10
 
 export default {
   name: 'moa-node',
   inject: ['container', 'root'],
   data() {
     return {
-      onDrag: false,
-      bounds: this.nodeData.bounds,
-      movePoint: {},
+      isDrag: false,
     }
   },
   computed: {
-    _fill() {
-      const { style } = this.nodeData
-      if (style.border === 'none') {
-        return style.color
-      } else {
-        const rgb = hexToRgb(style.color)
-        return `rgb(${(1 - alpha) * 255 + rgb.r}, ${(1 - alpha) * 255 + rgb.g}, ${(1 - alpha) * 255 + rgb.b})`
-      }
+    _isFocus() {
+      return wbState.focusNodes.includes(this)
     },
-    _stroke() {
-      const { style } = this.nodeData
-      if (style.border === 'none') {
-        return 'transparent'
-      } else {
-        const rgb = hexToRgb(style.color)
-        return style.color
-      }
-    },
-    stroke() {},
     _transform() {
-      return `translate(${this.bounds.x}, ${this.bounds.y})`
+      return `translate(${this.nodeData.bounds.x}, ${this.nodeData.bounds.y})`
     },
   },
   methods: {
-    releaseDrag() {
-      this.onDrag = false
-    },
-    onMousedown(e) {
-      this.onDrag = true
-      this.movePoint = getCoords(this.container.svg, this.container.pt, e)
-    },
-    onMouseup(e) {
-      this.onDrag = false
-    },
-    onMousemove(e) {
-      if (this.onDrag) {
-        const newMovePoint = getCoords(this.container.svg, this.container.pt, e)
-        this.bounds.x += newMovePoint.x - this.movePoint.x
-        this.bounds.y += newMovePoint.y - this.movePoint.y
-
-        this.movePoint = newMovePoint
-      }
-    },
-    onClick(e) {},
     onWheel(e) {
       this.$refs['childFlow'].onWheel(e)
+    },
+    onMousedown(e) {
+      eventBus.$emit('focus', this)
+      eventBus.$emit('drag', this)
+      this.isDrag = true
+      this.movePoint = getCoords(this.container.svg, this.container.pt, e)
+    },
+    onMousemove(movement) {
+      if (this.isDrag) {
+        wbState.focusNodes.forEach((node) => (node.isDrag = true))
+        const scale = getSVGScale(this.container.svg)
+        this.nodeData.bounds.x += movement.x * scale
+        this.nodeData.bounds.y += movement.y * scale
+      }
     },
   },
   props: {
@@ -123,4 +90,8 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.moa-node {
+  transform: filter 0.2s;
+}
+</style>

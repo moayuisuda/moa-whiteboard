@@ -1,72 +1,24 @@
 <template>
-  <svg class="moa-whiteboard" ref="svg" :width="width" :height="height" :viewBox="_viewBox">
-    <filter id="dropshadow" height="130%" v-if="isRoot">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="4" />
-      <!-- stdDeviation is how much to blur -->
-      <feOffset dx="0" dy="0" result="offsetblur" />
-      <!-- how much to offset -->
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.12" />
-        <!-- slope is the opacity of the shadow -->
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <!-- this contains the offset blurred image -->
-        <feMergeNode in="SourceGraphic" />
-        <!-- this contains the element that the filter is applied to -->
-      </feMerge>
-    </filter>
-    <moa-line v-for="lineData in lines" :key="lineData.id" :lineData="lineData"></moa-line>
-    <moa-node @move="onNodeMove" v-for="nodeData in nodes" :key="nodeData.id" :nodeData="nodeData"></moa-node>
-  </svg>
+  <div class="moa-whiteboard" ref="stage">
+    <moa-board :isRoot="true" :panelData="panelData" :editable="editable" :width="width" :height="height"> </moa-board>
+    <moa-controller--node class="moa-controller shadow"></moa-controller--node>
+    <moa-controller--export class="moa-controller shadow"></moa-controller--export>
+  </div>
 </template>
 
 <script>
-import { eventBus, hotKey } from './state'
-import { getCoords } from '@/utils/coords'
+import { eventBus, wbState, hotKey } from '@/state'
+import Vue from 'vue'
 
 export default {
   name: 'moa-whiteboard',
-  provide: function() {
-    return {
-      container: this,
-      [this.isRoot ? 'root' : 'container']: this,
-    }
-  },
-  data() {
-    return {
-      panelOps: this.panelData.panelOps,
-      nodes: [],
-      lines: [],
-      onCmd: false,
-      cache: {
-        nodes: [],
-        lines: [],
-      },
-    }
-  },
-  created() {},
-  mounted() {
-    this.parseData()
-    if (this.isRoot) this.initRoot()
-    this.initChart()
-  },
-  computed: {
-    _viewBox() {
-      return `${this.panelOps.x} ${this.panelOps.y} ${this.width / this.panelOps.zoom} ${this.height /
-        this.panelOps.zoom}`
-    },
-  },
   props: {
-    isRoot: {
-      type: Boolean,
-      default: true,
-    },
     panelData: {
       type: Object,
-      default() {
-        return {}
-      },
+    },
+    editable: {
+      type: Boolean,
+      default: true,
     },
     width: {
       type: Number,
@@ -77,41 +29,28 @@ export default {
       default: 720,
     },
   },
+  watch: {
+    height(val) {
+      console.log(val)
+    },
+  },
+  mounted() {
+    this.initEvents()
+  },
   methods: {
-    onNodeMove() {},
-    onWheel(e) {
-      e.preventDefault()
-      if (hotKey.MetaLeft) {
-        const oldCoords = getCoords(this.svg, this.pt, e)
-        this.panelOps.zoom = this.panelOps.zoom + e.deltaY * 0.005
+    initEvents() {
+      const stage = this.$refs['stage']
 
-        if (this.panelOps.zoom < 0.1) this.panelOps.zoom = 0.1
-        if (this.panelOps.zoom > 10) this.panelOps.zoom = 10
+      stage.addEventListener('click', () => {
+        wbState.focusNodes = []
+      })
+      stage.addEventListener('mouseup', (e) => {
+        this.onMouseUp()
+      })
+      stage.addEventListener('mousemove', (e) => {
+        eventBus.$emit('mousemove', { x: e.movementX, y: e.movementY })
+      })
 
-        this.svg.setAttribute('viewBox', this._viewBox)
-        const newCoords = getCoords(this.svg, this.pt, e)
-
-        this.panelOps.x -= newCoords.x - oldCoords.x
-        this.panelOps.y -= newCoords.y - oldCoords.y
-      } else {
-        this.panelOps.x += e.deltaX
-        this.panelOps.y += e.deltaY
-      }
-    },
-    initChart() {
-      this.svg = this.$refs['svg']
-      this.pt = this.svg.createSVGPoint()
-    },
-    initRoot() {
-      this.$refs['svg'].addEventListener('wheel', (e) => {
-        this.onWheel(e)
-      })
-      window.addEventListener('mouseup', (e) => {
-        eventBus.$emit('mouseup')
-      })
-      window.addEventListener('mousemove', (e) => {
-        eventBus.$emit('mousemove', e)
-      })
       window.addEventListener('keydown', (e) => {
         switch (e.code) {
           case 'MetaLeft':
@@ -124,33 +63,27 @@ export default {
             hotKey.MetaLeft = false
         }
       })
+
+      eventBus.$on('add', (type) => this.onAdd(type))
+      eventBus.$on('focus', (node) => this.onFocus(node))
+      eventBus.$on('drag', (node) => this.onDrag(node))
     },
-    parseData() {
-      const { chartData } = this.panelData
-
-      for (let node of chartData) {
-        if (this.cache[node.id]) throw `[moa-whiteboard] The node's id in a flow must be unique.`
-        this.cache[node.id] = node
-      }
-
-      this.nodes = chartData
-
-      for (let startNode of chartData) {
-        if (startNode.lineTo) {
-          for (let endNodeId of startNode.lineTo) {
-            this.lines.push({
-              startNode,
-              endNode: this.cache[endNodeId],
-            })
-          }
-        }
-      }
+    onAdd(type) {
+      console.log('onAdd', type)
     },
-    getInDirection(outNode, inNode) {
-      for (let direction in inNode.in) {
-        for (let nodeId of inNode.in[direction]) {
-          if (nodeId === outNode.id) return direction
-        }
+    onDrag(node) {
+      wbState.dragNode = node
+    },
+    onMouseUp() {
+      wbState.focusNodes.forEach((node) => (node.isDrag = false))
+      wbState.dragNode = undefined
+    },
+    onFocus(node) {
+      if (wbState.focusNodes.includes(node)) return
+      if (!hotKey.MetaLeft) {
+        wbState.focusNodes = [node]
+      } else {
+        wbState.focusNodes.push(node)
       }
     },
   },
@@ -159,6 +92,29 @@ export default {
 
 <style lang="scss" scoped>
 .moa-whiteboard {
-  pointer-events: bounding-box;
+  position: relative;
+  background-color: $background-color;
+
+  &__holder {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .moa-controller--node {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    list-style: none;
+  }
+
+  .moa-controller--export {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    list-style: none;
+  }
 }
 </style>
