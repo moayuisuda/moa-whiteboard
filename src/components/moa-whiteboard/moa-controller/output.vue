@@ -1,7 +1,10 @@
 <template>
-  <ul class="moa-controller--export center">
-    <li @click="add(i)" v-for="i in nodes" :key="i" class="moa-controller--export__item">
-      <img :src="require(`../assets/${i}.svg`)" />
+  <ul class="moa-controller--output center">
+    <li @click="down()" class="moa-controller--output__item">
+      <img src="../assets/output.svg" />
+    </li>
+    <li @click="share()" class="moa-controller--output__item">
+      <img src="../assets/share.svg" />
     </li>
   </ul>
 </template>
@@ -10,7 +13,7 @@
 import { eventBus } from '@/state'
 
 export default {
-  name: 'moa-controller--export',
+  name: 'moa-controller--output',
   data() {
     return {
       nodes: ['rect', 'pic', 'child'],
@@ -26,6 +29,8 @@ export default {
     },
   },
   methods: {
+    down() {},
+    share() {},
     add(nodeType) {
       eventBus.$emit('add', nodeType)
     },
@@ -34,7 +39,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.moa-controller--export {
+.moa-controller--output {
   background-color: white;
   border-radius: 4px;
   &__item {

@@ -2,7 +2,7 @@
   <div class="moa-whiteboard" ref="stage">
     <moa-board :isRoot="true" :panelData="panelData" :editable="editable" :width="width" :height="height"> </moa-board>
     <moa-controller--node class="moa-controller shadow"></moa-controller--node>
-    <moa-controller--export class="moa-controller shadow"></moa-controller--export>
+    <moa-controller--output class="moa-controller shadow"></moa-controller--output>
   </div>
 </template>
 
@@ -110,7 +110,7 @@ export default {
     list-style: none;
   }
 
-  .moa-controller--export {
+  .moa-controller--output {
     position: absolute;
     right: 20px;
     top: 20px;
