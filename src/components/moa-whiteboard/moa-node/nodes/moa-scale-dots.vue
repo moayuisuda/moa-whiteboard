@@ -1,18 +1,8 @@
 <template>
   <g v-if="dotsShow">
-    <rect
-      :width="nodeData.bounds.w"
-      :height="nodeData.bounds.h"
-      fill="transparent"
-      stroke="#808080"
-      stroke-width="1"
-    />
+    <rect :width="nodeData.bounds.w" :height="nodeData.bounds.h" fill="transparent" stroke="#808080" stroke-width="1" />
 
-    <g 
-      v-for="(item, index) in dotsPosition" 
-      :key="index" 
-      @mousedown.stop="onMousedown(index, $event)"
-    >
+    <g v-for="(item, index) in dotsPosition" :key="index" @mousedown.stop="onMousedown(index, $event)">
       <rect
         width="8"
         height="8"
@@ -26,9 +16,11 @@
     </g>
   </g>
 </template>
-  
+
 <script>
-import { getSVGScale } from '@/utils/coords'
+import { getCoords } from '@/utils/coords'
+const wMin = 20
+const hMin = 20
 
 export default {
   name: 'moa-scale-dots',
@@ -38,12 +30,12 @@ export default {
       type: Object,
     },
     dotsShow: {
-      type: Boolean
-    }
+      type: Boolean,
+    },
   },
   data() {
     return {
-      oldNodeData: {}
+      oldNodeData: {},
     }
   },
   computed: {
@@ -51,79 +43,83 @@ export default {
       let w = this.nodeData.bounds.w
       let h = this.nodeData.bounds.h
       return [
-        { x: 0, y:0 },
+        { x: 0, y: 0 },
         { x: w / 2, y: 0 },
         { x: w, y: 0 },
         { x: 0, y: h / 2 },
         { x: w, y: h / 2 },
         { x: 0, y: h },
         { x: w / 2, y: h },
-        { x: w, y: h }
+        { x: w, y: h },
       ]
-    }
+    },
   },
   methods: {
     onMousedown(index, event) {
-      console.log(event)
-      this.oldNodeData= {
+      const coords = getCoords(this.container.svg, this.container.pt, event)
+      this.oldNodeData = {
         index,
-        x: event.clientX,
-        y: event.clientY,
+        x: coords.x,
+        y: coords.y,
         w: this.nodeData.bounds.w,
         h: this.nodeData.bounds.h,
         ox: this.nodeData.bounds.x,
-        oy: this.nodeData.bounds.y
+        oy: this.nodeData.bounds.y,
       }
       window.addEventListener('mousemove', this.onMousemove)
       window.addEventListener('mouseup', this.onMouseup)
     },
     onMousemove(event) {
       let width, height
-      const scale = getSVGScale(this.container.svg)
+      const coords = getCoords(this.container.svg, this.container.pt, event)
 
       if (this.oldNodeData.index < 2 || this.oldNodeData.index === 3) {
-        width = this.oldNodeData.x - event.clientX
-        height = this.oldNodeData.y - event.clientY
-        this.nodeData.bounds.x = this.oldNodeData.ox - width * scale
-        this.nodeData.bounds.y = this.oldNodeData.oy - height * scale
+        width = this.oldNodeData.x - coords.x
+        height = this.oldNodeData.y - coords.y
+        this.nodeData.bounds.x = this.oldNodeData.ox - width
+        this.nodeData.bounds.y = this.oldNodeData.oy - height
       } else if (this.oldNodeData.index === 2) {
-        width = event.clientX - this.oldNodeData.x
-        height = this.oldNodeData.y - event.clientY
-        this.nodeData.bounds.y = this.oldNodeData.oy - height * scale
+        width = coords.x - this.oldNodeData.x
+        height = this.oldNodeData.y - coords.y
+        this.nodeData.bounds.y = this.oldNodeData.oy - height
       } else if (this.oldNodeData.index === 5) {
-        width = this.oldNodeData.x - event.clientX
-        height = event.clientY - this.oldNodeData.y
-        this.nodeData.bounds.x = this.oldNodeData.ox - width * scale
+        width = this.oldNodeData.x - coords.x
+        height = coords.y - this.oldNodeData.y
+        this.nodeData.bounds.x = this.oldNodeData.ox - width
       } else {
-        width = event.clientX - this.oldNodeData.x
-        height = event.clientY - this.oldNodeData.y
+        width = coords.x - this.oldNodeData.x
+        height = coords.y - this.oldNodeData.y
       }
 
-      this.nodeData.bounds.w = this.oldNodeData.w + width * scale
-      this.nodeData.bounds.h = this.oldNodeData.h + height * scale
+      this.nodeData.bounds.w = this.oldNodeData.w + width
+      this.nodeData.bounds.h = this.oldNodeData.h + height
     },
     onMouseup(event) {
       window.removeEventListener('mousemove', this.onMousemove)
     },
-  }
+  },
 }
 </script>
 
 <style lang="scss" scoped>
 .moa-node-dots {
-  &-0:hover, &-7:hover {
+  &-0:hover,
+  &-7:hover {
     cursor: nwse-resize;
   }
 
-  &-1:hover, &-6:hover {
+  &-1:hover,
+  &-6:hover {
     cursor: ns-resize;
   }
 
-  &-2:hover, &-5:hover {
+  &-2:hover,
+  &-5:hover {
     cursor: nesw-resize;
   }
 
-  &-3:hover, &-4:hover {
+  &-3:hover,
+  &-4:hover {
     cursor: ew-resize;
   }
 }
