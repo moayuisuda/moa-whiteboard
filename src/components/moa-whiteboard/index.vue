@@ -76,7 +76,6 @@ export default {
       wbState.dragNode = undefined
     },
     onFocus(node) {
-      if (wbState.focusNodes.includes(node)) return
       if (!hotKey.MetaLeft) {
         wbState.focusNodes = [node]
       } else {

@@ -1,5 +1,11 @@
 <template>
-  <g @mousedown.stop="onMousedown" @click.stop :transform="_transform" :class="`moa-node node-${nodeData.id}`">
+  <g
+    @mousedown.stop="onMousedown"
+    @click.stop
+    :transform="_transform"
+    :class="`moa-node node-${nodeData.id}`"
+    :stroke-width="2"
+  >
     <!-- 如果是子图表，则递归渲染 -->
     <g v-if="nodeData.panelData" @wheel.stop="onWheel">
       <rect
@@ -9,7 +15,6 @@
         :height="nodeData.bounds.h"
         :fill="$color['background']"
         :stroke="$color['line']"
-        stroke-width="2"
       />
       <moa-board
         ref="childFlow"
@@ -20,7 +25,9 @@
       />
     </g>
     <!-- 如果不是子图表则直接渲染对应结点 -->
-    <component v-else :is="`moa-${nodeData.style.shape}`" :nodeData="nodeData" />
+    <g v-else>
+      <component :is="`moa-${nodeData.style.shape}`" :nodeData="nodeData" />
+    </g>
   </g>
 </template>
 
@@ -48,9 +55,8 @@ export default {
       this.$refs['childFlow'].onWheel(e)
     },
     onMousedown(e) {
-      eventBus.$emit('focus', this)
-      eventBus.$emit('drag', this)
-      this.movePoint = getCoords(this.container.svg, this.container.pt, e)
+      if(!wbState.focusNodes.includes(this)) eventBus.$emit('focus', this)
+      if(!wbState.dragNode !== this) eventBus.$emit('drag', this)
     },
     move(movement) {
       const scale = getSVGScale(this.container.svg)
