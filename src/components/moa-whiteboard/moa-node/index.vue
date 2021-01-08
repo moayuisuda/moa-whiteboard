@@ -1,13 +1,5 @@
 <template>
-  <g
-    @mousedown.stop="onMousedown"
-    @click.stop
-    :transform="_transform"
-    :style="{
-      filter: `url(#${_isFocus ? 'focus' : 'dropshadow'})`,
-    }"
-    :class="`moa-node node-${nodeData.id}`"
-  >
+  <g @mousedown.stop="onMousedown" @click.stop :transform="_transform" :class="`moa-node node-${nodeData.id}`">
     <!-- 如果是子图表，则递归渲染 -->
     <g v-if="nodeData.panelData" @wheel.stop="onWheel">
       <rect
@@ -16,7 +8,8 @@
         :width="nodeData.bounds.w"
         :height="nodeData.bounds.h"
         :fill="$color['background']"
-        stroke=""
+        :stroke="$color['line']"
+        stroke-width="2"
       />
       <moa-board
         ref="childFlow"
@@ -40,9 +33,7 @@ export default {
   name: 'moa-node',
   inject: ['container', 'root'],
   data() {
-    return {
-      isDrag: false,
-    }
+    return {}
   },
   computed: {
     _isFocus() {
@@ -59,16 +50,18 @@ export default {
     onMousedown(e) {
       eventBus.$emit('focus', this)
       eventBus.$emit('drag', this)
-      this.isDrag = true
       this.movePoint = getCoords(this.container.svg, this.container.pt, e)
     },
-    onMousemove(movement) {
-      if (this.isDrag) {
-        wbState.focusNodes.forEach((node) => (node.isDrag = true))
-        const scale = getSVGScale(this.container.svg)
-        this.nodeData.bounds.x += movement.x * scale
-        this.nodeData.bounds.y += movement.y * scale
-      }
+    move(movement) {
+      const scale = getSVGScale(this.container.svg)
+      this.nodeData.bounds.x += movement.x * scale
+      this.nodeData.bounds.y += movement.y * scale
+    },
+    // 聚焦节点跟随主拖拽节点移动，此时相当于这个拖拽节点是所有聚焦节点的controller，控制流：root-board -> dragNode -> focusNodes
+    onDrag(movement) {
+      wbState.focusNodes.forEach((node) => {
+        node.move(movement)
+      })
     },
   },
   props: {
@@ -78,14 +71,6 @@ export default {
         return {}
       },
     },
-  },
-  created() {
-    eventBus.$on('mouseup', this.releaseDrag)
-    eventBus.$on('mousemove', this.onMousemove)
-  },
-  beforeDestroy() {
-    eventBus.$off('mouseup', this.releaseDrag)
-    eventBus.$off('mousemove', this.onMousemove)
   },
 }
 </script>

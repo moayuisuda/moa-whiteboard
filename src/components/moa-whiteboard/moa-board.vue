@@ -1,37 +1,11 @@
 <template>
-  <svg class="moa-whiteboard" ref="svg" :width="width" :height="height" :viewBox="_viewBox">
-    <filter id="dropshadow" height="130%" v-if="isRoot">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="4" />
-      <!-- stdDeviation is how much to blur -->
-      <feOffset dx="0" dy="0" result="offsetblur" />
-      <!-- how much to offset -->
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.12" />
-        <!-- slope is the opacity of the shadow -->
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <!-- this contains the offset blurred image -->
-        <feMergeNode in="SourceGraphic" />
-        <!-- this contains the element that the filter is applied to -->
-      </feMerge>
-    </filter>
-    <filter id="focus" height="130%" v-if="isRoot">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="6" />
-      <!-- stdDeviation is how much to blur -->
-      <feOffset dx="0" dy="0" result="offsetblur" />
-      <!-- how much to offset -->
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.30" />
-        <!-- slope is the opacity of the shadow -->
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <!-- this contains the offset blurred image -->
-        <feMergeNode in="SourceGraphic" />
-        <!-- this contains the element that the filter is applied to -->
-      </feMerge>
-    </filter>
+  <svg
+    class="moa-whiteboard"
+    ref="svg"
+    :width="width"
+    :height="height"
+    :viewBox="_viewBox"
+  >
 
     <moa-line v-for="lineData in lines" :key="lineData.id" :lineData="lineData"></moa-line>
     <moa-node v-for="nodeData in nodes" :key="nodeData.id" :nodeData="nodeData"></moa-node>
@@ -108,8 +82,8 @@ export default {
         this.panelOps.x -= newCoords.x - oldCoords.x
         this.panelOps.y -= newCoords.y - oldCoords.y
       } else {
-        this.panelOps.x += e.deltaX
-        this.panelOps.y += e.deltaY
+        this.panelOps.x += e.deltaX / this.panelOps.zoom
+        this.panelOps.y += e.deltaY / this.panelOps.zoom
       }
     },
     initChart() {
@@ -138,13 +112,6 @@ export default {
               endNode: this.cache[endNodeId],
             })
           }
-        }
-      }
-    },
-    getInDirection(outNode, inNode) {
-      for (let direction in inNode.in) {
-        for (let nodeId of inNode.in[direction]) {
-          if (nodeId === outNode.id) return direction
         }
       }
     },

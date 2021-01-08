@@ -29,11 +29,6 @@ export default {
       default: 720,
     },
   },
-  watch: {
-    height(val) {
-      console.log(val)
-    },
-  },
   mounted() {
     this.initEvents()
   },
@@ -41,14 +36,14 @@ export default {
     initEvents() {
       const stage = this.$refs['stage']
 
-      stage.addEventListener('click', () => {
+      stage.addEventListener('click', (e) => {
         wbState.focusNodes = []
       })
       stage.addEventListener('mouseup', (e) => {
-        this.onMouseUp()
+        this.onMouseUp(e)
       })
       stage.addEventListener('mousemove', (e) => {
-        eventBus.$emit('mousemove', { x: e.movementX, y: e.movementY })
+        this.onMousemove(e)
       })
 
       window.addEventListener('keydown', (e) => {
@@ -74,8 +69,10 @@ export default {
     onDrag(node) {
       wbState.dragNode = node
     },
+    onMousemove(e) {
+      wbState.dragNode && wbState.dragNode.onDrag({ x: e.movementX, y: e.movementY })
+    },
     onMouseUp() {
-      wbState.focusNodes.forEach((node) => (node.isDrag = false))
       wbState.dragNode = undefined
     },
     onFocus(node) {
