@@ -28,11 +28,9 @@
 <script>
 import { getCoords, getSVGScale } from '@/utils/coords'
 import { eventBus, wbState } from '@/state'
-import moaScaleDots from './nodes/moa-scale-dots.vue'
 const moveThreshold = 10
 
 export default {
-  components: { moaScaleDots },
   name: 'moa-node',
   inject: ['container', 'root'],
   data() {

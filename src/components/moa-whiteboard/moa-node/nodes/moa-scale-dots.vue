@@ -78,11 +78,19 @@ export default {
       let width,
           height
 
-      if (this.oldNodeData.index < 4) {
+      if (this.oldNodeData.index < 2 || this.oldNodeData.index === 3) {
         width = this.oldNodeData.x - event.clientX
         height = this.oldNodeData.y - event.clientY
         this.nodeData.bounds.x = this.oldNodeData.ox - width
         this.nodeData.bounds.y = this.oldNodeData.oy - height
+      } else if (this.oldNodeData.index === 2) {
+        width = event.clientX - this.oldNodeData.x
+        height = this.oldNodeData.y - event.clientY
+        this.nodeData.bounds.y = this.oldNodeData.oy - height
+      } else if (this.oldNodeData.index === 5) {
+        width = this.oldNodeData.x - event.clientX
+        height = event.clientY - this.oldNodeData.y
+        this.nodeData.bounds.x = this.oldNodeData.ox - width
       } else {
         width = event.clientX - this.oldNodeData.x
         height = event.clientY - this.oldNodeData.y
