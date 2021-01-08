@@ -15,6 +15,7 @@ const eventBus = new Vue()
 const wbState = {
   focusNodes: [],
   dragNode: undefined,
+  editNode: undefined,
 }
 Vue.observable(wbState)
 

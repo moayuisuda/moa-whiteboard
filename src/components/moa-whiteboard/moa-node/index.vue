@@ -1,5 +1,5 @@
 <template>
-  <g @mousedown.stop="onMousedown" @click.stop :transform="_transform" :class="`moa-node node-${nodeData.id}`">
+  <g @mousedown.stop="onMousedown" @dblclick="onDblclick" @click.stop :transform="_transform" :class="`moa-node node-${nodeData.id}`">
     <!-- 如果是子图表，则递归渲染 -->
     <g v-if="nodeData.panelData" @wheel.stop="onWheel">
       <rect
@@ -21,15 +21,18 @@
     </g>
     <!-- 如果不是子图表则直接渲染对应结点 -->
     <component v-else :is="`moa-${nodeData.style.shape}`" :nodeData="nodeData" />
+    <moa-scale-dots :node-data="nodeData" :dots-show="_isEdit"/>
   </g>
 </template>
 
 <script>
 import { getCoords, getSVGScale } from '@/utils/coords'
 import { eventBus, wbState } from '@/state'
+import moaScaleDots from './nodes/moa-scale-dots.vue'
 const moveThreshold = 10
 
 export default {
+  components: { moaScaleDots },
   name: 'moa-node',
   inject: ['container', 'root'],
   data() {
@@ -38,6 +41,10 @@ export default {
   computed: {
     _isFocus() {
       return wbState.focusNodes.includes(this)
+    },
+    _isEdit() {
+      console.log('_isEdit',this,wbState.editNode,wbState.editNode === this)
+      return wbState.editNode == this
     },
     _transform() {
       return `translate(${this.nodeData.bounds.x}, ${this.nodeData.bounds.y})`
@@ -63,6 +70,11 @@ export default {
         node.move(movement)
       })
     },
+    // 双击进入编辑状态
+    onDblclick(e) {
+      console.log(wbState.editNode)
+      wbState.editNode = this
+    }
   },
   props: {
     nodeData: {
