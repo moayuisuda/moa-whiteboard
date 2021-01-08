@@ -28,8 +28,11 @@
 </template>
   
 <script>
+import { getSVGScale } from '@/utils/coords'
+
 export default {
   name: 'moa-scale-dots',
+  inject: ['container'],
   props: {
     nodeData: {
       type: Object,
@@ -75,29 +78,29 @@ export default {
       window.addEventListener('mouseup', this.onMouseup)
     },
     onMousemove(event) {
-      let width,
-          height
+      let width, height
+      const scale = getSVGScale(this.container.svg)
 
       if (this.oldNodeData.index < 2 || this.oldNodeData.index === 3) {
         width = this.oldNodeData.x - event.clientX
         height = this.oldNodeData.y - event.clientY
-        this.nodeData.bounds.x = this.oldNodeData.ox - width
-        this.nodeData.bounds.y = this.oldNodeData.oy - height
+        this.nodeData.bounds.x = this.oldNodeData.ox - width * scale
+        this.nodeData.bounds.y = this.oldNodeData.oy - height * scale
       } else if (this.oldNodeData.index === 2) {
         width = event.clientX - this.oldNodeData.x
         height = this.oldNodeData.y - event.clientY
-        this.nodeData.bounds.y = this.oldNodeData.oy - height
+        this.nodeData.bounds.y = this.oldNodeData.oy - height * scale
       } else if (this.oldNodeData.index === 5) {
         width = this.oldNodeData.x - event.clientX
         height = event.clientY - this.oldNodeData.y
-        this.nodeData.bounds.x = this.oldNodeData.ox - width
+        this.nodeData.bounds.x = this.oldNodeData.ox - width * scale
       } else {
         width = event.clientX - this.oldNodeData.x
         height = event.clientY - this.oldNodeData.y
       }
 
-      this.nodeData.bounds.w = this.oldNodeData.w + width
-      this.nodeData.bounds.h = this.oldNodeData.h + height
+      this.nodeData.bounds.w = this.oldNodeData.w + width * scale
+      this.nodeData.bounds.h = this.oldNodeData.h + height * scale
     },
     onMouseup(event) {
       window.removeEventListener('mousemove', this.onMousemove)
