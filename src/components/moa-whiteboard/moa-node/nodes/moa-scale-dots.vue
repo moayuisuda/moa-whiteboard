@@ -42,6 +42,13 @@ export default {
     dotsPosition() {
       let w = this.nodeData.bounds.w
       let h = this.nodeData.bounds.h
+      /*
+      0   1   2
+      |-------|
+    3 |       | 4
+      |-------|
+      5   6   7
+      */
       return [
         { x: 0, y: 0 },
         { x: w / 2, y: 0 },
