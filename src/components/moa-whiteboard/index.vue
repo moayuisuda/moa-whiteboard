@@ -38,6 +38,7 @@ export default {
 
       stage.addEventListener('click', (e) => {
         wbState.focusNodes = []
+        wbState.editNode = undefined
       })
       stage.addEventListener('mouseup', (e) => {
         this.onMouseUp(e)

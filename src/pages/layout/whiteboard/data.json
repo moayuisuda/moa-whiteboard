@@ -8,6 +8,7 @@
     {
       "id": "0",
       "text": "this is 0",
+      "type": "flow-node",
       "style": {
         "color": "#8a4af3",
         "shape": "rect",
@@ -24,6 +25,7 @@
     {
       "id": "1",
       "text": "this is 1",
+      "type": "flow-node",
       "style": {
         "shape": "rect",
         "border": "none"
@@ -38,6 +40,7 @@
           {
             "id": "1-0",
             "text": "this is 1-0",
+            "type": "flow-node",
             "style": {
               "shape": "rect",
               "border": "none"
@@ -53,6 +56,7 @@
           {
             "id": "1-1",
             "text": "this is 1-1",
+            "type": "flow-node",
             "style": {
               "shape": "rect",
               "border": "none"
@@ -68,6 +72,7 @@
           {
             "id": "1-2",
             "text": "this is 1-2",
+            "type": "flow-node",
             "style": {
               "shape": "rect",
               "border": "none"
@@ -91,6 +96,7 @@
     {
       "id": "2",
       "text": "this is 2",
+      "type": "flow-node",
       "style": {
         "shape": "rect",
         "border": "none"
@@ -105,6 +111,7 @@
     {
       "id": "3",
       "text": "this is 3",
+      "type": "flow-node",
       "style": {
         "shape": "rect",
         "border": "none"
@@ -116,6 +123,17 @@
         "h": 300
       },
       "lineTo": ["0", "2"]
+    },
+    {
+      "id": "INSPECTOR",
+      "type": "inspector",
+      "bounds": {
+        "x": 1000,
+        "y": 0,
+        "w": 300,
+        "h": 800
+      },
+      "lineTo": ["0"]
     }
   ]
 }

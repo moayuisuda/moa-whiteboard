@@ -17,10 +17,15 @@ const zoomSpeed = 0.002
 export default {
   name: 'moa-board',
   provide: function() {
-    return {
-      container: this,
-      [this.isRoot ? 'root' : 'container']: this,
-    }
+    return this.isRoot
+      ? {
+          container: this,
+          root: this,
+          panelData: this.panelData,
+        }
+      : {
+          container: this,
+        }
   },
   data() {
     return {
@@ -66,7 +71,6 @@ export default {
   },
   methods: {
     onWheel(e) {
-      e.preventDefault()
       if (hotKey.MetaLeft) {
         const oldCoords = getCoords(this.svg, this.pt, e)
         this.panelOps.zoom = this.panelOps.zoom + e.deltaY * zoomSpeed

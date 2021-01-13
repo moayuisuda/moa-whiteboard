@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
   <g
     @mousedown.stop="onMousedown"
     @click.stop
@@ -6,6 +7,9 @@
     :class="`moa-node node-${nodeData.id}`"
     :stroke-width="2"
   >
+=======
+  <g @mousedown.stop="onMousedown" @dblclick="onDblclick" @click.stop :transform="_transform" :class="`moa-node node-${nodeData.id}`">
+>>>>>>> feature/node-scale
     <!-- 如果是子图表，则递归渲染 -->
     <g v-if="nodeData.panelData" @wheel.stop="onWheel">
       <rect
@@ -25,9 +29,15 @@
       />
     </g>
     <!-- 如果不是子图表则直接渲染对应结点 -->
+<<<<<<< HEAD
     <g v-else>
       <component :is="`moa-${nodeData.style.shape}`" :nodeData="nodeData" />
     </g>
+=======
+    <component v-else :is="`moa-${nodeData.type}`" :nodeData="nodeData" />
+    <!-- 共有的样式拉伸器 -->
+    <moa-transformer :node-data="nodeData" :dots-show="_isEdit"/>
+>>>>>>> feature/node-scale
   </g>
 </template>
 
@@ -45,6 +55,10 @@ export default {
   computed: {
     _isFocus() {
       return wbState.focusNodes.includes(this)
+    },
+    _isEdit() {
+      console.log('_isEdit',this,wbState.editNode,wbState.editNode === this)
+      return wbState.editNode == this
     },
     _transform() {
       return `translate(${this.nodeData.bounds.x}, ${this.nodeData.bounds.y})`
@@ -69,6 +83,11 @@ export default {
         node.move(movement)
       })
     },
+    // 双击进入编辑状态
+    onDblclick(e) {
+      console.log(wbState.editNode)
+      wbState.editNode = this
+    }
   },
   props: {
     nodeData: {
