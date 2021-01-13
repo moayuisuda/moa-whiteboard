@@ -1,12 +1,5 @@
 <template>
-  <svg
-    class="moa-whiteboard"
-    ref="svg"
-    :width="width"
-    :height="height"
-    :viewBox="_viewBox"
-  >
-
+  <svg class="moa-whiteboard" ref="svg" :width="width" :height="height" :viewBox="_viewBox">
     <moa-line v-for="lineData in lines" :key="lineData.id" :lineData="lineData"></moa-line>
     <moa-node v-for="nodeData in nodes" :key="nodeData.id" :nodeData="nodeData"></moa-node>
   </svg>
@@ -19,10 +12,15 @@ import { getCoords } from '@/utils/coords'
 export default {
   name: 'moa-board',
   provide: function() {
-    return {
-      container: this,
-      [this.isRoot ? 'root' : 'container']: this,
-    }
+    return this.isRoot
+      ? {
+          container: this,
+          root: this,
+          panelData: this.panelData,
+        }
+      : {
+          container: this,
+        }
   },
   data() {
     return {
@@ -68,7 +66,6 @@ export default {
   },
   methods: {
     onWheel(e) {
-      e.preventDefault()
       if (hotKey.MetaLeft) {
         const oldCoords = getCoords(this.svg, this.pt, e)
         this.panelOps.zoom = this.panelOps.zoom + e.deltaY * 0.005

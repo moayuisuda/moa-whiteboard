@@ -20,8 +20,9 @@
       />
     </g>
     <!-- 如果不是子图表则直接渲染对应结点 -->
-    <component v-else :is="`moa-${nodeData.style.shape}`" :nodeData="nodeData" />
-    <moa-scale-dots :node-data="nodeData" :dots-show="_isEdit"/>
+    <component v-else :is="`moa-${nodeData.type}`" :nodeData="nodeData" />
+    <!-- 共有的样式拉伸器 -->
+    <moa-transformer :node-data="nodeData" :dots-show="_isEdit"/>
   </g>
 </template>
 

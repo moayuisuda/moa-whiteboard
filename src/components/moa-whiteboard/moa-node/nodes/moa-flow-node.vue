@@ -10,14 +10,11 @@
       :width="nodeData.bounds.w"
       :height="nodeData.bounds.h"
     />
-    <text
-      :fill="$color['text-color']"
-      text-anchor="middle"
-      dominant-baseline="middle;"
-      :x="nodeData.bounds.w / 2"
-      :y="nodeData.bounds.h / 2"
-      >{{ nodeData.text }}</text
-    >
+    <foreignObject :width="nodeData.bounds.w" :height="nodeData.bounds.h">
+      <div class="text-container">
+        <input v-model="nodeData.text" width="100%"/>
+      </div>
+    </foreignObject>
   </g>
 </template>
 
@@ -26,7 +23,7 @@ import { hexToRgb } from '@/utils/style'
 const alpha = 0.55
 
 export default {
-  name: 'moa-rect',
+  name: 'moa-flow-node',
   data() {
     return {}
   },
@@ -68,4 +65,19 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.text-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+
+  input {
+    width: 100%;
+    text-align: center;
+  }
+}
+</style>

@@ -2,18 +2,19 @@
   <g v-if="dotsShow">
     <rect :width="nodeData.bounds.w" :height="nodeData.bounds.h" fill="transparent" stroke="#808080" stroke-width="1" />
 
-    <g v-for="(item, index) in dotsPosition" :key="index" @mousedown.stop="onMousedown(index, $event)">
-      <rect
-        width="8"
-        height="8"
-        :x="item.x - 4"
-        :y="item.y - 4"
-        fill="#fff"
-        stroke="#808080"
-        stroke-width="1"
-        :class="`moa-node-dots-${index}`"
-      />
-    </g>
+    <rect
+      v-for="(item, index) in dotsPosition"
+      :key="index"
+      @mousedown.stop="onMousedown(index, $event)"
+      width="8"
+      height="8"
+      :x="item.x - 4"
+      :y="item.y - 4"
+      fill="#fff"
+      stroke="#808080"
+      stroke-width="1"
+      :class="`moa-node-dots-${index}`"
+    />
   </g>
 </template>
 
@@ -23,7 +24,7 @@ const wMin = 20
 const hMin = 20
 
 export default {
-  name: 'moa-scale-dots',
+  name: 'moa-transformer',
   inject: ['container'],
   props: {
     nodeData: {
