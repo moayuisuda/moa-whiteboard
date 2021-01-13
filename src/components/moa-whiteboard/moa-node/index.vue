@@ -1,15 +1,11 @@
 <template>
-<<<<<<< HEAD
   <g
     @mousedown.stop="onMousedown"
+    @dblclick="onDblclick"
     @click.stop
     :transform="_transform"
     :class="`moa-node node-${nodeData.id}`"
-    :stroke-width="2"
   >
-=======
-  <g @mousedown.stop="onMousedown" @dblclick="onDblclick" @click.stop :transform="_transform" :class="`moa-node node-${nodeData.id}`">
->>>>>>> feature/node-scale
     <!-- 如果是子图表，则递归渲染 -->
     <g v-if="nodeData.panelData" @wheel.stop="onWheel">
       <rect
@@ -29,15 +25,9 @@
       />
     </g>
     <!-- 如果不是子图表则直接渲染对应结点 -->
-<<<<<<< HEAD
-    <g v-else>
-      <component :is="`moa-${nodeData.style.shape}`" :nodeData="nodeData" />
-    </g>
-=======
     <component v-else :is="`moa-${nodeData.type}`" :nodeData="nodeData" />
     <!-- 共有的样式拉伸器 -->
-    <moa-transformer :node-data="nodeData" :dots-show="_isEdit"/>
->>>>>>> feature/node-scale
+    <moa-transformer :node-data="nodeData" :dots-show="_isEdit" />
   </g>
 </template>
 
@@ -57,7 +47,7 @@ export default {
       return wbState.focusNodes.includes(this)
     },
     _isEdit() {
-      console.log('_isEdit',this,wbState.editNode,wbState.editNode === this)
+      console.log('_isEdit', this, wbState.editNode, wbState.editNode === this)
       return wbState.editNode == this
     },
     _transform() {
@@ -69,8 +59,8 @@ export default {
       this.$refs['childFlow'].onWheel(e)
     },
     onMousedown(e) {
-      if(!wbState.focusNodes.includes(this)) eventBus.$emit('focus', this)
-      if(!wbState.dragNode !== this) eventBus.$emit('drag', this)
+      if (!wbState.focusNodes.includes(this)) eventBus.$emit('focus', this)
+      if (!wbState.dragNode !== this) eventBus.$emit('drag', this)
     },
     move(movement) {
       const scale = getSVGScale(this.container.svg)
@@ -87,7 +77,7 @@ export default {
     onDblclick(e) {
       console.log(wbState.editNode)
       wbState.editNode = this
-    }
+    },
   },
   props: {
     nodeData: {

@@ -2,7 +2,14 @@
   <foreignObject :width="nodeData.bounds.w" :height="nodeData.bounds.h">
     <div ref="container" class="moa-inspector-container">
       <h2>Inspector</h2>
-      <pre>{{ _panelData }}</pre>
+      <div ref="inner" class="moa-inspector-inner">
+        <pre
+          :style="{
+            transform: `translateY(${scroll}px)`,
+          }"
+          >{{ _panelData }}</pre
+        >
+      </div>
     </div>
   </foreignObject>
 </template>
@@ -15,11 +22,19 @@ export default {
   name: 'moa-inspector',
   inject: ['panelData'],
   data() {
-    return {}
+    return {
+      scroll: 0,
+    }
   },
   mounted() {
-    this.$refs['container'].addEventListener('wheel', e => {
-      e.stopPropagation();
+    const container = this.$refs['container']
+    const inner = this.$refs['inner']
+
+    container.addEventListener('wheel', (e) => {
+      e.stopPropagation()
+      console.log(e.deltaY)
+      this.scroll -= e.deltaY
+      if(this.scroll >= 0 && e.deltaY < 0) this.scroll = 0
     })
   },
   computed: {
@@ -38,8 +53,11 @@ export default {
 
 <style lang="scss" scoped>
 .moa-inspector {
+  &-inner {
+    overflow: hidden;
+  }
   &-container {
-    overflow: scroll;
+    // overflow: scroll;
     padding: 10px;
     background: white;
     width: 100%;
@@ -50,7 +68,6 @@ export default {
     h2 {
       text-align: center;
       border-bottom: 1px solid $line-color;
-      margin-bottom: 20px;
     }
   }
 }

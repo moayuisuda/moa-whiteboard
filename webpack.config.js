@@ -3,7 +3,8 @@ const { resolve, join } = require('path')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 console.log(process.env.NODE_ENV)
 module.exports = {
@@ -13,6 +14,8 @@ module.exports = {
     path: resolve(__dirname, 'dist'),
     filename: '[name].[hash].js', // 并不影响分块代码的名称
     chunkFilename: 'chunk~[name].[hash].js', // 分块代码的名称
+  },
+  externals: {
   },
   resolve: {
     alias: {
@@ -35,12 +38,12 @@ module.exports = {
         vuetify: {
           test: /[\\/]node_modules[\\/]vuetify[\\/]/, // 表示默认拆分node_modules中的模块
           priority: 20,
-          chunks: 'initial'
+          chunks: 'initial',
         },
         vendor: {
           test: /[\\/]node_modules[\\/]/, // 表示默认拆分node_modules中的模块
           priority: 10,
-          chunks: 'initial'
+          chunks: 'initial',
         },
         default: {
           // 模块缓存规则，设置为false，默认缓存组将禁用
@@ -107,9 +110,11 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './template.html',
     }),
+    new CopyWebpackPlugin([{ from: './static', to: './static' }]),
     new VueLoaderPlugin(),
     new webpack.DefinePlugin({}),
-    new MiniCssExtractPlugin({ // 相当于是output的css配置
+    new MiniCssExtractPlugin({
+      // 相当于是output的css配置
       filename: '[name].[hash].css',
       chunkFilename: 'chunk~[name].[hash].css',
     }),

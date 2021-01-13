@@ -1,7 +1,12 @@
 <template>
   <svg class="moa-whiteboard" ref="svg" :width="width" :height="height" :viewBox="_viewBox">
-    <moa-line v-for="lineData in lines" :key="lineData.id" :lineData="lineData"></moa-line>
-    <moa-node v-for="nodeData in nodes" :key="nodeData.id" :nodeData="nodeData"></moa-node>
+    <!-- <filter id="shadow" v-if="isRoot">
+      <feDropShadow dx="0.2" dy="0.4" stdDeviation="0.2"/>
+    </filter> -->
+    <!-- <g :transform="`translate(${-this.panelOps.x} ${-this.panelOps.y}) scale(${this.panelOps.zoom})`"> -->
+      <moa-line v-for="lineData in lines" :key="lineData.id" :lineData="lineData"></moa-line>
+      <moa-node v-for="nodeData in nodes" :key="nodeData.id" :nodeData="nodeData"></moa-node>
+    <!-- </g> -->
   </svg>
 </template>
 
@@ -80,12 +85,11 @@ export default {
 
         this.svg.setAttribute('viewBox', this._viewBox)
         const newCoords = getCoords(this.svg, this.pt, e)
-
         this.panelOps.x -= newCoords.x - oldCoords.x
         this.panelOps.y -= newCoords.y - oldCoords.y
       } else {
-        this.panelOps.x += e.deltaX * moveSpeed / this.panelOps.zoom
-        this.panelOps.y += e.deltaY * moveSpeed / this.panelOps.zoom
+        this.panelOps.x += (e.deltaX * moveSpeed) / this.panelOps.zoom
+        this.panelOps.y += (e.deltaY * moveSpeed) / this.panelOps.zoom
       }
     },
     initChart() {
