@@ -1,18 +1,18 @@
 <template>
   <div class="whiteboard">
-    <moa-whiteboard :panelData="panelData" :editable="editable" :width="stageBounds.w" :height="stageBounds.h">
+    <moa-whiteboard :rootData="rootData" :editable="editable" :width="stageBounds.w" :height="stageBounds.h">
     </moa-whiteboard>
   </div>
 </template>
 
 <script>
-import panelData from './data.json'
+import rootData from './data.json'
 
 export default {
   name: 'whiteboard',
   data() {
     return {
-      panelData,
+      rootData,
       editable: true,
       stageBounds: {
         w: 1080,

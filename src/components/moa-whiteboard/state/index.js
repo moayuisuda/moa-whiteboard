@@ -16,8 +16,11 @@ const wbState = {
   focusNodes: [],
   dragNode: undefined,
   editNode: undefined,
+  preAddNode: undefined,
+  cursorBoard: undefined,
 }
 Vue.observable(wbState)
+Vue.prototype.$wbState = wbState
 
 export {
   user,

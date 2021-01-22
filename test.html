@@ -1,11 +1,27 @@
 <html>
-<body>
- 
-<h1>My first SVG</h1>
- 
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="1000" height="1000">
-  <path d="M100,200 C150,200  250,300 S300,400 400,400" fill="none" stroke="black"/>
-</svg>
- 
-</body>
+  <head>
+    <style>
+      .content-editable {
+        position: relative;
+        display: block;
+        width: 100%;
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+      <div class="content-editable" contenteditable=true></div>
+  </body>
+  <script>
+    function getHeight(el) {
+      console.log(el.scrollHeight)
+    }
+    const container = document.querySelector('.content-editable')
+    container.addEventListener('input', (e) => {
+      container.innerHTML = e.target.value.replace(/\n/g, '<br>') + '<br>'
+      getHeight(container)
+    })
+
+    if('0') console.log('12')
+  </script>
 </html>

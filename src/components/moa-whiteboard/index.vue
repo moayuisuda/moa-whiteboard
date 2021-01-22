@@ -1,19 +1,22 @@
 <template>
   <div class="moa-whiteboard" ref="stage">
-    <moa-board :isRoot="true" :panelData="panelData" :editable="editable" :width="width" :height="height"> </moa-board>
-    <moa-controller--node class="moa-controller shadow"></moa-controller--node>
+    <svg :width="width" :height="height">
+      <moa-board :isRoot="true" :nodeData="rootData" :editable="editable"></moa-board>
+    </svg>
+    <moa-controller--node @pre-add-node="onPreAddNode" class="moa-controller shadow"></moa-controller--node>
     <moa-controller--output class="moa-controller shadow"></moa-controller--output>
   </div>
 </template>
 
 <script>
-import { eventBus, wbState, hotKey } from '@/state'
+import { eventBus, wbState, hotKey } from '~/state'
+import { getCoords } from '~/utils/coords'
 import Vue from 'vue'
 
 export default {
   name: 'moa-whiteboard',
   props: {
-    panelData: {
+    rootData: {
       type: Object,
     },
     editable: {
@@ -29,10 +32,45 @@ export default {
       default: 720,
     },
   },
+  watch: {
+    width: {
+      handler(val) {
+        this.rootData.bounds.w = val
+      },
+      immediate: true,
+    },
+    height: {
+      handler(val) {
+        this.rootData.bounds.h = val
+      },
+      immediate: true,
+    },
+  },
   mounted() {
     this.initEvents()
   },
   methods: {
+    onPreAddNode(type) {
+      console.log(Vue.component(`moa`))
+      // wbState.preAddNode = Vue.components[`moa-${type}`].getDefaultData()
+    },
+    onAddNode(data) {
+      rootData.push({
+        value: '',
+        type: type,
+        style: {
+          shape: 'rect',
+          border: 'none',
+          color: $color['line-color'],
+        },
+        bounds: {
+          x: 800,
+          y: 400,
+          w: 200,
+          h: 200,
+        },
+      })
+    },
     initEvents() {
       const stage = this.$refs['stage']
 
@@ -44,6 +82,11 @@ export default {
         this.onMouseUp(e)
       })
       stage.addEventListener('mousemove', (e) => {
+        if (wbState.preAddNode) {
+          const coords = getCoords(wbState.cursorBoard.svg, wbState.cursorBoard.pt, e)
+          wbState.preAddNode.bounds.x = coords.x
+          wbState.preAddNode.bounds.y = coords.y
+        }
         this.onMousemove(e)
       })
 
@@ -90,7 +133,6 @@ export default {
 <style lang="scss" scoped>
 .moa-whiteboard {
   position: relative;
-  background-color: $background-color;
 
   &__holder {
     position: absolute;

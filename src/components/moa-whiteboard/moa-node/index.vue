@@ -1,39 +1,33 @@
 <template>
   <g
     @mousedown.stop="onMousedown"
-    @dblclick="onDblclick"
+    @dblclick.stop="onDblclick"
     @click.stop
     :transform="_transform"
     :class="`moa-node node-${nodeData.id}`"
   >
-    <!-- 如果是子图表，则递归渲染 -->
-    <g v-if="nodeData.panelData" @wheel.stop="onWheel">
-      <rect
-        rx="6"
-        ry="6"
-        :width="nodeData.bounds.w"
-        :height="nodeData.bounds.h"
-        :fill="$color['background']"
-        :stroke="$color['line']"
-      />
-      <moa-board
-        ref="childFlow"
-        :isRoot="false"
-        :panelData="nodeData.panelData"
-        :width="nodeData.bounds.w"
-        :height="nodeData.bounds.h"
-      />
-    </g>
-    <!-- 如果不是子图表则直接渲染对应结点 -->
-    <component v-else :is="`moa-${nodeData.type}`" :nodeData="nodeData" />
-    <!-- 共有的样式拉伸器 -->
-    <moa-transformer :node-data="nodeData" :dots-show="_isEdit" />
+    <!-- focus样式 -->
+    <rect
+      v-if="_isFocus"
+      class="moa-node__focus-border"
+      :width="nodeData.bounds.w"
+      :height="nodeData.bounds.h"
+      fill="transparent"
+      :stroke="$color['main']"
+      :stroke-width="$style['stroke-width'] * 2"
+      :rx="$style['radius']"
+      :ry="$style['radius']"
+    />
+    <!-- 拉伸器 -->
+    <moa-transformer :node-data="nodeData" :dots-show="_isEdit"/>
+
+    <component :is="`moa-${nodeData.type}`" :nodeData="nodeData" :isEdit="_isEdit" :isFocus="_isFocus" />
   </g>
 </template>
 
 <script>
-import { getCoords, getSVGScale } from '@/utils/coords'
-import { eventBus, wbState } from '@/state'
+import { getCoords, getSVGScale } from '~/utils/coords'
+import { eventBus, wbState } from '~/state'
 const moveThreshold = 10
 
 export default {
@@ -47,7 +41,6 @@ export default {
       return wbState.focusNodes.includes(this)
     },
     _isEdit() {
-      console.log('_isEdit', this, wbState.editNode, wbState.editNode === this)
       return wbState.editNode == this
     },
     _transform() {
@@ -55,9 +48,6 @@ export default {
     },
   },
   methods: {
-    onWheel(e) {
-      this.$refs['childFlow'].onWheel(e)
-    },
     onMousedown(e) {
       if (!wbState.focusNodes.includes(this)) eventBus.$emit('focus', this)
       if (!wbState.dragNode !== this) eventBus.$emit('drag', this)
@@ -75,7 +65,6 @@ export default {
     },
     // 双击进入编辑状态
     onDblclick(e) {
-      console.log(wbState.editNode)
       wbState.editNode = this
     },
   },
@@ -92,6 +81,8 @@ export default {
 
 <style lang="scss" scoped>
 .moa-node {
-  transform: filter 0.2s;
+  &__focus-border {
+    pointer-events: none;
+  }
 }
 </style>

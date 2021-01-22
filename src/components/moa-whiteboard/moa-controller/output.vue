@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { eventBus } from '@/state'
+import { eventBus } from '~/state'
 
 export default {
   name: 'moa-controller--output',
@@ -41,7 +41,7 @@ export default {
 <style lang="scss" scoped>
 .moa-controller--output {
   background-color: white;
-  border-radius: 4px;
+  border-radius: $radius;
   &__item {
     img {
       display: block;

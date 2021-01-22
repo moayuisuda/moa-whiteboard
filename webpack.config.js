@@ -20,6 +20,7 @@ module.exports = {
   resolve: {
     alias: {
       '@': resolve('src'),
+      '~': resolve('src/components/moa-whiteboard')
     },
     extensions: ['.js', 'vue'],
   },

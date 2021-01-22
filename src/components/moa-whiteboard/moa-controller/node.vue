@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { eventBus } from '@/state'
+import { eventBus } from '~/state'
 
 export default {
   name: 'moa-controller--node',
@@ -27,7 +27,7 @@ export default {
   },
   methods: {
     add(nodeType) {
-      eventBus.$emit('add', nodeType)
+      this.$emit('pre-add-node', nodeType)
     },
   },
 }
@@ -36,7 +36,7 @@ export default {
 <style lang="scss" scoped>
 .moa-controller--node {
   background-color: white;
-  border-radius: 4px;
+  border-radius: $radius;
   &__item {
     img {
       display: block;

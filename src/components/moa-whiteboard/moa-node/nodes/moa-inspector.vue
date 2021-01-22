@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { hexToRgb } from '@/utils/style'
+import { hexToRgb } from '~/utils/style'
 const alpha = 0.55
 
 export default {
@@ -32,9 +32,8 @@ export default {
 
     container.addEventListener('wheel', (e) => {
       e.stopPropagation()
-      console.log(e.deltaY)
-      this.scroll -= e.deltaY
-      if(this.scroll >= 0 && e.deltaY < 0) this.scroll = 0
+      // this.scroll -= e.deltaY
+      // if(this.scroll >= 0 && e.deltaY < 0) this.scroll = 0
     })
   },
   computed: {
@@ -57,13 +56,12 @@ export default {
     overflow: hidden;
   }
   &-container {
-    // overflow: scroll;
+    overflow: scroll;
     padding: 10px;
     background: white;
     width: 100%;
     height: 100%;
-    border-radius: 4px;
-    border: 2px solid $line-color;
+    border-radius: 8px;
     font-size: 10px;
     h2 {
       text-align: center;

@@ -2,14 +2,26 @@ text {
   cursor: default;
 }
 
+foreignObject {
+  overflow: visible;
+}
+
 .shadow {
   box-shadow: 0 0 4px 0px rgba(0, 0, 0, .3);  
+}
+
+.shadow--inner {
+  box-shadow: 0 0 3px 0px rgba(0, 0, 0, .2);  
 }
 
 .center {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.separator {
+  margin: 0 10px;
 }
 
 @keyframes to {
@@ -35,6 +47,7 @@ text {
 body {
   box-sizing: border-box;
   overflow: hidden;
+  color: $text-color;
 }
 
 html {

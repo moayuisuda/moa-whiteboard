@@ -1,18 +1,26 @@
 <template>
-  <svg class="moa-whiteboard" ref="svg" :width="width" :height="height" :viewBox="_viewBox">
-    <!-- <filter id="shadow" v-if="isRoot">
-      <feDropShadow dx="0.2" dy="0.4" stdDeviation="0.2"/>
-    </filter> -->
-    <!-- <g :transform="`translate(${-this.panelOps.x} ${-this.panelOps.y}) scale(${this.panelOps.zoom})`"> -->
+  <g @wheel.stop="onWheel" @mousemove.capture="onMousemove">
+    <!-- 边框样式 -->
+    <rect
+      :rx="$style['radius']"
+      :ry="$style['radius']"
+      :width="nodeData.bounds.w"
+      :height="nodeData.bounds.h"
+      :fill="$color['background']"
+      :stroke="_stroke"
+      :stroke-width="$style['stroke-width']"
+    />
+    <svg class="moa-whiteboard" ref="svg" :width="bounds.w" :height="bounds.h" :viewBox="_viewBox">
       <moa-line v-for="lineData in lines" :key="lineData.id" :lineData="lineData"></moa-line>
       <moa-node v-for="nodeData in nodes" :key="nodeData.id" :nodeData="nodeData"></moa-node>
-    <!-- </g> -->
-  </svg>
+      <moa-node v-if="$wbState.cursorBoard === this && $wbState.preAddNode" :nodeData="$wbState.preAddNode"></moa-node>
+    </svg>
+  </g>
 </template>
 
 <script>
-import { eventBus, hotKey, wbState } from '@/state'
-import { getCoords } from '@/utils/coords'
+import { eventBus, hotKey, wbState } from '~/state'
+import { getCoords } from '~/utils/coords'
 
 const zoomMin = 0.3
 const zoomMax = 4
@@ -34,7 +42,9 @@ export default {
   },
   data() {
     return {
-      panelOps: this.panelData.panelOps,
+      panelData: this.nodeData.panelData,
+      panelOps: this.nodeData.panelData.panelOps,
+      bounds: this.nodeData.bounds,
       nodes: [],
       lines: [],
       onCmd: false,
@@ -49,32 +59,47 @@ export default {
     this.initChart()
   },
   computed: {
+    _stroke() {
+      return this.isRoot ? 'none' : this.$color['line']
+    },
     _viewBox() {
-      return `${this.panelOps.x} ${this.panelOps.y} ${this.width / this.panelOps.zoom} ${this.height /
+      return `${this.panelOps.x} ${this.panelOps.y} ${this.bounds.w / this.panelOps.zoom} ${this.bounds.h /
         this.panelOps.zoom}`
     },
   },
   props: {
     isRoot: {
       type: Boolean,
-      default: true,
+      default: false,
     },
-    panelData: {
+    nodeData: {
       type: Object,
       default() {
         return {}
       },
     },
-    width: {
-      type: Number,
-      default: 1080,
-    },
-    height: {
-      type: Number,
-      default: 720,
-    },
   },
   methods: {
+    getDefaultData() {
+      return {
+        type: 'board',
+        bounds: {
+          x: 0,
+          y: 0,
+          w: 200,
+          h: 200,
+        },
+        chartData: [],
+        panelData: {
+          zoom: 1,
+          x: 0,
+          y: 0,
+        },
+      }
+    },
+    onMousemove() {
+      wbState.cursorBoard = this
+    },
     onWheel(e) {
       if (hotKey.MetaLeft) {
         const oldCoords = getCoords(this.svg, this.pt, e)

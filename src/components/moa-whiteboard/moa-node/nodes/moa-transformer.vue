@@ -1,25 +1,33 @@
 <template>
   <g v-if="dotsShow">
-    <rect :width="nodeData.bounds.w" :height="nodeData.bounds.h" fill="transparent" stroke="#808080" stroke-width="1" />
-
+    <rect
+      class="moa-transformer-border"
+      :width="nodeData.bounds.w"
+      :height="nodeData.bounds.h"
+      fill="transparent"
+      :stroke="$color['main']"
+      :stroke-width="$style['stroke-width'] * 2"
+    />
     <rect
       v-for="(item, index) in dotsPosition"
       :key="index"
-      @mousedown.stop="onMousedown(index, $event)"
-      width="8"
-      height="8"
-      :x="item.x - 4"
-      :y="item.y - 4"
-      fill="#fff"
-      stroke="#808080"
+      rx="2"
+      ry="2"
+      :stroke="$color['line']"
       stroke-width="1"
-      :class="`moa-node-dots-${index}`"
+      @mousedown.stop="onMousedown(index, $event)"
+      :width="dotSize"
+      :height="dotSize"
+      :x="item.x - dotSize / 2"
+      :y="item.y - dotSize / 2"
+      fill="white"
+      :class="`moa-transformer-dots-${index} moa-transformer-dot`"
     />
   </g>
 </template>
 
 <script>
-import { getCoords } from '@/utils/coords'
+import { getCoords } from '~/utils/coords'
 const wMin = 20
 const hMin = 20
 
@@ -37,6 +45,7 @@ export default {
   data() {
     return {
       oldNodeData: {},
+      dotSize: 10,
     }
   },
   computed: {
@@ -101,6 +110,7 @@ export default {
 
       this.nodeData.bounds.w = this.oldNodeData.w + width
       this.nodeData.bounds.h = this.oldNodeData.h + height
+      this.$emit('size-change'), { w: this.nodeData.bounds.w,  h: this.nodeData.bounds.h }
     },
     onMouseup(event) {
       window.removeEventListener('mousemove', this.onMousemove)
@@ -110,25 +120,30 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.moa-node-dots {
-  &-0:hover,
-  &-7:hover {
-    cursor: nwse-resize;
+.moa-transformer {
+  &-border {
+    pointer-events: none;
   }
+  &-dots {
+    &-0:hover,
+    &-7:hover {
+      cursor: nwse-resize;
+    }
 
-  &-1:hover,
-  &-6:hover {
-    cursor: ns-resize;
-  }
+    &-1:hover,
+    &-6:hover {
+      cursor: ns-resize;
+    }
 
-  &-2:hover,
-  &-5:hover {
-    cursor: nesw-resize;
-  }
+    &-2:hover,
+    &-5:hover {
+      cursor: nesw-resize;
+    }
 
-  &-3:hover,
-  &-4:hover {
-    cursor: ew-resize;
+    &-3:hover,
+    &-4:hover {
+      cursor: ew-resize;
+    }
   }
 }
 </style>
