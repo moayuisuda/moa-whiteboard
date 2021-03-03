@@ -2,7 +2,7 @@
   <foreignObject>
     <div ref="container" :class="['text-container', { 'text-container--edit': isEdit }]">
       <div class="moa-input">
-        <ul v-if="isFocus" class="moa-input__bar shadow--inner">
+        <ul v-if="isEdit" class="moa-input__bar shadow--inner">
           <li
             @mousedown.prevent="onSizeChange(i)"
             :class="{
@@ -101,6 +101,8 @@ export default {
       handler(val) {
         if (val) {
           this.$refs['textarea'].focus()
+        } else {
+          this.$refs['textarea'].blur()
         }
       },
     },

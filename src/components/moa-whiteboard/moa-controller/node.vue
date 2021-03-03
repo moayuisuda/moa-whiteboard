@@ -13,7 +13,7 @@ export default {
   name: 'moa-controller--node',
   data() {
     return {
-      nodes: ['rect', 'pic', 'child'],
+      nodes: ['basic', 'board'],
     }
   },
   computed: {},

@@ -1,9 +1,22 @@
 <template>
-  <div class="moa-whiteboard" ref="stage">
-    <svg :width="width" :height="height">
-      <moa-board :isRoot="true" :nodeData="rootData" :editable="editable"></moa-board>
+  <div
+    class="moa-whiteboard"
+  >
+    <svg
+      ref="stage"
+      :width="width"
+      :height="height"
+    >
+      <moa-board
+        :isRoot="true"
+        :nodeData="rootData"
+        :editable="editable"
+      ></moa-board>
     </svg>
-    <moa-controller--node @pre-add-node="onPreAddNode" class="moa-controller shadow"></moa-controller--node>
+    <moa-controller--node
+      @pre-add-node="onPreAddNode"
+      class="moa-controller shadow"
+    ></moa-controller--node>
     <moa-controller--output class="moa-controller shadow"></moa-controller--output>
   </div>
 </template>
@@ -11,6 +24,7 @@
 <script>
 import { eventBus, wbState, hotKey } from '~/state'
 import { getCoords } from '~/utils/coords'
+import { v4 as uuidv4 } from 'uuid';
 import Vue from 'vue'
 
 export default {
@@ -51,8 +65,10 @@ export default {
   },
   methods: {
     onPreAddNode(type) {
-      console.log(Vue.component(`moa`))
-      // wbState.preAddNode = Vue.components[`moa-${type}`].getDefaultData()
+      const preAddNode = Vue.$defaultData[`moa-${type}`]()
+      preAddNode.id = uuidv4()
+
+      wbState.preAddNode = preAddNode
     },
     onAddNode(data) {
       rootData.push({
@@ -75,8 +91,14 @@ export default {
       const stage = this.$refs['stage']
 
       stage.addEventListener('click', (e) => {
+        if (wbState.preAddNode) {
+          wbState.cursorBoard.nodes.push(wbState.preAddNode)
+          wbState.preAddNode = undefined
+          return
+        }
         wbState.focusNodes = []
         wbState.editNode = undefined
+        wbState.focusLine = undefined
       })
       stage.addEventListener('mouseup', (e) => {
         this.onMouseUp(e)
@@ -84,8 +106,8 @@ export default {
       stage.addEventListener('mousemove', (e) => {
         if (wbState.preAddNode) {
           const coords = getCoords(wbState.cursorBoard.svg, wbState.cursorBoard.pt, e)
-          wbState.preAddNode.bounds.x = coords.x
-          wbState.preAddNode.bounds.y = coords.y
+          wbState.preAddNode.bounds.x = coords.x + 10
+          wbState.preAddNode.bounds.y = coords.y + 10
         }
         this.onMousemove(e)
       })
@@ -102,29 +124,12 @@ export default {
             hotKey.MetaLeft = false
         }
       })
-
-      eventBus.$on('add', (type) => this.onAdd(type))
-      eventBus.$on('focus', (node) => this.onFocus(node))
-      eventBus.$on('drag', (node) => this.onDrag(node))
-    },
-    onAdd(type) {
-      console.log('onAdd', type)
-    },
-    onDrag(node) {
-      wbState.dragNode = node
     },
     onMousemove(e) {
       wbState.dragNode && wbState.dragNode.onDrag({ x: e.movementX, y: e.movementY })
     },
     onMouseUp() {
       wbState.dragNode = undefined
-    },
-    onFocus(node) {
-      if (!hotKey.MetaLeft) {
-        wbState.focusNodes = [node]
-      } else {
-        wbState.focusNodes.push(node)
-      }
     },
   },
 }

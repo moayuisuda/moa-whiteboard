@@ -6,7 +6,6 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
-console.log(process.env.NODE_ENV)
 module.exports = {
   stats: process.env.NODE_ENV === 'development' ? 'errors-only' : 'normal',
   entry: './src/main.js',

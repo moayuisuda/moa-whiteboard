@@ -1,5 +1,8 @@
 <template>
-  <g @wheel.stop="onWheel" @mousemove.capture="onMousemove">
+  <g
+    @wheel.stop="onWheel"
+    @mouseover.stop="onMouseEnter"
+  >
     <!-- 边框样式 -->
     <rect
       :rx="$style['radius']"
@@ -10,10 +13,27 @@
       :stroke="_stroke"
       :stroke-width="$style['stroke-width']"
     />
-    <svg class="moa-whiteboard" ref="svg" :width="bounds.w" :height="bounds.h" :viewBox="_viewBox">
-      <moa-line v-for="lineData in lines" :key="lineData.id" :lineData="lineData"></moa-line>
-      <moa-node v-for="nodeData in nodes" :key="nodeData.id" :nodeData="nodeData"></moa-node>
-      <moa-node v-if="$wbState.cursorBoard === this && $wbState.preAddNode" :nodeData="$wbState.preAddNode"></moa-node>
+    <svg
+      class="moa-whiteboard"
+      ref="svg"
+      :width="bounds.w"
+      :height="bounds.h"
+      :viewBox="_viewBox"
+    >
+      <moa-line
+        v-for="lineData in lines"
+        :key="lineData.id"
+        :lineData="lineData"
+      ></moa-line>
+      <moa-node
+        v-for="nodeData in nodes"
+        :key="nodeData.id"
+        :nodeData="nodeData"
+      ></moa-node>
+      <moa-node
+        v-if="_isShowPreAddNode"
+        :nodeData="$wbState.preAddNode"
+      ></moa-node>
     </svg>
   </g>
 </template>
@@ -34,10 +54,10 @@ export default {
       ? {
           container: this,
           root: this,
-          panelData: this.panelData,
+          panelData: this.panelData
         }
       : {
-          container: this,
+          container: this
         }
   },
   data() {
@@ -50,8 +70,8 @@ export default {
       onCmd: false,
       cache: {
         nodes: [],
-        lines: [],
-      },
+        lines: []
+      }
     }
   },
   mounted() {
@@ -59,45 +79,50 @@ export default {
     this.initChart()
   },
   computed: {
+    _isShowPreAddNode() {
+      return wbState.preAddNode && wbState.cursorBoard === this
+    },
     _stroke() {
       return this.isRoot ? 'none' : this.$color['line']
     },
     _viewBox() {
-      return `${this.panelOps.x} ${this.panelOps.y} ${this.bounds.w / this.panelOps.zoom} ${this.bounds.h /
-        this.panelOps.zoom}`
-    },
+      return `${this.panelOps.x} ${this.panelOps.y} ${this.bounds.w /
+        this.panelOps.zoom} ${this.bounds.h / this.panelOps.zoom}`
+    }
   },
   props: {
     isRoot: {
       type: Boolean,
-      default: false,
+      default: false
     },
     nodeData: {
       type: Object,
       default() {
         return {}
-      },
-    },
+      }
+    }
   },
   methods: {
     getDefaultData() {
       return {
         type: 'board',
+        panelData: {
+          panelOps: {
+            zoom: 0.5,
+            x: 0,
+            y: 0
+          },
+          chartData: []
+        },
         bounds: {
           x: 0,
           y: 0,
-          w: 200,
-          h: 200,
-        },
-        chartData: [],
-        panelData: {
-          zoom: 1,
-          x: 0,
-          y: 0,
-        },
+          w: 400,
+          h: 400
+        }
       }
     },
-    onMousemove() {
+    onMouseEnter() {
       wbState.cursorBoard = this
     },
     onWheel(e) {
@@ -129,24 +154,25 @@ export default {
       const { chartData } = this.panelData
 
       for (let node of chartData) {
-        if (this.cache[node.id]) throw `[moa-whiteboard] The node's id in a flow must be unique.`
+        if (this.cache[node.id])
+          throw `[moa-whiteboard] The node's id in a flow must be unique.`
         this.cache[node.id] = node
       }
 
       this.nodes = chartData
 
-      for (let startNode of chartData) {
-        if (startNode.lineTo) {
-          for (let endNodeId of startNode.lineTo) {
+      for (let startNodeData of chartData) {
+        if (startNodeData.lineTo) {
+          for (let endNodeDataId of startNodeData.lineTo) {
             this.lines.push({
-              startNode,
-              endNode: this.cache[endNodeId],
+              startNodeData,
+              endNodeData: this.cache[endNodeDataId]
             })
           }
         }
       }
-    },
-  },
+    }
+  }
 }
 </script>
 

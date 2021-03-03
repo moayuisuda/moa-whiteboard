@@ -4,7 +4,7 @@
       :fill="_fill"
       :stroke="_stroke"
       stroke-dasharray="10 10"
-      stroke-width="3"
+      stroke-width="2"
       :rx="$style['radius']"
       :ry="$style['radius']"
       :width="nodeData.bounds.w"
@@ -36,8 +36,8 @@ export default {
     return {
       text: {
         align: 'center',
-        size: 'M',
-      },
+        size: 'M'
+      }
     }
   },
   mounted() {},
@@ -48,16 +48,15 @@ export default {
         type: 'basic',
         style: {
           align: 'center',
-          color: '#fff',
           shape: 'rect',
-          border: 'none',
+          border: 'none'
         },
         bounds: {
           x: 0,
           y: 0,
-          w: 100,
-          h: 100,
-        },
+          w: 150,
+          h: 150
+        }
       }
     },
     onCompositionend(e) {},
@@ -78,7 +77,7 @@ export default {
     onSizeChange(size) {
       this.text.size = size
       this.recaculateHeight()
-    },
+    }
   },
   computed: {
     _fill() {
@@ -89,7 +88,8 @@ export default {
         return _styleColor
       } else {
         const rgb = hexToRgb(_styleColor)
-        return `rgb(${(1 - alpha) * 255 + rgb.r}, ${(1 - alpha) * 255 + rgb.g}, ${(1 - alpha) * 255 + rgb.b})`
+        return `rgb(${(1 - alpha) * 255 + rgb.r}, ${(1 - alpha) * 255 +
+          rgb.g}, ${(1 - alpha) * 255 + rgb.b})`
       }
     },
     _stroke() {
@@ -105,7 +105,7 @@ export default {
     },
     _styleColor() {
       return this.nodeData.style.color || '#ffffff'
-    },
+    }
   },
   props: {
     isFocus: Boolean,
@@ -114,9 +114,9 @@ export default {
       type: Object,
       default() {
         return {}
-      },
-    },
-  },
+      }
+    }
+  }
 }
 </script>
 

@@ -35,8 +35,8 @@
         "type": "board",
         "panelData": {
           "panelOps": {
-            "zoom": 1,
-            "x": 0,
+            "zoom": 0.5,
+            "x": -100,
             "y": 0
           },
           "chartData": [

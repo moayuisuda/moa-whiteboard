@@ -1,12 +1,12 @@
 <template>
-  <g v-if="dotsShow">
+  <g class="moa-transformer" v-if="dotsShow">
     <rect
       class="moa-transformer-border"
       :width="nodeData.bounds.w"
       :height="nodeData.bounds.h"
       fill="transparent"
       :stroke="$color['main']"
-      :stroke-width="$style['stroke-width'] * 2"
+      :stroke-width="$style['stroke-width']"
     />
     <rect
       v-for="(item, index) in dotsPosition"

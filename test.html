@@ -1,27 +1,25 @@
 <html>
   <head>
     <style>
-      .content-editable {
-        position: relative;
-        display: block;
-        width: 100%;
-        border: 1px solid black;
+      .outter {
+
+        pointer-events: none;
+      }
+      .inner {
+        height: 100px;
+        background-color: antiquewhite;
       }
     </style>
   </head>
   <body>
-      <div class="content-editable" contenteditable=true></div>
+      <div class="outter">
+        <div class="inner"></div>
+      </div>
   </body>
   <script>
-    function getHeight(el) {
-      console.log(el.scrollHeight)
-    }
-    const container = document.querySelector('.content-editable')
-    container.addEventListener('input', (e) => {
-      container.innerHTML = e.target.value.replace(/\n/g, '<br>') + '<br>'
-      getHeight(container)
-    })
-
-    if('0') console.log('12')
+const outter = document.querySelector('.outter')
+outter.addEventListener('click', e => {
+  console.log('asdsa')
+})
   </script>
 </html>
