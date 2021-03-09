@@ -16,8 +16,8 @@
     <svg
       class="moa-whiteboard"
       ref="svg"
-      :width="bounds.w"
-      :height="bounds.h"
+      :width="nodeData.bounds.w"
+      :height="nodeData.bounds.h"
       :viewBox="_viewBox"
     >
       <moa-line
@@ -53,8 +53,7 @@ export default {
     return this.isRoot
       ? {
           container: this,
-          root: this,
-          panelData: this.panelData
+          root: this
         }
       : {
           container: this
@@ -62,9 +61,6 @@ export default {
   },
   data() {
     return {
-      panelData: this.nodeData.panelData,
-      panelOps: this.nodeData.panelData.panelOps,
-      bounds: this.nodeData.bounds,
       nodes: [],
       lines: [],
       onCmd: false,
@@ -75,8 +71,14 @@ export default {
     }
   },
   mounted() {
-    this.parseData()
+    this.parseLines()
     this.initChart()
+  },
+  watch: {
+    nodeData() {
+      this.cache = {}
+      this.parseLines()
+    }
   },
   computed: {
     _isShowPreAddNode() {
@@ -86,8 +88,10 @@ export default {
       return this.isRoot ? 'none' : this.$color['line']
     },
     _viewBox() {
-      return `${this.panelOps.x} ${this.panelOps.y} ${this.bounds.w /
-        this.panelOps.zoom} ${this.bounds.h / this.panelOps.zoom}`
+      return `${this.nodeData.panelData.panelOps.x} ${
+        this.nodeData.panelData.panelOps.y
+      } ${this.nodeData.bounds.w / this.nodeData.panelData.panelOps.zoom} ${this
+        .nodeData.bounds.h / this.nodeData.panelData.panelOps.zoom}`
     }
   },
   props: {
@@ -128,18 +132,23 @@ export default {
     onWheel(e) {
       if (hotKey.MetaLeft) {
         const oldCoords = getCoords(this.svg, this.pt, e)
-        this.panelOps.zoom = this.panelOps.zoom + e.deltaY * zoomSpeed
+        this.nodeData.panelData.panelOps.zoom =
+          this.nodeData.panelData.panelOps.zoom + e.deltaY * zoomSpeed
 
-        if (this.panelOps.zoom <= zoomMin) this.panelOps.zoom = zoomMin
-        if (this.panelOps.zoom >= zoomMax) this.panelOps.zoom = zoomMax
+        if (this.nodeData.panelData.panelOps.zoom <= zoomMin)
+          this.nodeData.panelData.panelOps.zoom = zoomMin
+        if (this.nodeData.panelData.panelOps.zoom >= zoomMax)
+          this.nodeData.panelData.panelOps.zoom = zoomMax
 
         this.svg.setAttribute('viewBox', this._viewBox)
         const newCoords = getCoords(this.svg, this.pt, e)
-        this.panelOps.x -= newCoords.x - oldCoords.x
-        this.panelOps.y -= newCoords.y - oldCoords.y
+        this.nodeData.panelData.panelOps.x -= newCoords.x - oldCoords.x
+        this.nodeData.panelData.panelOps.y -= newCoords.y - oldCoords.y
       } else {
-        this.panelOps.x += (e.deltaX * moveSpeed) / this.panelOps.zoom
-        this.panelOps.y += (e.deltaY * moveSpeed) / this.panelOps.zoom
+        this.nodeData.panelData.panelOps.x +=
+          (e.deltaX * moveSpeed) / this.nodeData.panelData.panelOps.zoom
+        this.nodeData.panelData.panelOps.y +=
+          (e.deltaY * moveSpeed) / this.nodeData.panelData.panelOps.zoom
       }
     },
     initChart() {
@@ -150,12 +159,13 @@ export default {
         this.svg.addEventListener('wheel', this.onWheel)
       }
     },
-    parseData() {
-      const { chartData } = this.panelData
+    parseLines() {
+      const { chartData } = this.nodeData.panelData
 
       for (let node of chartData) {
-        if (this.cache[node.id])
+        if (this.cache[node.id]) {
           throw `[moa-whiteboard] The node's id in a flow must be unique.`
+        }
         this.cache[node.id] = node
       }
 

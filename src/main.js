@@ -6,7 +6,9 @@ import router from './router'
 import 'vuetify/dist/vuetify.min.css'
 import './theme/base.scss'
 import color from './theme/variable'
+import { user } from './state'
 
+Vue.prototype.$user = user
 Vue.use(moaWhiteboard)
 Vue.use(color)
 

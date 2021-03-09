@@ -15,12 +15,9 @@
 </template>
 
 <script>
-import { hexToRgb } from '~/utils/style'
-const alpha = 0.55
-
 export default {
   name: 'moa-inspector',
-  inject: ['panelData'],
+  inject: ['container'],
   data() {
     return {
       scroll: 0,
@@ -38,7 +35,7 @@ export default {
   },
   computed: {
     _panelData() {
-      return JSON.stringify(this.panelData, null, 2)
+      return JSON.stringify(this.container.nodeData.panelData, null, 2)
     },
   },
   props: {
