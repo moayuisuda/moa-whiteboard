@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { eventBus, hotKey, wbState } from '~/state'
+import { hotKey, wbState } from '~/state'
 import { getCoords } from '~/utils/coords'
 
 const zoomMin = 0.3
@@ -77,6 +77,7 @@ export default {
   watch: {
     nodeData() {
       this.cache = {}
+      this.lines = []
       this.parseLines()
     }
   },

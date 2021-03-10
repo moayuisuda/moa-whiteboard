@@ -1,14 +1,16 @@
 <template>
   <ul class="moa-bar center">
-    <login-panel v-if="ifShowLogin" @loginSuccess="onLoginSuccess"></login-panel>
     <li class="moa-bar__item">
-      <h2 v-if="$user.name">{{ $user.name }}</h2>
-      <v-btn
-        @click="login"
-        v-else
-      >
+      <div v-if="$user.name">
+        <h3>{{ $user.name }}</h3>
+        <button @click="logout">logout</button>
+      </div>
+
+      <div v-else>
         Login
-      </v-btn>
+        <login-panel @loginSuccess="onLoginSuccess"></login-panel>
+      </div>
+
     </li>
     <li
       @click="share()"
@@ -27,14 +29,12 @@ export default {
     loginPanel
   },
   data() {
-    return {
-      ifShowLogin: false
-    }
+    return {}
   },
   computed: {},
   methods: {
-    login() {
-      this.ifShowLogin = true
+    logout() {
+      this.$emit('logout')
     },
     onLoginSuccess(userInfo) {
       this.$emit('login', userInfo)

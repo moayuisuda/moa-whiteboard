@@ -162,7 +162,7 @@ export default {
     position: absolute;
     background: #fff;
     padding: 4px 4px;
-    top: -35px;
+    top: -55px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -204,6 +204,7 @@ export default {
   width: 100%;
 }
 .field-textarea {
+  border: none;
   position: absolute;
   top: 0;
   left: 0;

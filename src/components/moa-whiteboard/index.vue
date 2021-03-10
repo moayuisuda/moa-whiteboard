@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { eventBus, wbState, hotKey, reset } from '~/state'
+import { wbState, hotKey, reset } from '~/state'
 import { getCoords } from '~/utils/coords'
 import { v4 as uuidv4 } from 'uuid'
 import Vue from 'vue'
@@ -50,6 +50,7 @@ export default {
           w: this.width,
           h: this.height
         }
+        Vue.observable(this.rootData.bounds)
         reset()
       },
       immediate: true
