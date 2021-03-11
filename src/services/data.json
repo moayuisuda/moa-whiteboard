@@ -1,5 +1,9 @@
 {
-  "id": "root-100",
+  "id": "PROJECT_0",
+  "auth": {
+    "creator": "USER_ID_1",
+    "edit": "USER_ID_1"
+  },
   "panelData": {
     "panelOps": {
       "zoom": 1,

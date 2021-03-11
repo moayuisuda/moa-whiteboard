@@ -1,5 +1,5 @@
 <template>
-  <form ref="form">
+  <div ref="form">
     <input
       v-model="form.email"
       placeholder="Email"
@@ -12,7 +12,7 @@
     <button @click="submit">
       Submit
     </button>
-  </form>
+  </div>
 </template>
 
 <script>

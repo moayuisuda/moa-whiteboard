@@ -1,28 +1,30 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+import Vue from "vue";
+import VueRouter from "vue-router";
+import whiteboard from "@/pages/layout/whiteboard/index.vue";
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
-const contextRoutes = []
-const context = require.context('./pages', true, /index.vue$/)
-context.keys().forEach(key => {
-  const path = key.replace(/\/index.vue$/, '').replace(/\./, '')
-  const component = context(key).default
+// const contextRoutes = []
+// const context = require.context('./pages', true, /index.vue$/)
+// context.keys().forEach(key => {
+//   const path = key.replace(/\/index.vue$/, '').replace(/\./, '')
+//   const component = context(key).default
 
-  contextRoutes.push({
-    path,
-    component,
-    name: component.name
-  })
-})
+//   contextRoutes.push({
+//     path,
+//     component,
+//     name: component.name
+//   })
+// })
 
 const routes = [
-  { path: '/', redirect: '/layout/whiteboard' },
-  ...contextRoutes
-]
+  // ...contextRoutes,
+  { path: "/", redirect: "/layout/whiteboard/temp" },
+  { path: "/layout/whiteboard/:id", component: whiteboard },
+];
 
 const router = new VueRouter({
   routes,
-})
+});
 
-export default router
+export default router;

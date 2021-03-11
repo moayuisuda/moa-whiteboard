@@ -1,5 +1,9 @@
 {
-  "id": "root-0",
+  "id": "PROJECT_INIT",
+  "auth": {
+    "creator": "*",
+    "edit": "*"
+  },
   "panelData": {
     "panelOps": {
       "zoom": 1,

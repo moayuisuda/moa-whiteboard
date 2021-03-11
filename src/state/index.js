@@ -2,7 +2,8 @@ import Vue from 'vue'
 
 const user = {
   token: '',
-  name: ''
+  name: '',
+  uuid: ''
 }
 
 Vue.observable(user)
