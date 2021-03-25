@@ -89,7 +89,6 @@ export default {
   },
   methods: {
     onFocus() {
-      console.log('in')
       wbState.focusLine = this
     },
     onDelete() {

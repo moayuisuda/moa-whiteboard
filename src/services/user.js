@@ -1,23 +1,23 @@
 import { api } from "@/utils/mock";
 
 export const getUserInfo = async () => {
-  const info = await api({
-    name: "An",
-    token: "TEST_TOKEN",
-    last_modified_project: "PROJECT_0",
-    uuid: 'USER_ID_0'
-  });
-  return info;
+  const res = await api.get('/user/info');
+  return res.data;
 };
 
-export const login = async () => {
-  const info = await api({
-    name: "An",
-    token: "TEST_TOKEN",
-    last_modified_project: "PROJECT_0",
-    uuid: 'USER_ID_0',
-    visitorData: {}
+export const login = async (email, password, visitorData) => {
+  const res = await api.post('/user/login', {
+    email,
+    password,
+    visitorData
   });
-  return info;
+  return res.data;
+};
+
+export const updateLastEditProjct = async (projectId) => {
+  const res = await api.put('/user/last-edit-project', {
+    projectId
+  });
+  return res.data;
 };
 

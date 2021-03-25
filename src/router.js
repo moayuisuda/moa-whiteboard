@@ -19,7 +19,7 @@ Vue.use(VueRouter);
 
 const routes = [
   // ...contextRoutes,
-  { path: "/", redirect: "/layout/whiteboard/temp" },
+  { path: "/", redirect: "/layout/whiteboard/INIT" },
   { path: "/layout/whiteboard/:id", component: whiteboard },
 ];
 

@@ -1,19 +1,30 @@
 <template>
   <ul class="moa-bar center">
+    {{ $user.email + editable }}
     <li class="moa-bar__item">
-      <div v-if="$user.name">
-        <h3>{{ $user.name }}</h3>
+      <div v-if="$user.email">
+        <h3>{{ $user.email }}</h3>
         <button @click="logout">logout</button>
       </div>
 
       <div v-else>
         Login
-        <login-panel @loginSuccess="onLoginSuccess"></login-panel>
+        <login-panel @login="onLogin"></login-panel>
       </div>
 
     </li>
+
     <li
-      @click="share()"
+      v-if="$user.email && editable"
+      @click="save"
+      class="moa-bar__item"
+    >
+      <img src="@/assets/save.svg" />
+    </li>
+
+    <li
+      v-if="$user.email && editable"
+      @click="share"
       class="moa-bar__item"
     >
       <img src="@/assets/share.svg" />
@@ -31,15 +42,25 @@ export default {
   data() {
     return {}
   },
+  props: {
+    editable: {
+      type: Boolean
+    }
+  },
   computed: {},
   methods: {
     logout() {
       this.$emit('logout')
     },
-    onLoginSuccess(userInfo) {
+    onLogin(userInfo) {
       this.$emit('login', userInfo)
     },
-    share() {}
+    share() {
+      this.$emit('share')
+    },
+    save() {
+      this.$emit('save')
+    }
   }
 }
 </script>
@@ -51,6 +72,7 @@ export default {
   &__item {
     img {
       display: block;
+      width: 36px
     }
     padding: 10px;
     &:hover {

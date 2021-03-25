@@ -15,14 +15,16 @@
         :key="project.id"
         class="hover-item"
       >
-        <span>{{ project.name }}</span>
-        <span>{{ project.owner }}</span>
+        <span>{{ project.id }}</span>
+        <!-- <span>{{ project.owner }}</span> -->
       </li>
     </ul>
 
     <moa-bar
       @logout="onLogout"
       @login="onLogin"
+      @save="onSave"
+      :editable="_editable"
       class="moa-bar shadow"
     ></moa-bar>
   </div>
@@ -51,17 +53,21 @@ export default {
   },
   computed: {
     _editable() {
-      const editList = this.rootData.auth.edit.split(',')
-      if (editList.includes(this.$user.uuid) || editList[0] === '*') {
+      if (
+        this.rootData.id === 'INIT' ||
+        this.projects.find(project => {
+          project.id === this.rootData.id
+        })
+      ) {
         return true
       }
       return false
     },
     _ifVisitor() {
-      return this.$user.uuid === ''
+      return this.$user.id === ''
     },
     _ifProvideId() {
-      return this.$route.params.id !== 'temp'
+      return this.$route.params.id !== 'INIT'
     }
   },
   methods: {
@@ -72,23 +78,40 @@ export default {
       this.stageBounds.w = document.documentElement.clientWidth
       this.stageBounds.h = document.documentElement.clientHeight
     },
-    async onLogin(userInfo) {
-      console.log('login')
+    async onSave() {
+      try {
+        await projectService.save({
+          id: this.rootData.id,
+          data: this.rootData
+        })
+        console.log('[moa] 已同步数据')
+      } catch {}
+    },
+    async onLogin(form) {
+      const userInfo = await userService.login(
+        form.email,
+        form.password,
+        this.rootData
+      )
       Object.assign(this.$user, userInfo)
       localStorage.setItem('TOKEN', userInfo.token)
-      this.projects = await projectService.getProjectList()
       this.$router.push('/layout/whiteboard/' + userInfo.last_edit_project)
+      this.projects = await projectService.getProjectList()
     },
     onLogout() {
-      Object.assign(this.$user, { token: '', name: '' })
+      this.clearState()
+    },
+    clearState() {
+      Object.assign(this.$user, { email: '', id: '' })
       localStorage.setItem('TOKEN', '')
-      this.$router.push('/layout/whiteboard/visitor')
+      this.$router.push('/layout/whiteboard/INIT')
+      this.projects = []
     }
   },
   // 切换项目
   async beforeRouteUpdate(to, from, next) {
-    this.rootData = await projectService.getProjectData(to.params.id)
-    console.log('editable', this._editable)
+    if (to.params.id !== 'INIT')
+      this.rootData = await projectService.getProjectData(to.params.id)
     next()
   },
   // 首次进入

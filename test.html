@@ -2,7 +2,6 @@
   <head>
     <style>
       .outter {
-
         pointer-events: none;
       }
       .inner {
@@ -12,14 +11,31 @@
     </style>
   </head>
   <body>
-      <div class="outter">
-        <div class="inner"></div>
-      </div>
+    <div class="outter">
+      <div class="inner"></div>
+    </div>
   </body>
   <script>
-const outter = document.querySelector('.outter')
-outter.addEventListener('click', e => {
-  console.log('asdsa')
-})
+    const sleep = () => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(2);
+        }, 2000);
+      });
+    };
+
+    let ctx = 0;
+    const next = async () => {
+      await sleep();
+      ctx = 1;
+    };
+
+    Promise.resolve(
+      (async () => {
+        next();
+      })()
+    ).then((e) => {
+      console.log(e, ctx);
+    });
   </script>
 </html>

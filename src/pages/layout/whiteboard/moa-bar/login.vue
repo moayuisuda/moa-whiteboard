@@ -16,7 +16,6 @@
 </template>
 
 <script>
-import * as userService from '@/services/user'
 export default {
   name: 'moa-login',
   data() {
@@ -29,8 +28,8 @@ export default {
   },
   methods: {
     async submit() {
-      const userInfo = await userService.login('OBJECT_FORM_DATA')
-      this.$emit('loginSuccess', userInfo)
+      console.log('bar')
+      this.$emit('login', this.form)
     }
   }
 }
