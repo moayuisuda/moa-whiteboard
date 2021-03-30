@@ -1,4 +1,5 @@
 import axios from "axios";
+import { eventBus } from '@/state'
 
 const api = axios.create({
   baseURL: "http://localhost:3000",
@@ -21,14 +22,15 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => {
-    //拦截响应，做统一处理
-    if(response.status === 401) {
-      console.log('un')
-    }
     return response;
   },
-  //接口错误状态处理，也就是说无响应时的处理
   (error) => {
+    console.log(error)
+    if(error.response.status === 401) {
+      eventBus.$emit('unauthorized')
+      console.log('unauthorized!')
+    }
+    console.log({error})
     return Promise.reject(error.response.status); // 返回接口返回的错误信息
   }
 );

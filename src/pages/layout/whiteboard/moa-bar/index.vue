@@ -1,6 +1,6 @@
 <template>
   <ul class="moa-bar center">
-    {{ $user.email + editable }}
+    <h1 v-if="!editable">view only</h1>
     <li class="moa-bar__item">
       <div v-if="$user.email">
         <h3>{{ $user.email }}</h3>

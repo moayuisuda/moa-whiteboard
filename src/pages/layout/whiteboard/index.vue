@@ -8,7 +8,10 @@
     >
     </moa-whiteboard>
 
-    <ul class="card moa-sidebar">
+    <ul
+      v-if="$user.email"
+      class="card moa-sidebar"
+    >
       <li
         @click="changeProject(project.id)"
         v-for="project in projects"
@@ -18,12 +21,19 @@
         <span>{{ project.id }}</span>
         <!-- <span>{{ project.owner }}</span> -->
       </li>
+      <li
+        class="hover-item"
+        @click="addProject"
+      >
+        <h1>＋</h1>
+      </li>
     </ul>
 
     <moa-bar
       @logout="onLogout"
       @login="onLogin"
       @save="onSave"
+      @share="onShare"
       :editable="_editable"
       class="moa-bar shadow"
     ></moa-bar>
@@ -35,6 +45,8 @@ import moaBar from './moa-bar/index.vue'
 import * as userService from '@/services/user'
 import * as projectService from '@/services/project'
 import rootData from './data.json'
+import { eventBus } from '@/state'
+import { selectText } from '@/utils/text'
 
 export default {
   name: 'whiteboard',
@@ -56,7 +68,7 @@ export default {
       if (
         this.rootData.id === 'INIT' ||
         this.projects.find(project => {
-          project.id === this.rootData.id
+          return project.id === this.rootData.id
         })
       ) {
         return true
@@ -71,6 +83,21 @@ export default {
     }
   },
   methods: {
+    onShare() {
+      const span = document.createElement('span')
+      document.body.appendChild(span)
+      span.innerText = location.href
+      // debugger
+      selectText(span)
+      document.execCommand('copy')
+      document.body.removeChild(span)
+      alert('已复制分享链接到剪切板，分享后打开即可')
+    },
+    async addProject() {
+      await projectService.addProject()
+      this.projects = await projectService.getProjectList()
+      console.log(this.projects, this._editable, this.rootData.id)
+    },
     changeProject(id) {
       this.$router.push({ path: id })
     },
@@ -80,10 +107,7 @@ export default {
     },
     async onSave() {
       try {
-        await projectService.save({
-          id: this.rootData.id,
-          data: this.rootData
-        })
+        await projectService.save(this.rootData.id, this.rootData)
         console.log('[moa] 已同步数据')
       } catch {}
     },
@@ -116,6 +140,7 @@ export default {
   },
   // 首次进入
   async created() {
+    eventBus.$on('unauthorized', this.onLogout)
     this.stageBounds.w = document.documentElement.clientWidth
     this.stageBounds.h = document.documentElement.clientHeight
 

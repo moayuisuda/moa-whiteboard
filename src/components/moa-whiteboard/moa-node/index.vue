@@ -80,7 +80,7 @@ export default {
     },
     lineTo(des) {
       if (!this.nodeData.lineTo) this.nodeData.lineTo = []
-      this.nodeData.lineTo.push(des.nodeData)
+      this.nodeData.lineTo.push(des.nodeData.id)
       this.container.lines.push({
         startNodeData: this.nodeData,
         endNodeData: des.nodeData

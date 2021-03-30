@@ -20,4 +20,3 @@ export const updateLastEditProjct = async (projectId) => {
   });
   return res.data;
 };
-

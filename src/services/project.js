@@ -1,16 +1,24 @@
 import { api } from "@/utils/mock";
 
 export const getProjectData = async (id) => {
-  const res = await api.get('/project/data/' + id);
+  const res = await api.get("/project/data/" + id);
   return JSON.parse(res.data.data);
 };
 
 export const getProjectList = async () => {
-  const res = await api.get('/project/project-list');
+  const res = await api.get("/project/project-list");
   return res.data;
 };
 
-export const save = async (data) => {
-  const res = await api.put(data)
-  return res.data
-}
+export const save = async (id, data) => {
+  const res = await api.put("/project/save", {
+    id,
+    data,
+  });
+  return res.data;
+};
+
+export const addProject = async () => {
+  const res = await api.post("/project/add");
+  return res.data;
+};
