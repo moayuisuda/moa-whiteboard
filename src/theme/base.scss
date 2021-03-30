@@ -415,6 +415,9 @@ foreignObject {
   &:hover {
     background-color: $background-color;
   }
+  &--selected {
+    color: $main-color;
+  }
 }
 
 @keyframes to {

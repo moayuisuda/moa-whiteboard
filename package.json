@@ -28,6 +28,7 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
+    "qrcode": "^1.4.4",
     "uuid": "^8.3.2",
     "vue": "^2.6.12",
     "vue-router": "^3.4.9",

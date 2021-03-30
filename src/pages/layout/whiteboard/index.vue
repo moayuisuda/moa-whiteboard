@@ -16,16 +16,23 @@
         @click="changeProject(project.id)"
         v-for="project in projects"
         :key="project.id"
-        class="hover-item"
+        class="hover-item center"
+        :class="{
+          'hover-item--selected': rootData.id === project.id
+        }"
       >
         <span>{{ project.id }}</span>
+        <i
+          @click.stop="onDelete"
+          class="moa-sidebar__dele"
+        >×</i>
         <!-- <span>{{ project.owner }}</span> -->
       </li>
       <li
-        class="hover-item"
+        class="hover-item moa-sidebar__add center"
         @click="addProject"
       >
-        <h1>＋</h1>
+        ＋
       </li>
     </ul>
 
@@ -47,6 +54,7 @@ import * as projectService from '@/services/project'
 import rootData from './data.json'
 import { eventBus } from '@/state'
 import { selectText } from '@/utils/text'
+import { toDataURL as QRCodeURL } from 'qrcode'
 
 export default {
   name: 'whiteboard',
@@ -83,7 +91,7 @@ export default {
     }
   },
   methods: {
-    onShare() {
+    async onShare() {
       const span = document.createElement('span')
       document.body.appendChild(span)
       span.innerText = location.href
@@ -91,19 +99,29 @@ export default {
       selectText(span)
       document.execCommand('copy')
       document.body.removeChild(span)
-      alert('已复制分享链接到剪切板，分享后打开即可')
+      const dataURL = await QRCodeURL(location.href)
+      const a = document.createElement('a')
+      a.download = 'qrcode.png'
+      a.href = dataURL
+      a.click()
+      alert('分享链接已复制到剪切板')
     },
     async addProject() {
-      await projectService.addProject()
+      await projectService.add()
       this.projects = await projectService.getProjectList()
       console.log(this.projects, this._editable, this.rootData.id)
     },
     changeProject(id) {
+      userService.updateLastEditProjct(id)
       this.$router.push({ path: id })
     },
     onResize() {
       this.stageBounds.w = document.documentElement.clientWidth
       this.stageBounds.h = document.documentElement.clientHeight
+    },
+    async onDelete() {
+      await projectService.dele(this.rootData.id)
+      this.projects = await projectService.getProjectList()
     },
     async onSave() {
       try {
@@ -178,9 +196,16 @@ export default {
   top: 100px;
   max-height: calc(100vh - 200px);
   overflow-y: auto;
+  &__add {
+    font-size: 30px;
+    font-weight: 400;
+  }
 
-  &__item {
-    cursor: pointer;
+  &__dele {
+    font-size: 30px;
+    &:hover {
+      color: $danger-color;
+    }
   }
 }
 </style>

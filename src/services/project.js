@@ -18,7 +18,12 @@ export const save = async (id, data) => {
   return res.data;
 };
 
-export const addProject = async () => {
+export const add = async () => {
   const res = await api.post("/project/add");
+  return res.data;
+};
+
+export const dele = async (id) => {
+  const res = await api.delete("/project/dele/" + id);
   return res.data;
 };
