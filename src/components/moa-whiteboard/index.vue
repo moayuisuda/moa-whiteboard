@@ -12,6 +12,7 @@
       ></moa-board>
     </svg>
     <moa-controller--node
+      v-if="editable"
       @pre-add-node="onPreAddNode"
       class="moa-controller shadow"
     ></moa-controller--node>
@@ -36,11 +37,11 @@ export default {
     },
     width: {
       type: Number,
-      default: 1080
+      default: 720
     },
     height: {
       type: Number,
-      default: 720
+      default: 480
     }
   },
   watch: {

@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
+    "sdk_test": "cross-env NODE_ENV=production webpack serve --config webpack_sdk.config.js",
+    "sdk": "cross-env NODE_ENV=production webpack --mode=production --config webpack_sdk.config.js",
     "dev": "cross-env NODE_ENV=development webpack serve",
     "build": "cross-env NODE_ENV=production webpack --mode=production"
   },

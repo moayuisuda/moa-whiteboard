@@ -10,7 +10,7 @@ module.exports = {
   stats: process.env.NODE_ENV === 'development' ? 'errors-only' : 'normal',
   entry: './src/main.js',
   output: {
-    path: resolve(__dirname, 'dist'),
+    path: resolve(__dirname, 'dist/site'),
     filename: '[name].[hash].js', // 并不影响分块代码的名称
     chunkFilename: 'chunk~[name].[hash].js', // 分块代码的名称
   },
