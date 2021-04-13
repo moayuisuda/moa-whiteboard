@@ -133,8 +133,8 @@ export default {
     },
     onMove(movement) {
       const scale = getSVGScale(this.svg)
-      this.nodeData.panelData.panelOps.x += movement.x * scale
-      this.nodeData.panelData.panelOps.y += movement.y * scale
+      this.nodeData.panelData.panelOps.x -= movement.x * scale
+      this.nodeData.panelData.panelOps.y -= movement.y * scale
     },
     onWheel(e) {
       if (hotKey.MetaLeft) {

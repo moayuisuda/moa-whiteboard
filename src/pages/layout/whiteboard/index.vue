@@ -154,6 +154,7 @@ export default {
   async beforeRouteUpdate(to, from, next) {
     if (to.params.id !== 'INIT')
       this.rootData = await projectService.getProjectData(to.params.id)
+    else this.rootData = rootData
     next()
   },
   // 首次进入

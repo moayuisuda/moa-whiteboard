@@ -2,6 +2,7 @@ import Vue from "vue";
 
 const hotKey = {
   MetaLeft: false, // cmd
+  Space: false
 };
 
 const eventBus = new Vue();
