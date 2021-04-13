@@ -40,7 +40,7 @@
 
 <script>
 import { hotKey, wbState } from '~/state'
-import { getCoords } from '~/utils/coords'
+import { getCoords, getSVGScale } from '~/utils/coords'
 
 const zoomMin = 0.3
 const zoomMax = 4
@@ -130,6 +130,11 @@ export default {
     },
     onMouseEnter() {
       wbState.cursorBoard = this
+    },
+    onMove(movement) {
+      const scale = getSVGScale(this.svg)
+      this.nodeData.panelData.panelOps.x += movement.x * scale
+      this.nodeData.panelData.panelOps.y += movement.y * scale
     },
     onWheel(e) {
       if (hotKey.MetaLeft) {

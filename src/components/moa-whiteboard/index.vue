@@ -124,21 +124,28 @@ export default {
       })
 
       window.addEventListener('keydown', e => {
+        console.log(e.code)
         switch (e.code) {
           case 'MetaLeft':
             hotKey.MetaLeft = true
+          case 'Space':
+            hotKey.Space = true
         }
       })
       window.addEventListener('keyup', e => {
         switch (e.code) {
           case 'MetaLeft':
             hotKey.MetaLeft = false
+          case 'Space':
+            hotKey.Space = false
         }
       })
     },
     onMousemove(e) {
       wbState.dragNode &&
         wbState.dragNode.onDrag({ x: e.movementX, y: e.movementY })
+      if (hotKey.Space)
+        wbState.cursorBoard.onMove({ x: e.movementX, y: e.movementY })
     },
     onMouseUp() {
       wbState.dragNode = undefined

@@ -106,8 +106,8 @@ export default {
     },
     move(movement) {
       const scale = getSVGScale(this.container.svg)
-      this.nodeData.bounds.x += movement.x * scale
-      this.nodeData.bounds.y += movement.y * scale
+      this.nodeData.bounds.x -= movement.x * scale
+      this.nodeData.bounds.y -= movement.y * scale
     },
     // 聚焦节点跟随主拖拽节点移动，此时相当于这个拖拽节点是所有聚焦节点的controller，控制流：root-board -> dragNode -> focusNodes
     onDrag(movement) {
