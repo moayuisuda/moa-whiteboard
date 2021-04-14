@@ -152,9 +152,3 @@ export default {
   }
 }
 </style>
-
-
-base: 127.0.0.1 //
-{
-  kv_index: /
-}

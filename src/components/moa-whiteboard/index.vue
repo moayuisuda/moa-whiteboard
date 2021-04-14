@@ -5,6 +5,24 @@
       :width="width"
       :height="height"
     >
+      <defs>
+        <marker
+          id='arrow'
+          orient="auto"
+          markerWidth='4'
+          markerHeight='4'
+          refX='0'
+          refY='2'
+        >
+          <!-- triangle pointing right (+x) -->
+          <path
+            d='M0,0 L4,2 L0,4'
+            fill="transparent"
+            :stroke="$color['line']"
+          />
+        </marker>
+      </defs>
+
       <moa-board
         :isRoot="true"
         :nodeData="rootData"
@@ -24,6 +42,7 @@ import { wbState, hotKey, reset } from '~/state'
 import { getCoords } from '~/utils/coords'
 import { v4 as uuidv4 } from 'uuid'
 import Vue from 'vue'
+import * as sourceService from '@/services/source'
 
 export default {
   name: 'moa-whiteboard',
@@ -71,10 +90,27 @@ export default {
     this.initEvents()
   },
   methods: {
-    onPreAddNode(type) {
-      const preAddNode = Vue.$defaultData[`moa-${type}`]()
-      preAddNode.id = uuidv4()
+    uploadImage() {
+      return new Promise(resolve => {
+        const input = document.createElement('input')
+        input.setAttribute('type', 'file')
+        input.click()
 
+        input.addEventListener('change', e => {
+          sourceService.upload(e.target.files[0]).then(url => {
+            resolve(url)
+          })
+        })
+      })
+    },
+    async onPreAddNode(type) {
+      const preAddNode = Vue.$defaultData[`moa-${type}`]()
+      let url
+      if (type === 'image') {
+        url = await this.uploadImage()
+      }
+      if (url) preAddNode.value = BASE_URL + url
+      preAddNode.id = uuidv4()
       wbState.preAddNode = preAddNode
     },
     onAddNode(data) {

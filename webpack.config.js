@@ -1,49 +1,48 @@
-const { VueLoaderPlugin } = require('vue-loader')
-const { resolve, join } = require('path')
-const webpack = require('webpack')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
+const { VueLoaderPlugin } = require("vue-loader");
+const { resolve, join } = require("path");
+const webpack = require("webpack");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
-  stats: process.env.NODE_ENV === 'development' ? 'errors-only' : 'normal',
-  entry: './src/main.js',
+  stats: process.env.NODE_ENV === "development" ? "errors-only" : "normal",
+  entry: "./src/main.js",
   output: {
-    path: resolve(__dirname, 'dist/site'),
-    filename: '[name].[hash].js', // 并不影响分块代码的名称
-    chunkFilename: 'chunk~[name].[hash].js', // 分块代码的名称
+    path: resolve(__dirname, "dist/site"),
+    filename: "[name].[hash].js", // 并不影响分块代码的名称
+    chunkFilename: "chunk~[name].[hash].js", // 分块代码的名称
   },
-  externals: {
-  },
+  externals: {},
   resolve: {
     alias: {
-      '@': resolve('src'),
-      '~': resolve('src/components/moa-whiteboard')
+      "@": resolve("src"),
+      "~": resolve("src/components/moa-whiteboard"),
     },
-    extensions: ['.js', 'vue'],
+    extensions: [".js", "vue"],
   },
-  devtool: 'source-map',
+  devtool: "source-map",
   optimization: {
-    minimize: process.env.NODE_ENV === 'production' ? true : false, // 开发环境不压缩
+    minimize: process.env.NODE_ENV === "production" ? true : false, // 开发环境不压缩
     splitChunks: {
-      chunks: 'all', // 共有三个值可选：initial(初始模块)、async(按需加载模块)和all(全部模块)
+      chunks: "all", // 共有三个值可选：initial(初始模块)、async(按需加载模块)和all(全部模块)
       minSize: 30000, // 模块超过30k才被抽离成splitChunk，否则合并进main.js
       minChunks: 1, // 模块被引用>=1次，便分割
       maxAsyncRequests: 5, // 异步加载chunk的并发请求数量<=5
       maxInitialRequests: 3, // 一个入口并发加载的chunk数量<=3
       name: true, // "chunkFilename: 'async~[name].[hash].js'"中"[name]"的生成方式，影响最后打包出来的文件名
-      automaticNameDelimiter: '~', // 命名分隔符
+      automaticNameDelimiter: "~", // 命名分隔符
       cacheGroups: {
         vuetify: {
           test: /[\\/]node_modules[\\/]vuetify[\\/]/, // 表示默认拆分node_modules中的模块
           priority: 20,
-          chunks: 'initial',
+          chunks: "initial",
         },
         vendor: {
           test: /[\\/]node_modules[\\/]/, // 表示默认拆分node_modules中的模块
           priority: 10,
-          chunks: 'initial',
+          chunks: "initial",
         },
         default: {
           // 模块缓存规则，设置为false，默认缓存组将禁用
@@ -55,7 +54,7 @@ module.exports = {
     },
   },
   devServer: {
-    contentBase: join(__dirname, 'dist'),
+    contentBase: join(__dirname, "dist"),
     compress: true,
     port: 9000,
   },
@@ -65,18 +64,18 @@ module.exports = {
         test: /\.(jpg|png|gif|bmp|jpeg|svg)$/,
         use: [
           {
-            loader: 'url-loader',
+            loader: "url-loader",
             options: {
               esModule: false,
               limit: 0,
-              name: 'images/[name].[ext]',
+              name: "images/[name].[ext]",
             },
           },
         ],
       },
       {
         test: /\.vue$/,
-        loader: 'vue-loader',
+        loader: "vue-loader",
       },
       {
         test: /\.scss$/,
@@ -84,12 +83,12 @@ module.exports = {
           {
             loader: MiniCssExtractPlugin.loader,
           },
-          'css-loader',
-          'sass-loader',
+          "css-loader",
+          "sass-loader",
           {
-            loader: 'sass-resources-loader',
+            loader: "sass-resources-loader",
             options: {
-              resources: resolve(__dirname, 'src/theme/variable.scss'),
+              resources: resolve(__dirname, "src/theme/variable.scss"),
             },
           },
         ],
@@ -100,7 +99,7 @@ module.exports = {
           {
             loader: MiniCssExtractPlugin.loader,
           },
-          'css-loader',
+          "css-loader",
         ],
       },
     ],
@@ -108,15 +107,17 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      template: './template.html',
+      template: "./template.html",
     }),
-    new CopyWebpackPlugin([{ from: './static', to: './static' }]),
+    new CopyWebpackPlugin([{ from: "./static", to: "./static" }]),
     new VueLoaderPlugin(),
-    new webpack.DefinePlugin({}),
+    new webpack.DefinePlugin({
+      BASE_URL: JSON.stringify("http://localhost:3000"),
+    }),
     new MiniCssExtractPlugin({
       // 相当于是output的css配置
-      filename: '[name].[hash].css',
-      chunkFilename: 'chunk~[name].[hash].css',
+      filename: "[name].[hash].css",
+      chunkFilename: "chunk~[name].[hash].css",
     }),
   ],
-}
+};

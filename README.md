@@ -1,2 +1,5 @@
 ## todo
-* 全部换为transform，wheel全部在board
+* 线条可双向 p0
+* bar切换为全局 p0
+* basic的样式选择 p0
+* 图层界面 p1

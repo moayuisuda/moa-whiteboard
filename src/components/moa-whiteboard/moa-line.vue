@@ -2,13 +2,15 @@
   <g>
     <path
       class="line--to"
-      :d="_d"
+      :d="polygon"
       fill="none"
-      :stroke="$color['line']"
+      marker-mid="url(#arrow)"
       stroke-width="3"
+      stroke="transparent"
       stroke-linecap="round"
     />
     <path
+      ref="path"
       @click.stop="onFocus"
       class="line--to"
       :d="_d"
@@ -36,7 +38,9 @@ import { eventBus, wbState } from '~/state'
 export default {
   name: 'moa-line',
   data() {
-    return {}
+    return {
+      polygon: ''
+    }
   },
   inject: ['container'],
   computed: {
@@ -44,6 +48,20 @@ export default {
       return wbState.focusLine === this
     },
     _d() {
+      this.$nextTick(() => {
+        const pathDom = this.$refs['path']
+
+        let d = `M${this._x1},${this._y1}`
+        let p
+        const l = pathDom.getTotalLength()
+        for (let i = 30; i < l; i += 30) {
+          p = pathDom.getPointAtLength((i / l) * pathDom.getTotalLength())
+          d += ` L${p.x},${p.y}`
+        }
+
+        this.polygon = d
+      })
+
       const length = Math.abs(this._x1 - this._x2) * 0.6
       if (this._x1 < this._x2) {
         return `M${this._x1},${this._y1} C${this._x1 + length},${
