@@ -34,6 +34,7 @@
       @pre-add-node="onPreAddNode"
       class="moa-controller shadow"
     ></moa-controller--node>
+    <moa-node-bar v-if="wbState.editNode" :left="editBounds.left" :top="editBounds.top"></moa-node-bar>
   </div>
 </template>
 
@@ -46,6 +47,15 @@ import * as sourceService from '@/services/source'
 
 export default {
   name: 'moa-whiteboard',
+  data() {
+    return {
+      wbState,
+      editBounds: {
+        x: 0,
+        y: 0
+      }
+    }
+  },
   props: {
     rootData: {
       type: Object
@@ -64,6 +74,14 @@ export default {
     }
   },
   watch: {
+    'wbState.editNode': {
+      handler(node) {
+        if(node) {
+          console.log(node.$el, node.$el.getBoundingClientRect())
+          this.editBounds = node.$el.getBoundingClientRect()
+        }
+      }
+    },
     rootData: {
       handler() {
         this.rootData.bounds = {
@@ -160,7 +178,6 @@ export default {
       })
 
       window.addEventListener('keydown', e => {
-        console.log(e.code)
         switch (e.code) {
           case 'MetaLeft':
             hotKey.MetaLeft = true

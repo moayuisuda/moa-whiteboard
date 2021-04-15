@@ -79,7 +79,6 @@ export default {
       this.cache = {}
       this.lines = []
       this.parseLines()
-      console.log(this.nodeData, this.lines)
     }
   },
   computed: {

@@ -80,6 +80,7 @@ export default {
     },
     lineTo(des) {
       if (!this.nodeData.lineTo) this.nodeData.lineTo = []
+      if (this.nodeData.lineTo.includes(des)) return
       this.nodeData.lineTo.push(des.nodeData.id)
       this.container.lines.push({
         startNodeData: this.nodeData,
