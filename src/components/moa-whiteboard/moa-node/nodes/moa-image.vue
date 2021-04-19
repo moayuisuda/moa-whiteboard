@@ -1,6 +1,6 @@
 <template>
   <image
-    :xlink:href="nodeData.value"
+    :xlink:href="nodeData.model.url"
     x="0"
     y="0"
     :height="nodeData.bounds.h"
@@ -11,8 +11,10 @@
 <script>
 export default {
   name: 'moa-image',
+  isBoardCmp: true,
   data() {
     return {
+      editable: false
     }
   },
   props: {
@@ -28,7 +30,9 @@ export default {
   methods: {
     getDefaultData() {
       return {
-        value: '',
+        model: {
+          url: '',
+        },
         type: 'image',
         bounds: {
           x: 0,

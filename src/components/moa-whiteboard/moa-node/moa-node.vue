@@ -43,6 +43,7 @@
 <script>
 import { getCoords, getSVGScale } from '~/utils/coords'
 import { eventBus, wbState, hotKey } from '~/state'
+import Vue from 'vue'
 const moveThreshold = 10
 
 export default {
@@ -93,7 +94,8 @@ export default {
         return
       }
       e.stopPropagation()
-      if (!wbState.focusNodes.includes(this)) { // focus
+      if (!wbState.focusNodes.includes(this)) {
+        // focus
         if (wbState.editNode) {
           wbState.editNode = undefined
         }
@@ -118,6 +120,8 @@ export default {
     },
     // 双击进入编辑状态
     onDblclick(e) {
+      if (Vue.$componentsConfig[`moa-${this.nodeData.type}`].editable === false)
+        return
       wbState.editNode = this
     },
     onDelete() {

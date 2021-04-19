@@ -19,9 +19,9 @@
       @size-change="onSizeChange"
       @align-change="onAlignChange"
       @compositionend="onCompositionend"
-      :size="text.size"
-      :align="text.align"
-      v-model="nodeData.value"
+      :size="nodeData.model.size"
+      :align="nodeData.model.align"
+      v-model="nodeData.model.value"
     />
   </g>
 </template>
@@ -32,24 +32,23 @@ const alpha = 0.55
 
 export default {
   name: 'moa-basic',
+  isBoardCmp: true,
   data() {
     return {
-      text: {
-        align: 'center',
-        size: 'M'
-      }
+      editable: true
     }
   },
   mounted() {},
   methods: {
     getDefaultData() {
       return {
-        value: '',
         type: 'basic',
-        style: {
+        model: {
+          value: '',
           align: 'center',
           shape: 'rect',
-          border: 'none'
+          border: 'none',
+          color: '#ffffff'
         },
         bounds: {
           x: 0,
@@ -72,19 +71,19 @@ export default {
       this.recaculateHeight()
     },
     onAlignChange(align) {
-      this.text.align = align
+      this.nodeData.model.align = align
     },
     onSizeChange(size) {
-      this.text.size = size
+      this.nodeData.model.size = size
       this.recaculateHeight()
     }
   },
   computed: {
     _fill() {
-      const { style } = this.nodeData
+      const { model } = this.nodeData
       const { _styleColor } = this
 
-      if (style.border === 'none') {
+      if (model.border === 'none') {
         return _styleColor
       } else {
         const rgb = hexToRgb(_styleColor)
@@ -93,10 +92,10 @@ export default {
       }
     },
     _stroke() {
-      const { style } = this.nodeData
+      const { model } = this.nodeData
       const { _styleColor } = this
 
-      if (style.border === 'none') {
+      if (model.border === 'none') {
         return 'transparent'
       } else {
         const rgb = hexToRgb(_styleColor)
@@ -104,7 +103,7 @@ export default {
       }
     },
     _styleColor() {
-      return this.nodeData.style.color || '#ffffff'
+      return this.nodeData.model.color
     }
   },
   props: {

@@ -34,7 +34,11 @@
       @pre-add-node="onPreAddNode"
       class="moa-controller shadow"
     ></moa-controller--node>
-    <moa-node-bar v-if="wbState.editNode" :left="editBounds.left" :top="editBounds.top"></moa-node-bar>
+    <moa-node-bar
+      v-if="$wbState.editNode"
+      :left="editBounds.left"
+      :top="editBounds.top"
+    ></moa-node-bar>
   </div>
 </template>
 
@@ -76,7 +80,7 @@ export default {
   watch: {
     'wbState.editNode': {
       handler(node) {
-        if(node) {
+        if (node) {
           console.log(node.$el, node.$el.getBoundingClientRect())
           this.editBounds = node.$el.getBoundingClientRect()
         }
@@ -122,7 +126,7 @@ export default {
       })
     },
     async onPreAddNode(type) {
-      const preAddNode = Vue.$defaultData[`moa-${type}`]()
+      const preAddNode = Vue.$componentsConfig[`moa-${type}`].defaultData
       let url
       if (type === 'image') {
         url = await this.uploadImage()
@@ -195,8 +199,10 @@ export default {
       })
     },
     onMousemove(e) {
-      wbState.dragNode &&
+      if (wbState.dragNode) {
         wbState.dragNode.onDrag({ x: e.movementX, y: e.movementY })
+        wbState.editNode = undefined
+      }
       if (hotKey.Space)
         wbState.cursorBoard.onMove({ x: e.movementX, y: e.movementY })
     },

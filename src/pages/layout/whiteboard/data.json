@@ -9,13 +9,14 @@
     "chartData": [
       {
         "id": "0",
-        "value": "this is 0",
         "type": "basic",
-        "style": {
+        "model": {
+          "value": "this is 0",
           "align": "center",
           "color": "#8c28ff",
           "shape": "rect",
-          "border": "none"
+          "border": "none",
+          "size": "M"
         },
         "bounds": {
           "x": 0,
@@ -26,17 +27,30 @@
       },
       {
         "id": "2",
-        "value": "this is 2",
         "type": "basic",
-        "style": {
+        "model": {
+          "value": "this is 2",
           "shape": "rect",
-          "border": "none"
+          "color": "#FFFFFF",
+          "border": "none",
+          "align": "center",
+          "size": "M"
         },
         "bounds": {
           "x": 600,
           "y": 100,
           "w": 100,
           "h": 100
+        }
+      },
+      {
+        "id": "3",
+        "type": "inspector",
+        "bounds": {
+          "x": 100,
+          "y": 500,
+          "w": 200,
+          "h": 600
         }
       }
     ]

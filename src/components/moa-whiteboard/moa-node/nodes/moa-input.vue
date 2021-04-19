@@ -1,34 +1,10 @@
 <template>
   <foreignObject>
-    <div ref="container" :class="['text-container', { 'text-container--edit': isEdit }]">
+    <div
+      ref="container"
+      :class="['text-container', { 'text-container--edit': isEdit }]"
+    >
       <div class="moa-input">
-        <ul v-if="isEdit" class="moa-input__bar shadow--inner">
-          <li
-            @mousedown.prevent="onSizeChange(i)"
-            :class="{
-              'moa-input__bar-item': true,
-              'moa-input__bar-item--selected': size === i,
-              'moa-input__bar-item--size': true,
-            }"
-            v-for="i in ['S', 'M', 'L', 'XL']"
-            :key="i"
-          >
-            {{ i }}
-          </li>
-          <span class="separator">|</span>
-          <li
-            @mousedown.prevent="onAlignChange(i)"
-            :class="{ 'moa-input__bar-item': true, 'moa-input__bar-item--selected': align === i }"
-            v-for="i in ['left', 'center', 'right']"
-            :key="i"
-          >
-            <img :src="require(`../../assets/align-${i}.svg`)" alt="" />
-          </li>
-
-          <li @click="close" class="moa-input__bar-item moa-input__bar-close">
-            <img src="../../assets/close.svg" alt="" />
-          </li>
-        </ul>
         <div
           ref="textarea-wrapper"
           class="textarea-wrapper"
@@ -37,7 +13,11 @@
             fontSize: _fontSize + 'px',
           }"
         >
-          <div class="content-editable" contenteditable="true" v-html="_contentValue"></div>
+          <div
+            class="content-editable"
+            contenteditable="true"
+            v-html="_contentValue"
+          ></div>
           <textarea
             :style="{
               textAlign: _textAlign,
@@ -46,7 +26,6 @@
             @focus="onFocus"
             @blur="onBlur"
             class="field-textarea"
-            :placeholder="placeholder"
             :value="value"
             @input="onInput"
             @compositionend="onCompositionend"
@@ -65,16 +44,14 @@ export default {
   name: 'moa-input',
   data() {
     return {
-      isFocus: false,
+      isFocus: false
     }
   },
   props: {
-    placeholder: String,
     value: String,
-    fontSize: Number,
     align: String,
     size: String,
-    isEdit: Boolean,
+    isEdit: Boolean
   },
   computed: {
     _fontSize() {
@@ -94,7 +71,7 @@ export default {
     },
     _textAlign() {
       return this.align
-    },
+    }
   },
   watch: {
     isEdit: {
@@ -104,8 +81,8 @@ export default {
         } else {
           this.$refs['textarea'].blur()
         }
-      },
-    },
+      }
+    }
   },
   methods: {
     getNeedHeight() {
@@ -131,8 +108,8 @@ export default {
     },
     onInput(e) {
       this.$emit('input', e.target.value, e)
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -158,40 +135,6 @@ export default {
   position: relative;
   display: block;
   width: 100%;
-  &__bar {
-    position: absolute;
-    background: #fff;
-    padding: 4px 4px;
-    top: -55px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    justify-content: center;
-    border-radius: 2px;
-    &-item {
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: 2px;
-      list-style: none;
-      margin: 0 1px;
-      padding: 0 4px;
-      img {
-        width: 12px;
-      }
-      &--size {
-        font-size: 5px;
-        font-weight: 500;
-      }
-      &:hover {
-        background: $background-color;
-      }
-      &--selected {
-        background-color: $background-color;
-      }
-    }
-  }
 }
 .textarea-wrapper {
   font-weight: 500;

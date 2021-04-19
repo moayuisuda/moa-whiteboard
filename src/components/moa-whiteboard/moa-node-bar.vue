@@ -1,15 +1,17 @@
 <template>
-  <ul
+  <div
     :style="{
     top: `${top - 30}px`,
     left: `${left}px`,
   }"
     class="moa-node-bar center"
   >
-    <li class="moa-node-bar__item">
-      <h1>BAR ITEM</h1>
-    </li>
-  </ul>
+    <component :is="`moa-${$wbState.editNode.nodeData.type}-bar`" />
+    <!-- <img
+      src="./assets/close.svg"
+      alt=""
+    /> -->
+  </div>
 </template>
 
 <script>
@@ -20,15 +22,17 @@ export default {
   },
   props: {
     left: {
-      type: Number,
+      type: Number
     },
     top: {
       type: Number
-    },
+    }
   },
   computed: {},
   methods: {
-  }
+    close() {}
+  },
+  created() {}
 }
 </script>
 
@@ -37,19 +41,5 @@ export default {
   background-color: white;
   border-radius: $radius;
   position: fixed;
-  margin: 0;
-  // z-index: 1;
-  &__item {
-    list-style: none;
-    img {
-      display: block;
-      width: 36px;
-    }
-    // padding: 10px;
-    &:hover {
-      cursor: pointer;
-      background-color: $background-color;
-    }
-  }
 }
 </style>

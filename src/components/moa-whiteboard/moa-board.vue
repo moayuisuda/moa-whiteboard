@@ -49,6 +49,7 @@ const zoomSpeed = 0.002
 
 export default {
   name: 'moa-board',
+  isBoardCmp: true,
   provide: function() {
     return this.isRoot
       ? {

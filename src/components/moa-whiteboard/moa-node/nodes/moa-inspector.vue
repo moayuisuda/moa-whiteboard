@@ -1,14 +1,20 @@
 <template>
-  <foreignObject :width="nodeData.bounds.w" :height="nodeData.bounds.h">
-    <div ref="container" class="moa-inspector-container">
+  <foreignObject
+    :width="nodeData.bounds.w"
+    :height="nodeData.bounds.h"
+  >
+    <div
+      ref="container"
+      class="moa-inspector-container"
+    >
       <h2>Inspector</h2>
-      <div ref="inner" class="moa-inspector-inner">
-        <pre
-          :style="{
+      <div
+        ref="inner"
+        class="moa-inspector-inner"
+      >
+        <pre :style="{
             transform: `translateY(${scroll}px)`,
-          }"
-          >{{ _panelData }}</pre
-        >
+          }">{{ _panelData }}</pre>
       </div>
     </div>
   </foreignObject>
@@ -17,17 +23,24 @@
 <script>
 export default {
   name: 'moa-inspector',
+  isBoardCmp: true,
   inject: ['container'],
   data() {
     return {
       scroll: 0,
+      editable: false
+    }
+  },
+  methods: {
+    getDefaultData() {
+      return {}
     }
   },
   mounted() {
     const container = this.$refs['container']
     const inner = this.$refs['inner']
 
-    container.addEventListener('wheel', (e) => {
+    container.addEventListener('wheel', e => {
       e.stopPropagation()
       // this.scroll -= e.deltaY
       // if(this.scroll >= 0 && e.deltaY < 0) this.scroll = 0
@@ -36,14 +49,14 @@ export default {
   computed: {
     _panelData() {
       return JSON.stringify(this.container.nodeData.panelData, null, 2)
-    },
+    }
   },
   props: {
     nodeData: {
       type: Object,
-      default: () => {},
-    },
-  },
+      default: () => {}
+    }
+  }
 }
 </script>
 
