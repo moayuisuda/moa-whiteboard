@@ -5,7 +5,7 @@
       :d="polygon"
       fill="none"
       marker-mid="url(#arrow)"
-      stroke-width="3"
+      stroke-width="2"
       stroke="transparent"
       stroke-linecap="round"
     />
@@ -16,7 +16,7 @@
       :d="_d"
       fill="none"
       stroke="transparent"
-      stroke-width="20"
+      stroke-width="2"
       stroke-linecap="round"
     />
     <image
@@ -54,7 +54,7 @@ export default {
         let d = `M${this._x1},${this._y1}`
         let p
         const l = pathDom.getTotalLength()
-        for (let i = 30; i < l; i += 30) {
+        for (let i = 20; i < l; i += 20) {
           p = pathDom.getPointAtLength((i / l) * pathDom.getTotalLength())
           d += ` L${p.x},${p.y}`
         }

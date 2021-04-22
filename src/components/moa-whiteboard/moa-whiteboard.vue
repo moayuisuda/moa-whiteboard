@@ -130,8 +130,8 @@ export default {
       let url
       if (type === 'image') {
         url = await this.uploadImage()
+        preAddNode.model.url = BASE_URL + url
       }
-      if (url) preAddNode.value = BASE_URL + url
       preAddNode.id = uuidv4()
       wbState.preAddNode = preAddNode
     },

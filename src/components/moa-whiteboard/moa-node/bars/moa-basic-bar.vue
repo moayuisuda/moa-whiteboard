@@ -1,6 +1,37 @@
 <template>
   <ul class="moa-basic-bar shadow--inner">
     <li
+      
+      :class="{ 'moa-basic-bar-item': true, 'moa-basic-bar-item--selected': ifShowPicker }"
+    >
+      <img
+      @click="togglePicker"
+        :src="require(`../../assets/color.svg`)"
+        alt=""
+      />
+      <color-picker
+        @input="updateValue"
+        v-if="ifShowPicker"
+        class="color-picker"
+        :value="model.color"
+      />
+    </li>
+
+    <span class="separator">|</span>
+    <li
+      @mousedown.prevent="onShapeChange(i)"
+      :class="{ 'moa-basic-bar-item': true, 'moa-basic-bar-item--selected': model.shape === i }"
+      v-for="i in ['rect', 'diamond', 'ellipse']"
+      :key="i"
+    >
+      <img
+        :src="require(`../../assets/shape-${i}.svg`)"
+        alt=""
+      />
+    </li>
+
+    <span class="separator">|</span>
+    <li
       @mousedown.prevent="onSizeChange(i)"
       :class="{
               'moa-basic-bar-item': true,
@@ -28,12 +59,16 @@
 </template>
 
 <script>
-const padding = 20
+import { Sketch } from 'vue-color'
 
 export default {
   name: 'moa-basic-bar',
+  components: {
+    'color-picker': Sketch
+  },
   data() {
     return {
+      ifShowPicker: false,
       model: this.$wbState.editNode.nodeData.model
     }
   },
@@ -49,17 +84,35 @@ export default {
     }
   },
   methods: {
+    updateValue(v) {
+      console.log(v)
+      this.model.color = v.hex8
+    },
+    togglePicker() {
+      if (this.ifShowPicker) this.ifShowPicker = false
+      else this.ifShowPicker = true
+    },
     onAlignChange(align) {
       this.model.align = align
     },
     onSizeChange(size) {
       this.model.size = size
+    },
+    onShapeChange(shape) {
+      this.model.shape = shape
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.color-picker {
+  position: absolute;
+  left: 30px;
+  z-index: 1;
+  bottom: 0; // li的flex会导致absolute的子元素也居中但不占用面积，需要手动设置top
+  cursor: auto;
+}
 .moa-basic-bar {
   margin: 0;
   display: block;
@@ -70,6 +123,7 @@ export default {
   justify-content: center;
   border-radius: 2px;
   &-item {
+    position: relative;
     cursor: pointer;
     display: flex;
     justify-content: center;
@@ -82,7 +136,7 @@ export default {
       width: 12px;
     }
     &--size {
-      font-size: 5px;
+      font-size: 10px;
       font-weight: 500;
     }
     &:hover {

@@ -13,10 +13,10 @@
         "model": {
           "value": "this is 0",
           "align": "center",
-          "color": "#8c28ff",
+          "color": "#8c28ffaa",
           "shape": "rect",
           "border": "none",
-          "size": "M"
+          "size": "XL"
         },
         "bounds": {
           "x": 0,

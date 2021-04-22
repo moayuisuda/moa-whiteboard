@@ -1,15 +1,30 @@
 <template>
   <g>
-    <rect
+    <g
       :fill="_fill"
       :stroke="_stroke"
       stroke-dasharray="10 10"
       stroke-width="2"
-      :rx="$style['radius']"
-      :ry="$style['radius']"
-      :width="nodeData.bounds.w"
-      :height="nodeData.bounds.h"
-    />
+    >
+      <rect
+        v-if="nodeData.model.shape === 'rect'"
+        :rx="$style['radius']"
+        :ry="$style['radius']"
+        :width="nodeData.bounds.w"
+        :height="nodeData.bounds.h"
+      />
+      <polygon
+        v-if="nodeData.model.shape === 'diamond'"
+        :points="_diamondPoints"
+      />
+      <ellipse
+        v-if="nodeData.model.shape === 'ellipse'"
+        :cx="nodeData.bounds.w/2"
+        :cy="nodeData.bounds.h/2"
+        :rx="nodeData.bounds.w/2"
+        :ry="nodeData.bounds.h/2"
+      />
+    </g>
     <moa-input
       ref="input"
       :isEdit="isEdit"
@@ -79,6 +94,13 @@ export default {
     }
   },
   computed: {
+    _diamondPoints() {
+      const {
+        nodeData: { bounds }
+      } = this
+      return `${bounds.w / 2},${0} ${bounds.w},${bounds.h / 2} ${bounds.w /
+        2},${bounds.h} ${0},${bounds.h / 2}`
+    },
     _fill() {
       const { model } = this.nodeData
       const { _styleColor } = this
