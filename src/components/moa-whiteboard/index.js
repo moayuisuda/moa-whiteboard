@@ -11,7 +11,9 @@ export default {
       Vue.component(component.name, component);
       if (component.isBoardCmp) {
         const config = (Vue.$componentsConfig[component.name] = {});
-        config.defaultData = component.methods.getDefaultData();
+        config.defaultData = () => {
+          return component.methods.getDefaultData(); // 这里必须是函数，要不然加的节点都是同一个对象
+        }
         config.editable = component.data().editable;
       }
     });

@@ -1,5 +1,5 @@
 <template>
-  <ul class="moa-basic-bar shadow--inner">
+  <ul class="moa-basic-bar shadow">
     <li
       
       :class="{ 'moa-basic-bar-item': true, 'moa-basic-bar-item--selected': ifShowPicker }"

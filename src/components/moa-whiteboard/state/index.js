@@ -2,19 +2,20 @@ import Vue from "vue";
 
 const hotKey = {
   MetaLeft: false, // cmd
-  Space: false
+  Space: false,
 };
 
 const eventBus = new Vue();
 
 const wbState = {
   focusNodes: [],
-  focusLine: undefined,
+  focusLine: undefined, // 单击
   dragNode: undefined,
-  editNode: undefined,
+  editNode: undefined, // 双击
   preAddNode: undefined, // 预添加的节点
   cursorBoard: undefined, // 当前鼠标所在的画板
   connectNodes: [], // 待链接的节点
+  showRightPage: false
 };
 Vue.observable(wbState);
 Vue.prototype.$wbState = wbState;

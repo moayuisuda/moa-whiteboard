@@ -396,7 +396,7 @@ foreignObject {
   border-radius: $radius;
 }
 
-.shadow--inner {
+.shadow {
   box-shadow: 0 0 3px 0px rgba(0, 0, 0, 0.2);
 }
 
@@ -440,4 +440,15 @@ foreignObject {
   // animation-direction: normal;
 }
 
+ul {
+  margin: 0;
+  list-style: none;
+}
 
+.moa-interct {
+  cursor: pointer;
+  background: #fff;
+  &:hover {
+    background: $background-color;
+  }
+}
