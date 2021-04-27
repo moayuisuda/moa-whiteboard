@@ -1,6 +1,6 @@
 <template>
   <g
-    @mousedown.prevent="onMousedown"
+    @mousedown="onMousedown"
     @dblclick.stop="onDblclick"
     @click.prevent="onClick"
     :transform="_transform"
@@ -15,7 +15,7 @@
     <!-- 拉伸器 -->
     <moa-transformer
       :node-data="nodeData"
-      :dots-show="!_isEdit && _isFocus"
+      :dots-show="_isFocus"
     />
     <!-- 删除节点 -->
     <image
@@ -71,7 +71,6 @@ export default {
       wbState.connectNodes.push(this)
     },
     onClick(e) {
-      if (!wbState.preAddNode) e.stopPropagation()
       if (wbState.connectNodes.length === 1) {
         const startNode = wbState.connectNodes[0]
         if (startNode === this) return
@@ -80,20 +79,16 @@ export default {
       }
     },
     lineTo(des) {
-      if (!this.nodeData.lineTo) this.nodeData.lineTo = []
-      if (this.nodeData.lineTo.includes(des)) return
+      if (this.nodeData.lineTo.includes(des.nodeData.id)) return
       this.nodeData.lineTo.push(des.nodeData.id)
-      this.container.lines.push({
-        startNodeData: this.nodeData,
-        endNodeData: des.nodeData
-      })
       wbState.connectNodes = []
     },
     onMousedown(e) {
       if (wbState.preAddNode) {
         return
       }
-      e.stopPropagation()
+      if (wbState.showRightPage) wbState.showRightPage = false
+      e.stopPropagation() // 保证不冒泡选择到外层节点
       if (!wbState.focusNodes.includes(this)) {
         // focus
         if (wbState.editNode) {
@@ -120,7 +115,7 @@ export default {
     },
     // 双击进入编辑状态
     onDblclick(e) {
-      if (Vue.$componentsConfig[`moa-${this.nodeData.type}`].editable === false)
+      if (this.$componentsConfig[`moa-${this.nodeData.type}`].editable === false)
         return
       wbState.editNode = this
     },
@@ -131,12 +126,6 @@ export default {
         ),
         1
       )
-      this.container.lines = this.container.lines.filter(line => {
-        return (
-          line.startNodeData !== this.nodeData &&
-          line.endNodeData !== this.nodeData
-        )
-      })
     }
   },
   props: {

@@ -28,7 +28,6 @@ export default {
   },
   methods: {
     async submit() {
-      console.log('bar')
       this.$emit('login', this.form)
     }
   }

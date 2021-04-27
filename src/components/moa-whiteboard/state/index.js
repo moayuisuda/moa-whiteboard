@@ -15,7 +15,8 @@ const wbState = {
   preAddNode: undefined, // 预添加的节点
   cursorBoard: undefined, // 当前鼠标所在的画板
   connectNodes: [], // 待链接的节点
-  showRightPage: false
+  showRightPage: false,
+  editBoard: [] // 当前编辑的流程，栈
 };
 Vue.observable(wbState);
 Vue.prototype.$wbState = wbState;

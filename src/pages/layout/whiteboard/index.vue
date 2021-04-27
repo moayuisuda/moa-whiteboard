@@ -109,7 +109,6 @@ export default {
     async addProject() {
       await projectService.add()
       this.projects = await projectService.getProjectList()
-      console.log(this.projects, this._editable, this.rootData.id)
     },
     changeProject(id) {
       userService.updateLastEditProjct(id)

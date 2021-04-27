@@ -45,7 +45,7 @@ export default {
   data() {
     return {
       oldNodeData: {},
-      dotSize: 10,
+      dotSize: 14,
     }
   },
   computed: {

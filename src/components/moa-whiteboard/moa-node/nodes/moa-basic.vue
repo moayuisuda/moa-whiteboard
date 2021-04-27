@@ -38,6 +38,7 @@
       :align="nodeData.model.align"
       v-model="nodeData.model.value"
     />
+    <moa-pre-add v-if="isFocus" :nodeData="nodeData" @add="onAddNode" />
   </g>
 </template>
 
@@ -55,6 +56,9 @@ export default {
   },
   mounted() {},
   methods: {
+    onAddNode() {
+
+    },
     getDefaultData() {
       return {
         type: 'basic',
@@ -70,7 +74,8 @@ export default {
           y: 0,
           w: 150,
           h: 150
-        }
+        },
+        lineTo: []
       }
     },
     onCompositionend(e) {},

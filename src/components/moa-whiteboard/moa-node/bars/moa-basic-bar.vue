@@ -1,14 +1,16 @@
 <template>
   <ul class="moa-basic-bar shadow">
     <li
-      
+      @click="togglePicker"
       :class="{ 'moa-basic-bar-item': true, 'moa-basic-bar-item--selected': ifShowPicker }"
     >
-      <img
-      @click="togglePicker"
-        :src="require(`../../assets/color.svg`)"
-        alt=""
-      />
+      <div :style="{
+        width: '15px',
+        height: '12px',
+        border: `1px solid ${$color.line}`,
+        backgroundColor: model.color,
+        borderRadius: '2px'
+      }" />
       <color-picker
         @input="updateValue"
         v-if="ifShowPicker"
@@ -85,7 +87,6 @@ export default {
   },
   methods: {
     updateValue(v) {
-      console.log(v)
       this.model.color = v.hex8
     },
     togglePicker() {

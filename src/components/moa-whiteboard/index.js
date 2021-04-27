@@ -4,13 +4,12 @@ const context = require.context("./", true, /.vue$/);
 
 export default {
   install() {
-    console.log("Flow components has been installed");
-    Vue.$componentsConfig = {};
+    Vue.prototype.$componentsConfig = {};
     context.keys().forEach((key) => {
       const component = context(key).default;
       Vue.component(component.name, component);
       if (component.isBoardCmp) {
-        const config = (Vue.$componentsConfig[component.name] = {});
+        const config = (Vue.prototype.$componentsConfig[component.name] = {});
         config.defaultData = () => {
           return component.methods.getDefaultData(); // 这里必须是函数，要不然加的节点都是同一个对象
         }

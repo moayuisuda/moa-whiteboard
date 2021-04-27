@@ -110,10 +110,6 @@ export default {
       wbState.focusLine = this
     },
     onDelete() {
-      this.container.lines.splice(
-        this.container.lines.indexOf(this.lineData),
-        1
-      )
       this.lineData.startNodeData.lineTo.splice(
         this.lineData.startNodeData.lineTo.indexOf(this.endNodeData),
         1

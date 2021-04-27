@@ -29,11 +29,13 @@
       </defs>
 
       <moa-board
+        ref="root-board"
         :isRoot="true"
         :nodeData="rootData"
         :editable="editable"
       ></moa-board>
     </svg>
+
     <moa-controller--node
       v-if="editable"
       @pre-add-node="onPreAddNode"
@@ -54,7 +56,7 @@
 </template>
 
 <script>
-import { wbState, hotKey, reset } from '~/state'
+import { wbState, hotKey, reset, eventBus } from '~/state'
 import { getCoords } from '~/utils/coords'
 import { v4 as uuidv4 } from 'uuid'
 import Vue from 'vue'
@@ -96,7 +98,6 @@ export default {
     'wbState.editNode': {
       handler(node) {
         if (node) {
-          console.log(node.$el, node.$el.getBoundingClientRect())
           this.editBounds = node.$el.getBoundingClientRect()
         }
       }
@@ -124,7 +125,7 @@ export default {
     }
   },
   mounted() {
-    this.initEvents()
+    this.init()
   },
   methods: {
     uploadImage() {
@@ -141,7 +142,7 @@ export default {
       })
     },
     async onPreAddNode(type) {
-      const preAddNode = Vue.$componentsConfig[`moa-${type}`].defaultData()
+      const preAddNode = this.$componentsConfig[`moa-${type}`].defaultData()
       let url
       if (type === 'image') {
         url = await this.uploadImage()
@@ -150,16 +151,12 @@ export default {
       preAddNode.id = uuidv4()
       wbState.preAddNode = preAddNode
     },
-    onClick(e) {
-      wbState.showRightPage = false
+    onClick() {
       if (wbState.preAddNode) {
         wbState.cursorBoard.nodes.push(wbState.preAddNode)
         wbState.preAddNode = undefined
         return
       }
-      wbState.focusNodes = []
-      wbState.editNode = undefined
-      wbState.focusLine = undefined
     },
     onClickRight(e) {
       if (wbState.focusNodes[wbState.focusNodes.length - 1]) {
@@ -168,8 +165,11 @@ export default {
         this.cursor.left = e.clientX
       }
     },
-    onMousedown() {},
-    initEvents() {
+    onMousedown() {
+      wbState.showRightPage = false
+    },
+    init() {
+      wbState.editBoard.push(this.$refs['root-board'])
       window.addEventListener('keydown', e => {
         switch (e.code) {
           case 'MetaLeft':
@@ -186,6 +186,12 @@ export default {
             hotKey.Space = false
         }
       })
+
+      eventBus.$on('node-event', this.nodeEventHandler)
+    },
+    nodeEventHandler(e) {
+      console.log('on-event', e)
+      const { type, name, data } = e
     },
     onMousemove(e) {
       if (wbState.preAddNode) {
@@ -197,7 +203,7 @@ export default {
         wbState.preAddNode.bounds.x = coords.x + 10
         wbState.preAddNode.bounds.y = coords.y + 10
       }
-      
+
       if (wbState.dragNode) {
         wbState.dragNode.onDrag({ x: e.movementX, y: e.movementY })
         wbState.editNode = undefined
@@ -221,14 +227,6 @@ export default {
     left: 20px;
     top: 20px;
     list-style: none;
-  }
-
-  .interct {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    background-color: $background-color;
   }
 }
 </style>

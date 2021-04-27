@@ -5,6 +5,7 @@
   >
     <!-- 边框样式 -->
     <rect
+      @click="onBackClick"
       :rx="$style['radius']"
       :ry="$style['radius']"
       :width="nodeData.bounds.w"
@@ -13,15 +14,26 @@
       :stroke="_stroke"
       :stroke-width="$style['stroke-width']"
     />
+    <foreignObject
+      y=-30
+      v-if="!isRoot"
+    >
+      <input
+        v-model="nodeData.model.title"
+        type="text"
+        @click.stop
+        class="moa-board__title"
+      >
+    </foreignObject>
     <svg
-      class="moa-whiteboard"
+      class="moa-board"
       ref="svg"
       :width="nodeData.bounds.w"
       :height="nodeData.bounds.h"
       :viewBox="_viewBox"
     >
       <moa-line
-        v-for="lineData in lines"
+        v-for="lineData in _lines"
         :key="lineData.id"
         :lineData="lineData"
       ></moa-line>
@@ -62,8 +74,8 @@ export default {
   },
   data() {
     return {
+      editable: false,
       nodes: [],
-      lines: [],
       onCmd: false,
       cache: {
         nodes: [],
@@ -72,15 +84,9 @@ export default {
     }
   },
   mounted() {
-    this.parseLines()
     this.initChart()
   },
   watch: {
-    nodeData() {
-      this.cache = {}
-      this.lines = []
-      this.parseLines()
-    }
   },
   computed: {
     _isShowPreAddNode() {
@@ -94,6 +100,33 @@ export default {
         this.nodeData.panelData.panelOps.y
       } ${this.nodeData.bounds.w / this.nodeData.panelData.panelOps.zoom} ${this
         .nodeData.bounds.h / this.nodeData.panelData.panelOps.zoom}`
+    },
+    _lines() {
+      const { chartData } = this.nodeData.panelData
+      const cache = {}
+      const lines = []
+
+      for (let node of chartData) {
+        if (cache[node.id]) {
+          throw `[moa-whiteboard] The node's id in a flow must be unique.`
+        }
+        cache[node.id] = node
+      }
+
+      this.nodes = chartData
+
+      for (let startNodeData of chartData) {
+        if (startNodeData.lineTo) {
+          for (let endNodeDataId of startNodeData.lineTo) {
+            lines.push({
+              startNodeData,
+              endNodeData: cache[endNodeDataId]
+            })
+          }
+        }
+      }
+
+      return lines
     }
   },
   props: {
@@ -120,12 +153,22 @@ export default {
           },
           chartData: []
         },
+        model: {
+          title: 'child flow'
+        },
         bounds: {
           x: 0,
           y: 0,
           w: 400,
           h: 400
         }
+      }
+    },
+    onBackClick(e) {
+      if (wbState.editBoard[wbState.editBoard.length - 1] === this) {
+        wbState.focusNodes = []
+        wbState.editNode = undefined
+        wbState.focusLine = undefined
       }
     },
     onMouseEnter() {
@@ -166,31 +209,17 @@ export default {
         this.svg.addEventListener('wheel', this.onWheel)
       }
     },
-    parseLines() {
-      const { chartData } = this.nodeData.panelData
-
-      for (let node of chartData) {
-        if (this.cache[node.id]) {
-          throw `[moa-whiteboard] The node's id in a flow must be unique.`
-        }
-        this.cache[node.id] = node
-      }
-
-      this.nodes = chartData
-
-      for (let startNodeData of chartData) {
-        if (startNodeData.lineTo) {
-          for (let endNodeDataId of startNodeData.lineTo) {
-            this.lines.push({
-              startNodeData,
-              endNodeData: this.cache[endNodeDataId]
-            })
-          }
-        }
-      }
-    }
   }
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.moa-board {
+  &__title {
+    font-size: 20px;
+    border: none;
+    background-color: transparent;
+    font-weight: bold;
+  }
+}
+</style>

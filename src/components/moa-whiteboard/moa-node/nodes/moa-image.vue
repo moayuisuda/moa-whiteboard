@@ -39,7 +39,8 @@ export default {
           y: 0,
           w: 150,
           h: 150
-        }
+        },
+        lineTo: []
       }
     }
   }
