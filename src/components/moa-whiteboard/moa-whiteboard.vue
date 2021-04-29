@@ -11,6 +11,18 @@
       :height="height"
     >
       <defs>
+        <filter
+          id="shadow"
+          filterUnits="objectBoundingBox"
+        >
+          <feDropShadow
+            dx="0"
+            dy="0"
+            stdDeviation="2"
+            flood-color="#333"
+            flood-opacity="0.2"
+          />
+        </filter>
         <marker
           id='arrow'
           orient="auto"
@@ -44,8 +56,7 @@
 
     <moa-node-bar
       v-if="$wbState.editNode"
-      :left="editBounds.left"
-      :top="editBounds.top"
+      :editBounds="editBounds"
     ></moa-node-bar>
     <moa-right-page
       v-if="$wbState.showRightPage"
@@ -69,7 +80,9 @@ export default {
       wbState,
       editBounds: {
         left: 0,
-        top: 0
+        top: 0,
+        width: 0,
+        height: 0
       },
       cursor: {
         left: 0,
@@ -153,7 +166,7 @@ export default {
     },
     onClick() {
       if (wbState.preAddNode) {
-        wbState.cursorBoard.nodes.push(wbState.preAddNode)
+        wbState.cursorBoard.nodeData.panelData.chartData.push(wbState.preAddNode)
         wbState.preAddNode = undefined
         return
       }

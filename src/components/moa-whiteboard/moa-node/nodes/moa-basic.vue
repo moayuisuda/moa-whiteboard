@@ -49,9 +49,9 @@ const alpha = 0.55
 export default {
   name: 'moa-basic',
   isBoardCmp: true,
+  editable: true,
   data() {
     return {
-      editable: true
     }
   },
   mounted() {},
@@ -67,7 +67,8 @@ export default {
           align: 'center',
           shape: 'rect',
           border: 'none',
-          color: '#ffffff'
+          color: '#ffffff',
+          size: 'M'
         },
         bounds: {
           x: 0,

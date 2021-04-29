@@ -24,11 +24,11 @@
 export default {
   name: 'moa-inspector',
   isBoardCmp: true,
+  editable: false,
   inject: ['container'],
   data() {
     return {
-      scroll: 0,
-      editable: false
+      scroll: 0
     }
   },
   methods: {

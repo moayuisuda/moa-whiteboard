@@ -1,20 +1,20 @@
-import Vue from 'vue'
-import moaWhiteboard from '@/components/moa-whiteboard'
+import Vue from "vue";
+import moaWhiteboard from "@/components/moa-whiteboard";
 // import vuetify from '@/components/vuetify';
-import app from './pages/app.vue'
-import router from './router'
+import app from "./pages/app.vue";
+import router from "./router";
 // import 'vuetify/dist/vuetify.min.css'
-import './theme/base.scss'
-import color from './theme/variable'
-import { user } from './state'
+import "./theme/base.scss";
+import color from "./theme/variable";
+import { user } from "./state";
 
-Vue.prototype.$user = user
-Vue.use(moaWhiteboard)
-Vue.use(color)
+Vue.prototype.$user = user;
+Vue.use(moaWhiteboard);
+Vue.use(color);
 
 new Vue({
   router,
   // vuetify,
-  el: '#app',
+  el: "#app",
   render: (h) => h(app),
-})
+});

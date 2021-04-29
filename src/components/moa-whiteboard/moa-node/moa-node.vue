@@ -1,8 +1,9 @@
 <template>
   <g
+    :filter="_filter"
+    v-if="nodeData.type !== 'line'"
     @mousedown="onMousedown"
     @dblclick.stop="onDblclick"
-    @click.prevent="onClick"
     :transform="_transform"
     :class="`moa-node node-${nodeData.id}`"
   >
@@ -38,12 +39,22 @@
       xlink:href="../assets/connect.svg"
     ></image>
   </g>
+
+  <moa-line
+    v-else
+    :lineData="nodeData"
+    @delete="onDelete"
+    @path-click="onMousedown"
+    @edit="onDblclick"
+    :isEdit="_isEdit"
+    :isFocus="_isFocus"
+  />
 </template>
 
 <script>
 import { getCoords, getSVGScale } from '~/utils/coords'
 import { eventBus, wbState, hotKey } from '~/state'
-import Vue from 'vue'
+import { v4 } from 'uuid'
 const moveThreshold = 10
 
 export default {
@@ -53,6 +64,34 @@ export default {
     return {}
   },
   computed: {
+    _filter() {
+      if (this.nodeData.type !== 'board') return 'url(#shadow)'
+      else return ''
+    },
+    _inLines() {
+      const re = []
+      const lines = this.container.nodeData.panelData.chartData.filter(n => {
+        return n.type === 'line'
+      })
+      for (let l of lines) {
+        if (l.end === this.nodeData.id) {
+          re.push(l)
+        }
+      }
+      return re
+    },
+    _outLines() {
+      const re = []
+      const lines = this.container.nodeData.panelData.chartData.filter(n => {
+        return n.type === 'line'
+      })
+      for (let l of lines) {
+        if (l.start === this.nodeData.id) {
+          re.push(l)
+        }
+      }
+      return re
+    },
     _isFocus() {
       return wbState.focusNodes.includes(this)
     },
@@ -70,22 +109,33 @@ export default {
       }
       wbState.connectNodes.push(this)
     },
-    onClick(e) {
-      if (wbState.connectNodes.length === 1) {
-        const startNode = wbState.connectNodes[0]
-        if (startNode === this) return
-        if (startNode.container !== this.container) return
-        else startNode.lineTo(this)
-      }
-    },
     lineTo(des) {
-      if (this.nodeData.lineTo.includes(des.nodeData.id)) return
-      this.nodeData.lineTo.push(des.nodeData.id)
+      // debugger
+      const nodes = this.container.nodeData.panelData.chartData
+      if (this._outLines.find(line => line.end === des.nodeData.id)) return
+      const lineData = this.$componentsConfig['moa-line'].defaultData()
+      lineData.id = v4()
+      lineData.start = this.nodeData.id
+      lineData.end = des.nodeData.id
+      const index = Math.min(
+        nodes.indexOf(this.nodeData),
+        nodes.indexOf(des.nodeData)
+      )
+      nodes.splice(index - 1 >= 0 ? index - 1 : 0, 0, lineData)
       wbState.connectNodes = []
     },
     onMousedown(e) {
+      console.log('click')
       if (wbState.preAddNode) {
         return
+      }
+      if (wbState.connectNodes.length === 1) {
+        const startNode = wbState.connectNodes[0]
+        if (startNode === this) return
+        if (startNode.container !== this.container) {
+          wbState.connectNodes = []
+          return
+        } else startNode.lineTo(this)
       }
       if (wbState.showRightPage) wbState.showRightPage = false
       e.stopPropagation() // 保证不冒泡选择到外层节点
@@ -100,7 +150,8 @@ export default {
           wbState.focusNodes.push(this)
         }
       }
-      if (!wbState.dragNode !== this) wbState.dragNode = this // drag
+      if (!wbState.dragNode !== this && this.nodeData.type !== 'line')
+        wbState.dragNode = this // drag
     },
     move(movement) {
       const scale = getSVGScale(this.container.svg)
@@ -115,17 +166,16 @@ export default {
     },
     // 双击进入编辑状态
     onDblclick(e) {
-      if (this.$componentsConfig[`moa-${this.nodeData.type}`].editable === false)
+      console.log('db')
+      if (
+        this.$componentsConfig[`moa-${this.nodeData.type}`].editable === false
+      )
         return
       wbState.editNode = this
     },
     onDelete() {
-      this.container.nodes.splice(
-        this.container.nodes.indexOf(
-          this.container.nodes.find(nodeData => nodeData === this.nodeData)
-        ),
-        1
-      )
+      const nodes = this.container.nodeData.panelData.chartData
+      nodes.remove(this.nodeData, ...this._inLines, ...this._outLines)
     }
   },
   props: {

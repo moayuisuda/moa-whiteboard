@@ -13,7 +13,7 @@ export default {
         config.defaultData = () => {
           return component.methods.getDefaultData(); // 这里必须是函数，要不然加的节点都是同一个对象
         }
-        config.editable = component.data().editable;
+        config.editable = component.editable; // 注意不能这样限制了在data内不能访问props否则会报错
       }
     });
   },

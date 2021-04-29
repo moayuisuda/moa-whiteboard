@@ -95,16 +95,25 @@ export default {
           bounds.y = origin.y
       }
       newNodeData.id = uuidv4()
-      this.nodeData.lineTo.push(newNodeData.id)
-      this.container.nodes.push(newNodeData)
+
+      const newLineData = this.$componentsConfig['moa-line'].defaultData()
+      newLineData.id = uuidv4()
+
+      const nodes = this.container.nodeData.panelData.chartData
+      const startNode = this.$wbState.focusNodes[
+        this.$wbState.focusNodes.length - 1
+      ]
+
+      nodes.push(newNodeData)
 
       this.$nextTick(() => {
-        const node = this.container.$children[
+        const endNode = this.container.$children[
           this.container.$children.length - 1
         ]
-        this.$wbState.focusNodes = [node]
+        this.$wbState.focusNodes = [endNode]
+        startNode.lineTo(endNode)
         requestAnimationFrame(() => {
-          this.$wbState.editNode = node
+          this.$wbState.editNode = endNode
         })
       })
     }

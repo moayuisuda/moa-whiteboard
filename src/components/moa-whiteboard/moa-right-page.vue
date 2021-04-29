@@ -41,7 +41,7 @@ export default {
     return {
       node: this.$wbState.focusNodes[this.$wbState.focusNodes.length - 1],
       nodes: this.$wbState.focusNodes[this.$wbState.focusNodes.length - 1]
-        .container.nodes
+        .container.nodeData.panelData.chartData
     }
   },
   props: {

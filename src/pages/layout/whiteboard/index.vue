@@ -109,6 +109,7 @@ export default {
     async addProject() {
       await projectService.add()
       this.projects = await projectService.getProjectList()
+      this.$router.push('/layout/whiteboard/' + this.projects.last().id)
     },
     changeProject(id) {
       userService.updateLastEditProjct(id)
@@ -119,8 +120,13 @@ export default {
       this.stageBounds.h = document.documentElement.clientHeight
     },
     async onDelete() {
+      if (this.projects.length === 1) {
+        console.log('[moa] 最少保留一个项目')
+        return
+      }
       await projectService.dele(this.rootData.id)
       this.projects = await projectService.getProjectList()
+      this.$router.push('/layout/whiteboard/' + this.projects.last().id)
     },
     async onSave() {
       try {

@@ -32,13 +32,8 @@
       :height="nodeData.bounds.h"
       :viewBox="_viewBox"
     >
-      <moa-line
-        v-for="lineData in _lines"
-        :key="lineData.id"
-        :lineData="lineData"
-      ></moa-line>
       <moa-node
-        v-for="nodeData in nodes"
+        v-for="nodeData in nodeData.panelData.chartData"
         :key="nodeData.id"
         :nodeData="nodeData"
       ></moa-node>
@@ -53,6 +48,7 @@
 <script>
 import { hotKey, wbState } from '~/state'
 import { getCoords, getSVGScale } from '~/utils/coords'
+import { v4 } from 'uuid'
 
 const zoomMin = 0.3
 const zoomMax = 4
@@ -62,6 +58,7 @@ const zoomSpeed = 0.002
 export default {
   name: 'moa-board',
   isBoardCmp: true,
+  editable: false,
   provide: function() {
     return this.isRoot
       ? {
@@ -74,13 +71,7 @@ export default {
   },
   data() {
     return {
-      editable: false,
-      nodes: [],
       onCmd: false,
-      cache: {
-        nodes: [],
-        lines: []
-      }
     }
   },
   mounted() {
@@ -101,10 +92,9 @@ export default {
       } ${this.nodeData.bounds.w / this.nodeData.panelData.panelOps.zoom} ${this
         .nodeData.bounds.h / this.nodeData.panelData.panelOps.zoom}`
     },
-    _lines() {
+    _nodeMap() {
       const { chartData } = this.nodeData.panelData
       const cache = {}
-      const lines = []
 
       for (let node of chartData) {
         if (cache[node.id]) {
@@ -113,20 +103,7 @@ export default {
         cache[node.id] = node
       }
 
-      this.nodes = chartData
-
-      for (let startNodeData of chartData) {
-        if (startNodeData.lineTo) {
-          for (let endNodeDataId of startNodeData.lineTo) {
-            lines.push({
-              startNodeData,
-              endNodeData: cache[endNodeDataId]
-            })
-          }
-        }
-      }
-
-      return lines
+      return cache
     }
   },
   props: {

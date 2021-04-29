@@ -12,10 +12,9 @@
 export default {
   name: 'moa-image',
   isBoardCmp: true,
+  editable: false,
   data() {
-    return {
-      editable: false
-    }
+    return {}
   },
   props: {
     isFocus: Boolean,
@@ -31,7 +30,7 @@ export default {
     getDefaultData() {
       return {
         model: {
-          url: '',
+          url: ''
         },
         type: 'image',
         bounds: {
