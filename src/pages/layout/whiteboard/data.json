@@ -11,10 +11,14 @@
         "id": "1",
         "type": "line",
         "model": {
-          "type": "stroke"
+          "type": "bezier",
+          "style": "stroke",
+          "arrow": "true"
         },
         "start": "0",
-        "end": "2"
+        "end": "2",
+        "startP": "right",
+        "endP": "left"
       },
       {
         "id": "0",

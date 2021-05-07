@@ -20,6 +20,7 @@
           ></div>
           <textarea
             :style="{
+              color: ifWhiteFont ? 'white' : '#333',
               textAlign: _textAlign,
             }"
             ref="textarea"
@@ -51,7 +52,8 @@ export default {
     value: String,
     align: String,
     size: String,
-    isEdit: Boolean
+    isEdit: Boolean,
+    ifWhiteFont: Boolean
   },
   computed: {
     _fontSize() {
@@ -76,6 +78,7 @@ export default {
   watch: {
     isEdit: {
       handler(val) {
+        console.log(val)
         if (val) {
           this.$refs['textarea'].focus()
         } else {
@@ -153,7 +156,6 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  color: $text-color;
   resize: none;
   overflow: hidden;
   background-color: transparent;

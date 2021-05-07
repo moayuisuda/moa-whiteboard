@@ -31,18 +31,21 @@
     >
       move to bottom
     </li>
+    <li
+      class="moa-interct moa-right-page__item"
+      @click="dele"
+    >
+      delete
+    </li>
   </ul>
 </template>
 
 <script>
+import { wbState } from '~/state'
 export default {
   name: 'moa-right-page',
   data() {
-    return {
-      node: this.$wbState.focusNodes[this.$wbState.focusNodes.length - 1],
-      nodes: this.$wbState.focusNodes[this.$wbState.focusNodes.length - 1]
-        .container.nodeData.panelData.chartData
-    }
+    return {}
   },
   props: {
     left: {
@@ -54,37 +57,23 @@ export default {
   },
   computed: {},
   methods: {
+    dele() {
+      wbState.focusNodes.forEach(node => node.dele())
+      wbState.showRightPage = false
+    },
     moveBack() {
-      const {
-        nodes,
-        node: { nodeData }
-      } = this
-      const index = nodes.indexOf(nodeData)
-      if (index === 0) return
-      nodes.splice(index - 1, 0, nodes.splice(nodes.indexOf(nodeData), 1)[0])
+      wbState.focusNodes.forEach(node => node.moveBack())
     },
     moveFront() {
-      const {
-        nodes,
-        node: { nodeData }
-      } = this
-      const index = nodes.indexOf(nodeData)
-      if (index === nodes.length - 1) return
-      nodes.splice(index + 1, 0, nodes.splice(nodes.indexOf(nodeData), 1)[0])
+      wbState.focusNodes.reverse().forEach(node => node.moveFront())
+      wbState.focusNodes.reverse()
     },
     moveToTop() {
-      const {
-        nodes,
-        node: { nodeData }
-      } = this
-      nodes.splice(nodes.length, 0, nodes.splice(nodes.indexOf(nodeData), 1)[0])
+      wbState.focusNodes.reverse().forEach(node => node.moveToTop())
+      wbState.focusNodes.reverse()
     },
     moveToBottom() {
-      const {
-        nodes,
-        node: { nodeData }
-      } = this
-      nodes.splice(0, 0, nodes.splice(nodes.indexOf(nodeData), 1)[0])
+      wbState.focusNodes.forEach(node => node.moveToBottom())
     }
   },
   created() {}

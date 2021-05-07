@@ -2,8 +2,8 @@
   <ul class="moa-basic-bar shadow">
     <li
       @mousedown.prevent="onTypeChange(i)"
-      :class="{ 'moa-basic-bar-item': true, 'moa-basic-bar-item--selected': model.type === i }"
-      v-for="i in ['stroke', 'dash', 'arrow']"
+      :class="{ 'moa-basic-bar-item': true, 'moa-basic-bar-item--selected': model.style === i }"
+      v-for="i in ['stroke', 'dash']"
       :key="i"
     >
       <img
@@ -23,8 +23,8 @@ export default {
     }
   },
   methods: {
-    onTypeChange(shape) {
-      this.model.type = shape
+    onTypeChange(style) {
+      this.model.style = style
     }
   }
 }
@@ -58,7 +58,7 @@ export default {
     margin: 0 1px;
     padding: 0 4px;
     img {
-      width: 30px;
+      width: 12px;
     }
     &--size {
       font-size: 10px;

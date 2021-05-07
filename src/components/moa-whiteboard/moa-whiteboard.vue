@@ -18,9 +18,9 @@
           <feDropShadow
             dx="0"
             dy="0"
-            stdDeviation="2"
+            stdDeviation="3"
             flood-color="#333"
-            flood-opacity="0.2"
+            flood-opacity="0.1"
           />
         </filter>
         <marker
@@ -55,7 +55,7 @@
     ></moa-controller--node>
 
     <moa-node-bar
-      v-if="$wbState.editNode"
+      v-if="_ifShowNodeBar"
       :editBounds="editBounds"
     ></moa-node-bar>
     <moa-right-page
@@ -71,13 +71,13 @@ import { wbState, hotKey, reset, eventBus } from '~/state'
 import { getCoords } from '~/utils/coords'
 import { v4 as uuidv4 } from 'uuid'
 import Vue from 'vue'
-import * as sourceService from '@/services/source'
 
 export default {
   name: 'moa-whiteboard',
   data() {
     return {
       wbState,
+      dragStart: {},
       editBounds: {
         left: 0,
         top: 0,
@@ -123,6 +123,9 @@ export default {
         }
         Vue.observable(this.rootData.bounds)
         reset()
+        this.$nextTick(() => {
+          wbState.editBoard = [this.$refs['root-board']] // 防止第一次没有mounted拿不到
+        })
       },
       immediate: true
     },
@@ -140,33 +143,32 @@ export default {
   mounted() {
     this.init()
   },
+  computed: {
+    // _transform() {
+    //   return `translate(${Math.round(
+    //     this.nodeData.panelData.panelOps.x /
+    //   ) * wbState.snap}, ${Math.round(this.nodeData.panelData.panelOps.y) / wbState.snap * })`
+    // },
+    _ifShowNodeBar() {
+      return (
+        wbState.editNode &&
+        Vue.component(`moa-${this.$wbState.editNode.nodeData.type}-bar`)
+      )
+    }
+  },
   methods: {
-    uploadImage() {
-      return new Promise(resolve => {
-        const input = document.createElement('input')
-        input.setAttribute('type', 'file')
-        input.click()
-
-        input.addEventListener('change', e => {
-          sourceService.upload(e.target.files[0]).then(url => {
-            resolve(url)
-          })
-        })
-      })
-    },
     async onPreAddNode(type) {
-      const preAddNode = this.$componentsConfig[`moa-${type}`].defaultData()
-      let url
-      if (type === 'image') {
-        url = await this.uploadImage()
-        preAddNode.model.url = BASE_URL + url
-      }
+      const preAddNode = await this.$componentsConfig[
+        `moa-${type}`
+      ].defaultData()
       preAddNode.id = uuidv4()
       wbState.preAddNode = preAddNode
     },
     onClick() {
       if (wbState.preAddNode) {
-        wbState.cursorBoard.nodeData.panelData.chartData.push(wbState.preAddNode)
+        wbState.cursorBoard.nodeData.panelData.chartData.push(
+          wbState.preAddNode
+        )
         wbState.preAddNode = undefined
         return
       }
@@ -178,53 +180,70 @@ export default {
         this.cursor.left = e.clientX
       }
     },
-    onMousedown() {
+    onMousedown(e) {
       wbState.showRightPage = false
     },
     init() {
-      wbState.editBoard.push(this.$refs['root-board'])
       window.addEventListener('keydown', e => {
         switch (e.code) {
           case 'MetaLeft':
+            e.preventDefault()
             hotKey.MetaLeft = true
-          case 'Space':
+            break
+          case 'AltLeft':
+            e.preventDefault()
+            hotKey.AltLeft = true
+            break
+          case 'Space': {
+            // e.preventDefault()
             hotKey.Space = true
+          }
         }
       })
       window.addEventListener('keyup', e => {
         switch (e.code) {
           case 'MetaLeft':
+            e.preventDefault()
             hotKey.MetaLeft = false
+            break
+          case 'AltLeft':
+            e.preventDefault()
+            hotKey.AltLeft = false
+            break
           case 'Space':
+            // e.preventDefault()
             hotKey.Space = false
         }
       })
 
       eventBus.$on('node-event', this.nodeEventHandler)
+      eventBus.$on('drag-start', this.onDragStart)
+    },
+    onDragStart(e) {
+      console.log('start')
+      this.dragStart = getCoords(wbState.onBoard.svg, wbState.onBoard.pt, e)
     },
     nodeEventHandler(e) {
       console.log('on-event', e)
       const { type, name, data } = e
     },
     onMousemove(e) {
-      if (wbState.preAddNode) {
-        const coords = getCoords(
-          wbState.cursorBoard.svg,
-          wbState.cursorBoard.pt,
-          e
-        )
-        wbState.preAddNode.bounds.x = coords.x + 10
-        wbState.preAddNode.bounds.y = coords.y + 10
-      }
-
       if (wbState.dragNode) {
-        wbState.dragNode.onDrag({ x: e.movementX, y: e.movementY })
+        wbState.dragNode.onDragMove = true
+        const coords = getCoords(wbState.onBoard.svg, wbState.onBoard.pt, e)
+        const { dragStart: start } = this
+        const disX = coords.x - start.x
+        const disY = coords.y - start.y
+        wbState.dragNode.onDrag({
+          x: Math.round(disX / wbState.snap) * wbState.snap,
+          y: Math.round(disY / wbState.snap) * wbState.snap
+        })
+
         wbState.editNode = undefined
       }
-      if (hotKey.Space)
-        wbState.cursorBoard.onMove({ x: e.movementX, y: e.movementY })
     },
     onMouseup() {
+      wbState.onDragMove = false
       wbState.dragNode = undefined
     }
   }

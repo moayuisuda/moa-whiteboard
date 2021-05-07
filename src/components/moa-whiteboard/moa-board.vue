@@ -2,6 +2,8 @@
   <g
     @wheel.stop="onWheel"
     @mouseover.stop="onMouseEnter"
+    @mousemove="onMousemove"
+    @mouseup="onMouseup"
   >
     <!-- 边框样式 -->
     <rect
@@ -15,15 +17,27 @@
       :stroke-width="$style['stroke-width']"
     />
     <foreignObject
+      :width="nodeData.bounds.w"
       y=-30
       v-if="!isRoot"
     >
       <input
         v-model="nodeData.model.title"
         type="text"
-        @click.stop
         class="moa-board__title"
       >
+      <select
+        class="moa-board__project"
+        v-model="nodeData.model.project"
+        @change="linkProject"
+      >
+        <option
+          v-for="project in _projects"
+          :key="project.id"
+          :value="project.id"
+        >{{ project.id }}</option>
+        <option value="">NOT LINK</option>
+      </select>
     </foreignObject>
     <svg
       class="moa-board"
@@ -32,6 +46,16 @@
       :height="nodeData.bounds.h"
       :viewBox="_viewBox"
     >
+      <g v-show="nodeData.panelData.panelOps.zoom > 0.5">
+        <circle
+          v-for="dot in dots"
+          :key="dot.x + '' + dot.y"
+          :cx="dot.x"
+          :cy="dot.y"
+          r="1"
+          :fill="$color['line']"
+        />
+      </g>
       <moa-node
         v-for="nodeData in nodeData.panelData.chartData"
         :key="nodeData.id"
@@ -48,6 +72,7 @@
 <script>
 import { hotKey, wbState } from '~/state'
 import { getCoords, getSVGScale } from '~/utils/coords'
+import * as projectService from '@/services/project'
 import { v4 } from 'uuid'
 
 const zoomMin = 0.3
@@ -58,7 +83,7 @@ const zoomSpeed = 0.002
 export default {
   name: 'moa-board',
   isBoardCmp: true,
-  editable: false,
+  editable: true,
   provide: function() {
     return this.isRoot
       ? {
@@ -69,17 +94,28 @@ export default {
           container: this
         }
   },
+  inject: ['root'],
   data() {
     return {
       onCmd: false,
+      startPoint: { x: undefined, y: undefined },
+      dots: []
     }
   },
   mounted() {
     this.initChart()
   },
   watch: {
+    isEdit: {
+      handler(v) {
+        console.log('editBoard', v)
+      }
+    }
   },
   computed: {
+    _projects() {
+      return this.$wbState.projects.filter(p => p.id !== this.root.nodeData.id)
+    },
     _isShowPreAddNode() {
       return wbState.preAddNode && wbState.cursorBoard === this
     },
@@ -107,6 +143,7 @@ export default {
     }
   },
   props: {
+    isEdit: Boolean,
     isRoot: {
       type: Boolean,
       default: false
@@ -118,7 +155,67 @@ export default {
       }
     }
   },
+  async created() {
+    if (!this.isRoot && this.nodeData.model.project) {
+      const data = await projectService.getProjectData(
+        this.nodeData.model.project
+      )
+      data.panelData.panelOps.zoom = data.panelData.panelOps.zoom * 0.5
+      Object.assign(this.nodeData, {
+        panelData: data.panelData
+      })
+    }
+
+    for (let i = 0; i <= this.nodeData.bounds.h; i += wbState.snap) {
+      for (let j = 0; j <= this.nodeData.bounds.w; j += wbState.snap) {
+        this.dots.push({
+          x: j,
+          y: i
+        })
+      }
+    }
+  },
   methods: {
+    onMouseup(e) {
+      const line = wbState.connectLine
+      const start = wbState.connectNodes[0]
+      if (start && line) {
+        const coords = getCoords(this.svg, this.pt, e)
+        if (line.type === 'group') {
+          line.points.push(coords)
+        } else {
+          line.end = coords
+        }
+      }
+    },
+    onClick() {
+      const line = wbState.connectLine
+      if (line) {
+        const coords = getCoords(this.svg, this.pt, e)
+        if (line.type === 'group') {
+          line.points.push(coords)
+        } else {
+          if (line.start) line.end = coords
+          else line.start = coords
+        }
+      }
+    },
+    async linkProject() {
+      if (!this.nodeData.model.project) {
+        const defaultData = this.getDefaultData()
+        Object.assign(this.nodeData, {
+          panelData: defaultData.panelData
+        })
+      } else {
+        const data = await projectService.getProjectData(
+          this.nodeData.model.project
+        )
+        data.panelData.panelOps.zoom = data.panelData.panelOps.zoom * 0.5
+        Object.assign(this.nodeData, {
+          panelData: data.panelData
+        })
+      }
+    },
     getDefaultData() {
       return {
         type: 'board',
@@ -131,7 +228,8 @@ export default {
           chartData: []
         },
         model: {
-          title: 'child flow'
+          title: 'child flow',
+          project: ''
         },
         bounds: {
           x: 0,
@@ -151,13 +249,29 @@ export default {
     onMouseEnter() {
       wbState.cursorBoard = this
     },
+    onMousemove(e) {
+      const coords = getCoords(this.svg, this.pt, e)
+
+      if (wbState.preAddNode) {
+        e.stopPropagation()
+        wbState.preAddNode.bounds.x =
+          Math.round(coords.x / wbState.snap) * wbState.snap + wbState.snap
+        wbState.preAddNode.bounds.y =
+          Math.round(coords.y / wbState.snap) * wbState.snap + wbState.snap
+      }
+
+      if (hotKey.Space) {
+        e.stopPropagation()
+        this.onMove({ x: e.movementX, y: e.movementY })
+      }
+    },
     onMove(movement) {
       const scale = getSVGScale(this.svg)
       this.nodeData.panelData.panelOps.x -= movement.x * scale
       this.nodeData.panelData.panelOps.y -= movement.y * scale
     },
     onWheel(e) {
-      if (hotKey.MetaLeft) {
+      if (hotKey.MetaLeft || hotKey.AltLeft) {
         const oldCoords = getCoords(this.svg, this.pt, e)
         this.nodeData.panelData.panelOps.zoom =
           this.nodeData.panelData.panelOps.zoom + e.deltaY * zoomSpeed
@@ -185,7 +299,7 @@ export default {
       if (this.isRoot) {
         this.svg.addEventListener('wheel', this.onWheel)
       }
-    },
+    }
   }
 }
 </script>
@@ -197,6 +311,11 @@ export default {
     border: none;
     background-color: transparent;
     font-weight: bold;
+    width: 60%;
+  }
+  &__project {
+    width: 30%;
+    text-align: center;
   }
 }
 </style>

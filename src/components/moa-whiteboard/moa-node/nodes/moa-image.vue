@@ -9,6 +9,7 @@
 </template>
 
 <script>
+import * as sourceService from '@/services/source'
 export default {
   name: 'moa-image',
   isBoardCmp: true,
@@ -27,10 +28,24 @@ export default {
     }
   },
   methods: {
-    getDefaultData() {
+    uploadImage() {
+      return new Promise(resolve => {
+        const input = document.createElement('input')
+        input.setAttribute('type', 'file')
+        input.click()
+
+        input.addEventListener('change', e => {
+          sourceService.upload(e.target.files[0]).then(url => {
+            resolve(url)
+          })
+        })
+      })
+    },
+    async getDefaultData() {
+      const url = await this.uploadImage()
       return {
         model: {
-          url: ''
+          url: BASE_URL + url
         },
         type: 'image',
         bounds: {

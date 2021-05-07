@@ -14,7 +14,7 @@
     >
       <li
         @click="changeProject(project.id)"
-        v-for="project in projects"
+        v-for="project in $wbState.projects"
         :key="project.id"
         class="hover-item center"
         :class="{
@@ -64,10 +64,16 @@ export default {
   data() {
     return {
       rootData,
-      projects: [],
       stageBounds: {
         w: 1080,
         h: 720
+      }
+    }
+  },
+  watch: {
+    '$wbState.projects': {
+      handler(val) {
+        console.log(val)
       }
     }
   },
@@ -75,7 +81,7 @@ export default {
     _editable() {
       if (
         this.rootData.id === 'INIT' ||
-        this.projects.find(project => {
+        this.$wbState.projects.find(project => {
           return project.id === this.rootData.id
         })
       ) {
@@ -108,11 +114,12 @@ export default {
     },
     async addProject() {
       await projectService.add()
-      this.projects = await projectService.getProjectList()
-      this.$router.push('/layout/whiteboard/' + this.projects.last().id)
+      this.$wbState.projects = await projectService.getProjectList()
+      this.$router.push(
+        '/layout/whiteboard/' + this.$wbState.projects.last().id
+      )
     },
     changeProject(id) {
-      userService.updateLastEditProjct(id)
       this.$router.push({ path: id })
     },
     onResize() {
@@ -120,13 +127,15 @@ export default {
       this.stageBounds.h = document.documentElement.clientHeight
     },
     async onDelete() {
-      if (this.projects.length === 1) {
+      if (this.$wbState.projects.length === 1) {
         console.log('[moa] 最少保留一个项目')
         return
       }
       await projectService.dele(this.rootData.id)
-      this.projects = await projectService.getProjectList()
-      this.$router.push('/layout/whiteboard/' + this.projects.last().id)
+      this.$wbState.projects = await projectService.getProjectList()
+      this.$router.push(
+        '/layout/whiteboard/' + this.$wbState.projects.last().id
+      )
     },
     async onSave() {
       try {
@@ -143,7 +152,7 @@ export default {
       Object.assign(this.$user, userInfo)
       localStorage.setItem('TOKEN', userInfo.token)
       this.$router.push('/layout/whiteboard/' + userInfo.last_edit_project)
-      this.projects = await projectService.getProjectList()
+      this.$wbState.projects = await projectService.getProjectList()
     },
     onLogout() {
       this.clearState()
@@ -152,14 +161,15 @@ export default {
       Object.assign(this.$user, { email: '', id: '' })
       localStorage.setItem('TOKEN', '')
       this.$router.push('/layout/whiteboard/INIT')
-      this.projects = []
+      this.$wbState.projects = []
     }
   },
   // 切换项目
   async beforeRouteUpdate(to, from, next) {
-    if (to.params.id !== 'INIT')
+    if (to.params.id !== 'INIT') {
       this.rootData = await projectService.getProjectData(to.params.id)
-    else this.rootData = rootData
+      userService.updateLastEditProjct(to.params.id)
+    } else this.rootData = rootData
     next()
   },
   // 首次进入
@@ -174,7 +184,7 @@ export default {
     if (localStorage.getItem('TOKEN')) {
       const info = await userService.getUserInfo()
       Object.assign(this.$user, info)
-      this.projects = await projectService.getProjectList()
+      this.$wbState.projects = await projectService.getProjectList()
 
       if (!this._ifProvideId) {
         this.$router.push('/layout/whiteboard/' + this.$user.last_edit_project)
@@ -198,6 +208,7 @@ export default {
 
 .moa-sidebar {
   position: absolute;
+  width: 200px;
   right: 20px;
   top: 100px;
   max-height: calc(100vh - 200px);

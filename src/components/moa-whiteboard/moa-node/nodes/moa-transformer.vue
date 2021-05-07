@@ -1,5 +1,8 @@
 <template>
-  <g class="moa-transformer" v-if="dotsShow">
+  <g
+    class="moa-transformer"
+    v-if="dotsShow"
+  >
     <rect
       class="moa-transformer-border"
       :width="nodeData.bounds.w"
@@ -28,6 +31,7 @@
 
 <script>
 import { getCoords } from '~/utils/coords'
+import { wbState } from '~/state'
 const wMin = 20
 const hMin = 20
 
@@ -36,16 +40,16 @@ export default {
   inject: ['container'],
   props: {
     nodeData: {
-      type: Object,
+      type: Object
     },
     dotsShow: {
-      type: Boolean,
-    },
+      type: Boolean
+    }
   },
   data() {
     return {
       oldNodeData: {},
-      dotSize: 14,
+      dotSize: 14
     }
   },
   computed: {
@@ -67,21 +71,21 @@ export default {
         { x: w, y: h / 2 },
         { x: 0, y: h },
         { x: w / 2, y: h },
-        { x: w, y: h },
+        { x: w, y: h }
       ]
-    },
+    }
   },
   methods: {
     onMousedown(index, event) {
       const coords = getCoords(this.container.svg, this.container.pt, event)
       this.oldNodeData = {
         index,
-        x: coords.x,
-        y: coords.y,
+        x: Math.round(coords.x / wbState.snap) * wbState.snap,
+        y: Math.round(coords.y / wbState.snap) * wbState.snap,
         w: this.nodeData.bounds.w,
         h: this.nodeData.bounds.h,
         ox: this.nodeData.bounds.x,
-        oy: this.nodeData.bounds.y,
+        oy: this.nodeData.bounds.y
       }
       window.addEventListener('mousemove', this.onMousemove)
       window.addEventListener('mouseup', this.onMouseup)
@@ -89,8 +93,13 @@ export default {
     onMousemove(event) {
       let width, height
       const coords = getCoords(this.container.svg, this.container.pt, event)
+      coords.x =
+        Math.round(coords.x / wbState.snap) * wbState.snap
+      coords.y =
+        Math.round(coords.y / wbState.snap) * wbState.snap
+        const index = this.oldNodeData.index
 
-      if (this.oldNodeData.index < 2 || this.oldNodeData.index === 3) {
+      if (index < 2 || index === 3) {
         width = this.oldNodeData.x - coords.x
         height = this.oldNodeData.y - coords.y
         this.nodeData.bounds.x = this.oldNodeData.ox - width
@@ -110,12 +119,13 @@ export default {
 
       this.nodeData.bounds.w = this.oldNodeData.w + width
       this.nodeData.bounds.h = this.oldNodeData.h + height
-      this.$emit('size-change'), { w: this.nodeData.bounds.w,  h: this.nodeData.bounds.h }
+      this.$emit('size-change'),
+        { w: this.nodeData.bounds.w, h: this.nodeData.bounds.h }
     },
     onMouseup(event) {
       window.removeEventListener('mousemove', this.onMousemove)
-    },
-  },
+    }
+  }
 }
 </script>
 

@@ -1,12 +1,10 @@
 <template>
-  <g class="moa-pre-add">
+  <g class="moa-line-anchor">
     <g
-      class="moa-pre-add-dot"
+      class="moa-line-anchor-dot"
       v-for="(item, index) in dotsPosition"
       :key="index"
-      @click="onAdd(item.dir)"
-      @mousedown="onConnectPre"
-      @mouseleave="onConnectStart"
+      @mouseup.stop="onConnect(item.dir)"
       :transform="`translate(${item.x - dotSize / 2}, ${item.y - dotSize / 2})`"
     >
       <path
@@ -33,10 +31,11 @@
 
 <script>
 import { v4 as uuidv4 } from 'uuid'
-const MARGIN = 40
+import { hotKey, wbState } from '~/state'
+const MARGIN = 0
 
 export default {
-  name: 'moa-pre-add',
+  name: 'moa-line-anchor',
   inject: ['container'],
   props: {
     nodeData: {
@@ -73,75 +72,41 @@ export default {
     }
   },
   methods: {
-    onConnectPre() {
-      this.connectPre = true
-    },
-    onConnectStart() {
-      if (this.connectPre) this.$emit('connect-start')
-    },
-    async onAdd(dir) {
-      this.connectPre = false
-
-      const MARGIN = 100
+    async onConnect(dir) {
       const { bounds: origin, type } = this.nodeData
-      const newNodeData = await this.$componentsConfig[
-        `moa-${type}`
-      ].defaultData()
-      const { bounds } = newNodeData
-      const newLineData = this.$componentsConfig['moa-line'].defaultData()
-
-      newNodeData.id = uuidv4()
-      newLineData.id = uuidv4()
-      newLineData.start = this.nodeData.id
-      newLineData.end = newNodeData.id
 
       switch (dir) {
         case 'top':
           bounds.x = origin.x
           bounds.y = origin.y - origin.h - MARGIN
-          newLineData.startP = 'top'
-          newLineData.endP = 'bottom'
           break
         case 'bottom':
           bounds.x = origin.x
           bounds.y = origin.y + origin.h + MARGIN
-          newLineData.startP = 'bottom'
-          newLineData.endP = 'top'
           break
         case 'left':
           bounds.x = origin.x - origin.w - MARGIN
           bounds.y = origin.y
-          newLineData.startP = 'left'
-          newLineData.endP = 'right'
           break
         case 'right':
           bounds.x = origin.x + origin.w + MARGIN
           bounds.y = origin.y
-          newLineData.startP = 'right'
-          newLineData.endP = 'left'
       }
 
-      const nodes = this.container.nodeData.panelData.chartData
+      wbState.connectLine.nodeData.end = this.nodeData.id
+      if(type === 'group') {
+        wbState.connectLine.nodeData.endP = dir
+      }
 
-      nodes.push(newLineData)
-      nodes.push(newNodeData)
-
-      this.$nextTick(() => {
-        const endNode = this.container.$children[
-          this.container.$children.length - 1
-        ]
-        this.$wbState.focusNodes = [endNode]
-        requestAnimationFrame(() => {
-          this.$wbState.editNode = endNode
-        })
-      })
+      wbState.connectLine = undefined,
+      wbState.connectNodes = []
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.moa-pre-add {
+.moa-line-anchor {
   &-dot {
     stroke: $background-color;
     fill: white;

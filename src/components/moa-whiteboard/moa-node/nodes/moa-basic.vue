@@ -5,6 +5,7 @@
       :stroke="_stroke"
       stroke-dasharray="10 10"
       stroke-width="2"
+      filter="url(#shadow)"
     >
       <rect
         v-if="nodeData.model.shape === 'rect'"
@@ -34,11 +35,11 @@
       @size-change="onSizeChange"
       @align-change="onAlignChange"
       @compositionend="onCompositionend"
+      :ifWhiteFont="_ifWhiteFont"
       :size="nodeData.model.size"
       :align="nodeData.model.align"
       v-model="nodeData.model.value"
     />
-    <moa-pre-add v-if="isFocus" :nodeData="nodeData" @add="onAddNode" />
   </g>
 </template>
 
@@ -51,14 +52,11 @@ export default {
   isBoardCmp: true,
   editable: true,
   data() {
-    return {
-    }
+    return {}
   },
   mounted() {},
   methods: {
-    onAddNode() {
-
-    },
+    onAddNode() {},
     getDefaultData() {
       return {
         type: 'basic',
@@ -67,14 +65,14 @@ export default {
           align: 'center',
           shape: 'rect',
           border: 'none',
-          color: '#ffffff',
+          color: '#FFFFFF',
           size: 'M'
         },
         bounds: {
           x: 0,
           y: 0,
-          w: 150,
-          h: 150
+          w: 100,
+          h: 100
         },
         lineTo: []
       }
@@ -100,6 +98,12 @@ export default {
     }
   },
   computed: {
+    _ifWhiteFont() {
+      console.log(this._styleColor)
+      const { r, g, b } = hexToRgb(this._styleColor)
+      if (r * 0.299 + g * 0.587 + b * 0.114 > 186) return false
+      else return true
+    },
     _diamondPoints() {
       const {
         nodeData: { bounds }

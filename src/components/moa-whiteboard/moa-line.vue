@@ -1,34 +1,36 @@
 <template>
   <g>
-    <path
+    <!-- <path
       v-if="lineData.model.type === 'arrow'"
       :d="polygon"
       fill="none"
-      marker-mid="url(#arrow)"
       stroke-width="2"
       stroke="none"
       stroke-linecap="round"
-    />
-    <path
-      v-if="lineData.model.type === 'stroke' || lineData.model.type === 'dash'"
-      :class="{'line--dash': lineData.model.type === 'dash'}"
-      :d="_d"
-      fill="none"
-      stroke-width="3"
-      :stroke="$color['line']"
-      stroke-linecap="round"
-    />
-    <path
-      ref="path"
-      @dblclick.stop="onEdit"
-      @mousedown="onMousedown"
-      :d="_d"
-      fill="none"
-      stroke="transparent"
-      stroke-width="10"
-      stroke-linecap="round"
-    />
-    <image
+    /> -->
+    <g
+      v-if="lineData.model.type === 'bezier'"
+
+    >
+      <path
+        :class="{'line--dash': lineData.model.style === 'dash'}"
+        :d="_d"
+        fill="none"
+        stroke-width="3"
+        :stroke="$color['line']"
+        stroke-linecap="round"
+      />
+      <path
+        ref="path"
+        @dblclick.stop="onEdit"
+        @mousedown="onMousedown"
+        :d="_d"
+        fill="none"
+        stroke="transparent"
+        stroke-width="10"
+        stroke-linecap="round"
+      />
+      <!-- <image
       @click="$emit('delete')"
       v-if="isFocus"
       :x="(_x1 + _x2) / 2 - 10"
@@ -36,7 +38,8 @@
       width="20"
       height="20"
       xlink:href="./assets/close.svg"
-    ></image>
+    ></image> -->
+    </g>
   </g>
 </template>
 
@@ -50,7 +53,7 @@ export default {
   editable: true,
   data() {
     return {
-      polygon: ''
+      // polygon: ''
     }
   },
   inject: ['container'],
@@ -87,26 +90,50 @@ export default {
         } ${this._x2 + length},${this._y2} ${this._x2},${this._y2}`
     },
     _x1() {
-      const { bounds } = this._startNodeData
-      return bounds.x + bounds.w / 2
+      const { _startBounds } = this
+      const { startP } = this.lineData
+      let value
+      if (startP === 'left') value = _startBounds.x
+      else if (startP === 'right') value = _startBounds.x + _startBounds.w
+      else value = _startBounds.x + _startBounds.w / 2
+      return value
     },
     _y1() {
-      const { bounds } = this._startNodeData
-      return bounds.y + bounds.h / 2
+      const { _startBounds } = this
+      const { startP } = this.lineData
+      let value
+      if (startP === 'top') value = _startBounds.y
+      else if (startP === 'bottom') value = _startBounds.y + _startBounds.h
+      else value = _startBounds.y + _startBounds.h / 2
+      return value
     },
     _x2() {
-      const { bounds } = this._endNodeData
-      return bounds.x + bounds.w / 2
+      const { _endBounds } = this
+      const { endP } = this.lineData
+      let value
+      if (endP === 'left') value = _endBounds.x
+      else if (endP === 'right') value = _endBounds.x + _endBounds.w
+      else value = _endBounds.x + _endBounds.w / 2
+      return value
     },
     _y2() {
-      const { bounds } = this._endNodeData
-      return bounds.y + bounds.h / 2
+      const { _endBounds } = this
+      const { endP } = this.lineData
+      let value
+      if (endP === 'top') value = _endBounds.y
+      else if (endP === 'bottom') value = _endBounds.y + _endBounds.h
+      else value = _endBounds.y + _endBounds.h / 2
+      return value
     },
-    _startNodeData() {
-      return this.container._nodeMap[this.lineData.start]
+    _startBounds() {
+      const start = this.lineData.start
+      if (typeof start !== 'string') return start
+      return this.container._nodeMap[this.lineData.start].bounds
     },
-    _endNodeData() {
-      return this.container._nodeMap[this.lineData.end]
+    _endBounds() {
+      const end = this.lineData.end
+      if (typeof end !== 'string') return end
+      return this.container._nodeMap[this.lineData.end].bounds
     }
   },
   props: {
@@ -139,10 +166,14 @@ export default {
       return {
         type: 'line',
         model: {
-          type: 'stroke'
+          type: 'bezier',
+          style: 'stroke',
+          arrow: 'true'
         },
         start: '',
-        end: ''
+        end: '',
+        startP: 'right',
+        endP: 'left'
       }
     },
     onEdit() {
