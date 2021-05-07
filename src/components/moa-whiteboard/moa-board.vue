@@ -184,8 +184,10 @@ export default {
         if (line.type === 'group') {
           line.points.push(coords)
         } else {
-          line.end = coords
         }
+
+        wbState.connectLine = undefined
+        wbState.connectNodes = []
       }
     },
     onClick() {
@@ -251,13 +253,20 @@ export default {
     },
     onMousemove(e) {
       const coords = getCoords(this.svg, this.pt, e)
+      const snapX =
+          Math.round(coords.x / wbState.snap) * wbState.snap + wbState.snap,
+        snapY =
+          Math.round(coords.y / wbState.snap) * wbState.snap + wbState.snap
 
       if (wbState.preAddNode) {
         e.stopPropagation()
-        wbState.preAddNode.bounds.x =
-          Math.round(coords.x / wbState.snap) * wbState.snap + wbState.snap
-        wbState.preAddNode.bounds.y =
-          Math.round(coords.y / wbState.snap) * wbState.snap + wbState.snap
+        wbState.preAddNode.bounds.x = snapX
+        wbState.preAddNode.bounds.y = snapY
+      }
+
+      if (wbState.connectLine) {
+        wbState.connectLine.end.x = snapX
+        wbState.connectLine.end.y = snapY
       }
 
       if (hotKey.Space) {

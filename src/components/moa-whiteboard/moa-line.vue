@@ -8,10 +8,7 @@
       stroke="none"
       stroke-linecap="round"
     /> -->
-    <g
-      v-if="lineData.model.type === 'bezier'"
-
-    >
+    <g v-if="lineData.model.type === 'bezier'">
       <path
         :class="{'line--dash': lineData.model.style === 'dash'}"
         :d="_d"
@@ -170,8 +167,8 @@ export default {
           style: 'stroke',
           arrow: 'true'
         },
-        start: '',
-        end: '',
+        start: { x: 0, y: 0, w: 0, h: 0 },
+        end: { x: 0, y: 0, w: 0, h: 0 },
         startP: 'right',
         endP: 'left'
       }

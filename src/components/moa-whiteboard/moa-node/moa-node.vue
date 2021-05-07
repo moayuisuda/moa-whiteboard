@@ -128,6 +128,7 @@ export default {
       const lineData = this.$componentsConfig['moa-line'].defaultData()
       lineData.id = v4()
       lineData.start = this.nodeData.id
+      lineData.end = {x: 0, y: 0, w: 0, h: 0}
       wbState.connectLine = lineData
       wbState.connectNodes[0] = this
       nodes.push(lineData)
