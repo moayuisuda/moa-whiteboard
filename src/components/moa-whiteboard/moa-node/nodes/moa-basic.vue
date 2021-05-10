@@ -32,8 +32,6 @@
       :width="nodeData.bounds.w"
       :height="nodeData.bounds.h"
       @input="onInput"
-      @size-change="onSizeChange"
-      @align-change="onAlignChange"
       @compositionend="onCompositionend"
       :ifWhiteFont="_ifWhiteFont"
       :size="nodeData.model.size"
@@ -71,8 +69,8 @@ export default {
         bounds: {
           x: 0,
           y: 0,
-          w: 100,
-          h: 100
+          w: 80,
+          h: 80
         },
         lineTo: []
       }
@@ -88,18 +86,15 @@ export default {
     },
     onInput(value, e) {
       this.recaculateHeight()
-    },
-    onAlignChange(align) {
-      this.nodeData.model.align = align
-    },
-    onSizeChange(size) {
-      this.nodeData.model.size = size
+    }
+  },
+  watch: {
+    'nodeData.model.size'() {
       this.recaculateHeight()
     }
   },
   computed: {
     _ifWhiteFont() {
-      console.log(this._styleColor)
       const { r, g, b } = hexToRgb(this._styleColor)
       if (r * 0.299 + g * 0.587 + b * 0.114 > 186) return false
       else return true

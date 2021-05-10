@@ -51,8 +51,8 @@ export default {
         bounds: {
           x: 0,
           y: 0,
-          w: 150,
-          h: 150
+          w: 120,
+          h: 120
         },
         lineTo: []
       }

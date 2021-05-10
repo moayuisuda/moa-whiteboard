@@ -1,9 +1,10 @@
 <template>
   <g
     @wheel.stop="onWheel"
-    @mouseover.stop="onMouseEnter"
+    @mouseover.stop="onMouseenter"
     @mousemove="onMousemove"
     @mouseup="onMouseup"
+    @mousedown="onMousedown"
   >
     <!-- 边框样式 -->
     <rect
@@ -62,6 +63,7 @@
         :nodeData="nodeData"
       ></moa-node>
       <moa-node
+        style="pointer-events: none"
         v-if="_isShowPreAddNode"
         :nodeData="$wbState.preAddNode"
       ></moa-node>
@@ -98,7 +100,6 @@ export default {
   data() {
     return {
       onCmd: false,
-      startPoint: { x: undefined, y: undefined },
       dots: []
     }
   },
@@ -176,32 +177,8 @@ export default {
     }
   },
   methods: {
-    onMouseup(e) {
-      const line = wbState.connectLine
-      const start = wbState.connectNodes[0]
-      if (start && line) {
-        const coords = getCoords(this.svg, this.pt, e)
-        if (line.type === 'group') {
-          line.points.push(coords)
-        } else {
-        }
-
-        wbState.connectLine = undefined
-        wbState.connectNodes = []
-      }
-    },
-    onClick() {
-      const line = wbState.connectLine
-      if (line) {
-        const coords = getCoords(this.svg, this.pt, e)
-        if (line.type === 'group') {
-          line.points.push(coords)
-        } else {
-          if (line.start) line.end = coords
-          else line.start = coords
-        }
-      }
-    },
+    onMousedown() {},
+    onMouseup(e) {},
     async linkProject() {
       if (!this.nodeData.model.project) {
         const defaultData = this.getDefaultData()
@@ -243,37 +220,15 @@ export default {
     },
     onBackClick(e) {
       if (wbState.editBoard[wbState.editBoard.length - 1] === this) {
-        wbState.focusNodes = []
+        wbState.selectNodes = []
         wbState.editNode = undefined
-        wbState.focusLine = undefined
+        wbState.focusNode = false
       }
     },
-    onMouseEnter() {
+    onMouseenter() {
       wbState.cursorBoard = this
     },
-    onMousemove(e) {
-      const coords = getCoords(this.svg, this.pt, e)
-      const snapX =
-          Math.round(coords.x / wbState.snap) * wbState.snap + wbState.snap,
-        snapY =
-          Math.round(coords.y / wbState.snap) * wbState.snap + wbState.snap
-
-      if (wbState.preAddNode) {
-        e.stopPropagation()
-        wbState.preAddNode.bounds.x = snapX
-        wbState.preAddNode.bounds.y = snapY
-      }
-
-      if (wbState.connectLine) {
-        wbState.connectLine.end.x = snapX
-        wbState.connectLine.end.y = snapY
-      }
-
-      if (hotKey.Space) {
-        e.stopPropagation()
-        this.onMove({ x: e.movementX, y: e.movementY })
-      }
-    },
+    onMousemove(e) {},
     onMove(movement) {
       const scale = getSVGScale(this.svg)
       this.nodeData.panelData.panelOps.x -= movement.x * scale

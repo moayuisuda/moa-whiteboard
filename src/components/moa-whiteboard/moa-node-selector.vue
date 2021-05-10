@@ -1,7 +1,7 @@
 <template>
-  <ul class="moa-controller--node">
-    <li @click="add(i)" v-for="i in nodes" :key="i" class="moa-controller--node__item">
-      <img :src="require(`../assets/${i}.svg`)" />
+  <ul class="moa-node-selector">
+    <li @click="add(i)" v-for="i in nodes" :key="i" class="moa-node-selector__item">
+      <img :src="require(`./assets/${i}.svg`)" />
     </li>
   </ul>
 </template>
@@ -10,10 +10,10 @@
 import { eventBus } from '~/state'
 
 export default {
-  name: 'moa-controller--node',
+  name: 'moa-node-selector',
   data() {
     return {
-      nodes: ['basic', 'image', 'board'],
+      nodes: ['basic', 'image', 'line', 'board'],
     }
   },
   computed: {},
@@ -34,7 +34,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.moa-controller--node {
+.moa-node-selector {
   background-color: white;
   border-radius: $radius;
   &__item {

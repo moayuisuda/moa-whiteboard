@@ -4,8 +4,8 @@
       @click="onClick"
       @mousemove="onMousemove"
       @mouseup="onMouseup"
-      @click.right.prevent="onClickRight"
       @mousedown="onMousedown"
+      @click.right.prevent
       ref="stage"
       :width="width"
       :height="height"
@@ -28,14 +28,15 @@
           orient="auto"
           markerWidth='4'
           markerHeight='4'
-          refX='0'
+          refX='3'
           refY='2'
         >
-          <!-- triangle pointing right (+x) -->
           <path
             d='M0,0 L4,2 L0,4'
             fill="transparent"
             :stroke="$color['line']"
+            stroke-linejoin="round"
+            stroke-linecap="round"
           />
         </marker>
       </defs>
@@ -48,16 +49,13 @@
       ></moa-board>
     </svg>
 
-    <moa-controller--node
+    <moa-node-selector
       v-if="editable"
       @pre-add-node="onPreAddNode"
-      class="moa-controller shadow"
-    ></moa-controller--node>
+      class="moa-node-selector shadow"
+    ></moa-node-selector>
 
-    <moa-node-bar
-      v-if="_ifShowNodeBar"
-      :editBounds="editBounds"
-    ></moa-node-bar>
+    <moa-node-bar v-if="_ifShowNodeBar"></moa-node-bar>
     <moa-right-page
       v-if="$wbState.showRightPage"
       :left="cursor.left"
@@ -78,12 +76,6 @@ export default {
     return {
       wbState,
       dragStart: {},
-      editBounds: {
-        left: 0,
-        top: 0,
-        width: 0,
-        height: 0
-      },
       cursor: {
         left: 0,
         top: 0
@@ -108,13 +100,6 @@ export default {
     }
   },
   watch: {
-    'wbState.editNode': {
-      handler(node) {
-        if (node) {
-          this.editBounds = node.$el.getBoundingClientRect()
-        }
-      }
-    },
     rootData: {
       handler() {
         this.rootData.bounds = {
@@ -151,8 +136,9 @@ export default {
     // },
     _ifShowNodeBar() {
       return (
-        wbState.editNode &&
-        Vue.component(`moa-${this.$wbState.editNode.nodeData.type}-bar`)
+        wbState.focusNode &&
+        !wbState.focusNode.onDragMove &&
+        Vue.component(`moa-${wbState.focusNode.nodeData.type}-bar`)
       )
     }
   },
@@ -169,19 +155,44 @@ export default {
         wbState.cursorBoard.nodeData.panelData.chartData.push(
           wbState.preAddNode
         )
+        const id = wbState.preAddNode.id
+        this.$nextTick(() => {
+          const node = this.getNodeFromId(id)
+          wbState.selectNodes = [node]
+          wbState.focusNode = node
+          wbState.editNode = node
+          if (node.nodeData.type === 'line') {
+            wbState.dragDot = node.nodeData.end
+          }
+        })
+
         wbState.preAddNode = undefined
         return
       }
     },
-    onClickRight(e) {
-      if (wbState.focusNodes[wbState.focusNodes.length - 1]) {
-        wbState.showRightPage = true
-        this.cursor.top = e.clientY
-        this.cursor.left = e.clientX
+    getNodeFromId(id) {
+      for (let node of wbState.cursorBoard.$children) {
+        if (node.nodeData.id === id) return node
       }
+    },
+    onDragStart(e) {
+      this.dragStart = getCoords(
+        wbState.cursorBoard.svg,
+        wbState.cursorBoard.pt,
+        e
+      )
     },
     onMousedown(e) {
       wbState.showRightPage = false
+
+      if (wbState.focusNode && e.which === 3) {
+        this.showRightPage(e)
+      }
+    },
+    showRightPage(e) {
+      wbState.showRightPage = true
+      this.cursor.top = e.clientY
+      this.cursor.left = e.clientX
     },
     init() {
       window.addEventListener('keydown', e => {
@@ -218,33 +229,70 @@ export default {
 
       eventBus.$on('node-event', this.nodeEventHandler)
       eventBus.$on('drag-start', this.onDragStart)
-    },
-    onDragStart(e) {
-      console.log('start')
-      this.dragStart = getCoords(wbState.onBoard.svg, wbState.onBoard.pt, e)
+      eventBus.$on('show-right-page', this.showRightPage)
     },
     nodeEventHandler(e) {
       console.log('on-event', e)
       const { type, name, data } = e
     },
     onMousemove(e) {
+      const coords = getCoords(
+        wbState.cursorBoard.svg,
+        wbState.cursorBoard.pt,
+        e
+      )
+
       if (wbState.dragNode) {
         wbState.dragNode.onDragMove = true
-        const coords = getCoords(wbState.onBoard.svg, wbState.onBoard.pt, e)
         const { dragStart: start } = this
         const disX = coords.x - start.x
         const disY = coords.y - start.y
-        wbState.dragNode.onDrag({
-          x: Math.round(disX / wbState.snap) * wbState.snap,
-          y: Math.round(disY / wbState.snap) * wbState.snap
-        })
+        // debugger
+        if (Math.abs(disX) >= wbState.snap) {
+          start.x = coords.x
+          wbState.dragNode.onDrag({
+            x: Math.round(disX / wbState.snap) * wbState.snap,
+            y: 0
+          })
+        }
+        if (Math.abs(disY) >= wbState.snap) {
+          start.y = coords.y
+          wbState.dragNode.onDrag({
+            x: 0,
+            y: Math.round(disY / wbState.snap) * wbState.snap
+          })
+        }
 
         wbState.editNode = undefined
       }
+
+      const snapX = Math.round(coords.x / wbState.snap) * wbState.snap,
+        snapY = Math.round(coords.y / wbState.snap) * wbState.snap
+
+      if (wbState.dragDot) {
+        const dot = wbState.dragDot
+        dot.coords.x = snapX
+        dot.coords.y = snapY
+      }
+      if (wbState.preAddNode) {
+        if (wbState.preAddNode.type === 'line') {
+          wbState.preAddNode.start.coords.x = snapX
+          wbState.preAddNode.start.coords.y = snapY
+          wbState.preAddNode.end.coords.x = snapX
+          wbState.preAddNode.end.coords.y = snapY
+        } else {
+          wbState.preAddNode.bounds.x = snapX
+          wbState.preAddNode.bounds.y = snapY
+        }
+      }
+      if (hotKey.Space) {
+        wbState.cursorBoard.onMove({ x: e.movementX, y: e.movementY })
+      }
     },
-    onMouseup() {
-      wbState.onDragMove = false
+    onMouseup(e) {
+      wbState.focusNode && (wbState.focusNode.onDragMove = false)
       wbState.dragNode = undefined
+      wbState.dragDot = undefined
     }
   }
 }
@@ -254,7 +302,7 @@ export default {
 .moa-whiteboard {
   position: relative;
 
-  .moa-controller--node {
+  .moa-node-selector {
     position: absolute;
     left: 20px;
     top: 20px;

@@ -71,7 +71,7 @@ export default {
   data() {
     return {
       ifShowPicker: false,
-      model: this.$wbState.editNode.nodeData.model
+      model: this.$wbState.focusNode.nodeData.model
     }
   },
   watch: {

@@ -58,22 +58,22 @@ export default {
   computed: {},
   methods: {
     dele() {
-      wbState.focusNodes.forEach(node => node.dele())
+      wbState.selectNodes.forEach(node => node.dele())
       wbState.showRightPage = false
     },
     moveBack() {
-      wbState.focusNodes.forEach(node => node.moveBack())
+      wbState.selectNodes.forEach(node => node.moveBack())
     },
     moveFront() {
-      wbState.focusNodes.reverse().forEach(node => node.moveFront())
-      wbState.focusNodes.reverse()
+      wbState.selectNodes.reverse().forEach(node => node.moveFront())
+      wbState.selectNodes.reverse()
     },
     moveToTop() {
-      wbState.focusNodes.reverse().forEach(node => node.moveToTop())
-      wbState.focusNodes.reverse()
+      wbState.selectNodes.reverse().forEach(node => node.moveToTop())
+      wbState.selectNodes.reverse()
     },
     moveToBottom() {
-      wbState.focusNodes.forEach(node => node.moveToBottom())
+      wbState.selectNodes.forEach(node => node.moveToBottom())
     }
   },
   created() {}

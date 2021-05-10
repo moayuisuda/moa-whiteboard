@@ -4,7 +4,7 @@
       class="moa-line-anchor-dot"
       v-for="(item, index) in dotsPosition"
       :key="index"
-      @mouseup.stop="onConnect(item.dir)"
+      @mouseup="onConnect(item.dir)"
       :transform="`translate(${item.x - dotSize / 2}, ${item.y - dotSize / 2})`"
     >
       <path
@@ -73,33 +73,11 @@ export default {
   },
   methods: {
     async onConnect(dir) {
-      const { bounds: origin, type } = this.nodeData
-
-      switch (dir) {
-        case 'top':
-          bounds.x = origin.x
-          bounds.y = origin.y - origin.h - MARGIN
-          break
-        case 'bottom':
-          bounds.x = origin.x
-          bounds.y = origin.y + origin.h + MARGIN
-          break
-        case 'left':
-          bounds.x = origin.x - origin.w - MARGIN
-          bounds.y = origin.y
-          break
-        case 'right':
-          bounds.x = origin.x + origin.w + MARGIN
-          bounds.y = origin.y
+      const node = wbState.focusNode
+      if (node.nodeData.type === 'line' && wbState.dragDot) {
+        node.nodeData[`${wbState.dragDot.anchor}P`] = dir
+        node.nodeData[wbState.dragDot.anchor] = this.nodeData.id
       }
-
-      wbState.connectLine.nodeData.end = this.nodeData.id
-      if(type === 'group') {
-        wbState.connectLine.nodeData.endP = dir
-      }
-
-      wbState.connectLine = undefined,
-      wbState.connectNodes = []
     }
   }
 }

@@ -3,8 +3,11 @@
     v-if="nodeData.type !== 'line'"
     :transform="_transform"
     :class="`moa-node node-${nodeData.id}`"
+    @mouseenter="onAnchorHover = true"
+    @mouseleave="onAnchorHover = false"
   >
     <g
+      @mouseup="onMouseup"
       @mousedown="onMousedown"
       @dblclick="onDblclick"
     >
@@ -17,40 +20,19 @@
       <!-- 拉伸器 -->
       <moa-transformer
         :node-data="nodeData"
-        :dots-show="_isFocus"
+        :dots-show="_isSelect"
       />
     </g>
-    <!-- 删除节点 -->
-    <!-- <image
-      v-if="!_isEdit && _isFocus"
-      @click="dele"
-      :x="nodeData.bounds.w - 25"
-      y=10
-      width="20"
-      height="20"
-      xlink:href="../assets/close.svg"
-    ></image> -->
-    <!-- 连线 -->
-    <!-- <image
-      v-if="!_isEdit && _isFocus"
-      @click.stop="onConnect"
-      :x="nodeData.bounds.w - 50"
-      y=10
-      width="20"
-      height="20"
-      xlink:href="../assets/connect.svg"
-    ></image> -->
 
     <moa-pre-add
       filter="url(#shadow)"
       @connect-start="onConnectStart"
-      v-if="_isFocus && $wbState.focusNodes.length < 2"
+      v-if="_isFocus && $wbState.selectNodes.length < 2"
       :nodeData="nodeData"
     />
     <moa-line-anchor
-      @mouseenter="onAnchorHover = true"
-      @mouseleave="onAnchorHover = false"
-      v-if="$wbState.connectNodes[0] && onAnchorHover"
+      filter="url(#shadow)"
+      v-if="$wbState.dragDot && onAnchorHover"
       :nodeData="nodeData"
     />
   </g>
@@ -61,8 +43,10 @@
     @delete="dele"
     @path-click="onMousedown"
     @edit="onDblclick"
+    @drag-start="onDragMove = true"
     :isEdit="_isEdit"
     :isFocus="_isFocus"
+    :isSelect="_isSelect"
   />
 </template>
 
@@ -78,7 +62,6 @@ export default {
   inject: ['container', 'root'],
   data() {
     return {
-      dragStart: {},
       onDragMove: false,
       onAnchorHover: false
     }
@@ -108,8 +91,11 @@ export default {
       }
       return re
     },
+    _isSelect() {
+      return wbState.selectNodes.includes(this)
+    },
     _isFocus() {
-      return wbState.focusNodes.includes(this)
+      return wbState.focusNode === this
     },
     _isEdit() {
       return wbState.editNode === this
@@ -122,20 +108,26 @@ export default {
     }
   },
   methods: {
-    onConnectStart() {
-      console.log('link start!')
+    onConnectStart(dir) {
       const nodes = this.container.nodeData.panelData.chartData
       const lineData = this.$componentsConfig['moa-line'].defaultData()
       lineData.id = v4()
       lineData.start = this.nodeData.id
-      lineData.end = {x: 0, y: 0, w: 0, h: 0}
-      wbState.connectLine = lineData
-      wbState.connectNodes[0] = this
+      lineData.startP = dir
+      lineData.end = { coords: { x: 0, y: 0, w: 0, h: 0 }, anchor: 'end' }
       nodes.push(lineData)
+      this.$nextTick(() => {
+        const line = this.getNodeFromId(lineData.id)
+        wbState.dragDot = lineData.end
+        line.onDragMove = true
+        wbState.selectNodes = [line]
+        wbState.focusNode = line
+      })
     },
-    resetDragStart() {
-      this.dragStart.x = this.nodeData.bounds.x
-      this.dragStart.y = this.nodeData.bounds.y
+    getNodeFromId(id) {
+      for (let node of this.container.$children) {
+        if (node.nodeData.id === id) return node
+      }
     },
     moveBack() {
       const nodes = this.container.nodeData.panelData.chartData
@@ -161,117 +153,63 @@ export default {
       const { nodeData } = this
       nodes.splice(0, 0, nodes.splice(nodes.indexOf(nodeData), 1)[0])
     },
-    snapTo(point) {
-      const { bounds } = this.nodeData
-      const {
-        offset: { close }
-      } = point
-      const newBounds = {
-        x: bounds.x + close.x - point.x,
-        y: bounds.y + close.y - point.y
-      }
-      move(
-        { x: bounds.x, y: bounds.y },
-        { x: newBounds.x, y: newBounds.y },
-        300,
-        (values, pro, id) => {
-          // if (this._isDrag) cancelAnimationFrame(id)
-          bounds.x = values.x
-          bounds.y = values.y
-        }
-      )
-    },
     onConnect() {
       if (wbState.connectNodes.length !== 0) {
         wbState.connectNodes = []
       }
       wbState.connectNodes.push(this)
     },
-    onMouseup() {
-      if (!wbState.snap) return
-      const points = getPoints(this.nodeData.bounds),
-        snap = wbState.snap,
-        pointsArr = []
-      let point
-      for (let key in points) {
-        point = points[key]
-        pointsArr.push(point)
-        point.offset = {
-          ox: point.x % snap,
-          oy: point.y % snap,
-          nx: Math.floor(point.x / snap),
-          ny: Math.floor(point.y / snap),
-          close: {}
-        }
-
-        let {
-          offset,
-          offset: { close }
-        } = point
-
-        // 默认距左上角最小
-        close.x = offset.nx * snap
-        close.y = offset.ny * snap
-        if (offset.ox > snap / 2) close.x = (offset.nx + 1) * snap // 代表右
-        if (offset.oy > snap / 2) close.y = (offset.ny + 1) * snap // 代表下
-
-        close.dis = Math.sqrt(
-          Math.pow(point.x - close.x, 2) + Math.pow(point.y - close.y, 2),
-          2
-        )
-      }
-      pointsArr.sort((a, b) => a.offset.close.dis - b.offset.close.dis)
-      this.snapTo(pointsArr[0])
-    },
+    onMouseup() {},
     onMousedown(e) {
       if (wbState.preAddNode) {
         return
       }
       if (wbState.showRightPage) wbState.showRightPage = false
-      e.stopPropagation() // 保证不冒泡选择到外层节点
-      if (!wbState.focusNodes.includes(this)) {
-        // focus
+      else {
+        if (e.which === 3) eventBus.$emit('show-right-page', e)
+      }
+
+      if (!wbState.selectNodes.includes(this)) {
         if (wbState.editNode) {
           wbState.editNode = undefined
         }
         if (
           (!hotKey.MetaLeft && !hotKey.AltLeft) ||
-          wbState.focusNodes.find(node => {
+          wbState.selectNodes.find(node => {
             return node.container !== this.container
           })
         ) {
-          wbState.focusNodes = [this]
+          wbState.selectNodes = [this]
         } else {
-          wbState.focusNodes.push(this)
+          wbState.selectNodes.push(this)
 
           const nodes = this.container.nodeData.panelData.chartData
-          wbState.focusNodes.sort((a, b) => {
+          wbState.selectNodes.sort((a, b) => {
             return nodes.indexOf(a.nodeData) - nodes.indexOf(b.nodeData)
           })
-          for (let i of wbState.focusNodes) {
-            console.log(i.nodeData.model.value)
-          }
         }
       }
-      if (wbState.dragNode !== this && this.nodeData.type !== 'line') {
-        wbState.onBoard = this.container
-        wbState.dragNode = this // drag
-        wbState.focusNodes.forEach(node => {
-          node.resetDragStart()
-        })
-        eventBus.$emit('drag-start', e)
-      }
+
+      wbState.onBoard = this.container
+      wbState.focusNode = this
+      wbState.dragNode = this
+      eventBus.$emit('drag-start', e)
+
+      e.stopPropagation() // 保证不冒泡选择到外层节点
     },
     move(movement) {
       if (!this.nodeData.bounds) return // line
-      this.nodeData.bounds.x = this.dragStart.x + movement.x
-      this.nodeData.bounds.y = this.dragStart.y + movement.y
+      this.nodeData.bounds.x += movement.x
+      this.nodeData.bounds.y += movement.y
     },
-    // 聚焦节点跟随主拖拽节点移动，此时相当于这个拖拽节点是所有聚焦节点的controller，控制流：root-board -> dragNode -> focusNodes
+    // 聚焦节点跟随主拖拽节点移动，此时相当于这个拖拽节点是所有聚焦节点的controller，控制流：root-board -> focusNode -> selectNodes
     onDrag(movement) {
-      wbState.focusNodes.forEach(node => {
-        node.move(movement)
-      })
+      if (movement.x !== 0 || movement.y !== 0) {
+        this.onDragMove = true
+        wbState.selectNodes.forEach(node => {
+          node.move(movement)
+        })
+      }
     },
     // 双击进入编辑状态
     onDblclick(e) {
@@ -282,6 +220,9 @@ export default {
       wbState.editNode = this
     },
     dele() {
+      if (wbState.focusNode === this) wbState.focusNode = undefined
+      if (wbState.selectNodes.includes(this))
+        wbState.selectNodes.splice(wbState.selectNodes.indexOf(this), 1)
       const nodes = this.container.nodeData.panelData.chartData
       nodes.remove(this.nodeData, ...this._inLines, ...this._outLines)
     }

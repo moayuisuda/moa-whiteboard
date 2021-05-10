@@ -6,7 +6,7 @@
       :key="index"
       @click="onAdd(item.dir)"
       @mousedown="onConnectPre"
-      @mouseleave="onConnectStart"
+      @mouseleave="onConnectStart(item.dir)"
       :transform="`translate(${item.x - dotSize / 2}, ${item.y - dotSize / 2})`"
     >
       <path
@@ -76,8 +76,16 @@ export default {
     onConnectPre() {
       this.connectPre = true
     },
-    onConnectStart() {
-      if (this.connectPre) this.$emit('connect-start')
+    onConnectStart(dir) {
+      if (this.connectPre) {
+        this.connectPre = false
+        this.$emit('connect-start', dir)
+      }
+    },
+    getNodeFromId(id) {
+      for (let node of this.container.$children) {
+        if (node.nodeData.id === id) return node
+      }
     },
     async onAdd(dir) {
       this.connectPre = false
@@ -127,13 +135,10 @@ export default {
       nodes.push(newNodeData)
 
       this.$nextTick(() => {
-        const endNode = this.container.$children[
-          this.container.$children.length - 1
-        ]
-        this.$wbState.focusNodes = [endNode]
-        requestAnimationFrame(() => {
-          this.$wbState.editNode = endNode
-        })
+        const endNode = this.getNodeFromId(newNodeData.id)
+        this.$wbState.selectNodes = [endNode]
+        this.$wbState.focusNode = endNode
+        this.$wbState.editNode = endNode
       })
     }
   }

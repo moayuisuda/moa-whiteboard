@@ -7,7 +7,7 @@
   }"
     class="moa-node-bar center"
   >
-    <component :is="`moa-${$wbState.editNode.nodeData.type}-bar`" />
+    <component :is="`moa-${$wbState.focusNode.nodeData.type}-bar`" />
     <!-- <img
       src="./assets/close.svg"
       alt=""
@@ -20,22 +20,26 @@ export default {
   name: 'moa-node-bar',
   data() {
     return {
-      left: 0
+      left: 0,
+      editBounds: {
+        left: 0,
+        top: 0,
+        width: 0,
+        height: 0
+      }
     }
   },
-  props: {
-    editBounds: {
-      type: DOMRect
-    },
-  },
+  props: {},
   computed: {},
   watch: {
-    left: {
+    '$wbState.focusNode': {
       handler() {
+        // 属性改变会先触发render watcher，先等待render watcher执行完
         this.$nextTick(() => {
+          this.editBounds = this.$wbState.focusNode.$el.getBoundingClientRect()
           const barBounds = this.$refs['moa-node-bar'].getBoundingClientRect()
-          this.left = this.editBounds.left + (this.editBounds.width - barBounds.width) / 2
-          console.log(this.left)
+          this.left =
+            this.editBounds.left + (this.editBounds.width - barBounds.width) / 2
         })
       },
       immediate: true
@@ -43,8 +47,7 @@ export default {
   },
   methods: {
     close() {}
-  },
-  created() {}
+  }
 }
 </script>
 
