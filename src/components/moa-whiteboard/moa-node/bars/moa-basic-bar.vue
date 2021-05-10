@@ -8,21 +8,21 @@
         width: '15px',
         height: '12px',
         border: `1px solid ${$color.line}`,
-        backgroundColor: model.color,
+        backgroundColor: $wbState.focusNode.nodeData.model.color,
         borderRadius: '2px'
       }" />
       <color-picker
         @input="updateValue"
         v-if="ifShowPicker"
         class="color-picker"
-        :value="model.color"
+        :value="$wbState.focusNode.nodeData.model.color"
       />
     </li>
 
     <span class="separator">|</span>
     <li
       @mousedown.prevent="onShapeChange(i)"
-      :class="{ 'moa-basic-bar-item': true, 'moa-basic-bar-item--selected': model.shape === i }"
+      :class="{ 'moa-basic-bar-item': true, 'moa-basic-bar-item--selected': $wbState.focusNode.nodeData.model.shape === i }"
       v-for="i in ['rect', 'diamond', 'ellipse']"
       :key="i"
     >
@@ -37,7 +37,7 @@
       @mousedown.prevent="onSizeChange(i)"
       :class="{
               'moa-basic-bar-item': true,
-              'moa-basic-bar-item--selected': model.size === i,
+              'moa-basic-bar-item--selected': $wbState.focusNode.nodeData.model.size === i,
               'moa-basic-bar-item--size': true,
             }"
       v-for="i in ['S', 'M', 'L', 'XL']"
@@ -48,7 +48,7 @@
     <span class="separator">|</span>
     <li
       @mousedown.prevent="onAlignChange(i)"
-      :class="{ 'moa-basic-bar-item': true, 'moa-basic-bar-item--selected': model.align === i }"
+      :class="{ 'moa-basic-bar-item': true, 'moa-basic-bar-item--selected': $wbState.focusNode.nodeData.model.align === i }"
       v-for="i in ['left', 'center', 'right']"
       :key="i"
     >
@@ -70,8 +70,7 @@ export default {
   },
   data() {
     return {
-      ifShowPicker: false,
-      model: this.$wbState.focusNode.nodeData.model
+      ifShowPicker: false
     }
   },
   watch: {
@@ -87,20 +86,20 @@ export default {
   },
   methods: {
     updateValue(v) {
-      this.model.color = v.hex8
+      this.$wbState.focusNode.nodeData.model.color = v.hex8
     },
     togglePicker() {
       if (this.ifShowPicker) this.ifShowPicker = false
       else this.ifShowPicker = true
     },
     onAlignChange(align) {
-      this.model.align = align
+      this.$wbState.focusNode.nodeData.model.align = align
     },
     onSizeChange(size) {
-      this.model.size = size
+      this.$wbState.focusNode.nodeData.model.size = size
     },
     onShapeChange(shape) {
-      this.model.shape = shape
+      this.$wbState.focusNode.nodeData.model.shape = shape
     }
   }
 }

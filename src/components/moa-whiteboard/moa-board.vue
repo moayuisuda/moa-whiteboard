@@ -47,7 +47,10 @@
       :height="nodeData.bounds.h"
       :viewBox="_viewBox"
     >
-      <g v-show="nodeData.panelData.panelOps.zoom > 0.5">
+      <g
+        v-show="nodeData.panelData.panelOps.zoom >= 1"
+        :transform="_gridTransform"
+      >
         <circle
           v-for="dot in dots"
           :key="dot.x + '' + dot.y"
@@ -114,6 +117,15 @@ export default {
     }
   },
   computed: {
+    _gridTransform() {
+      const offsetX =
+          Math.round(this.nodeData.panelData.panelOps.x / wbState.snap) *
+          wbState.snap,
+        offsetY =
+          Math.round(this.nodeData.panelData.panelOps.y / wbState.snap) *
+          wbState.snap
+      return `translate(${offsetX}, ${offsetY})`
+    },
     _projects() {
       return this.$wbState.projects.filter(p => p.id !== this.root.nodeData.id)
     },

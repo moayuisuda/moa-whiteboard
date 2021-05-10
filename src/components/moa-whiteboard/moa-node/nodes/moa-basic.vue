@@ -80,7 +80,8 @@ export default {
       this.$nextTick(() => {
         const newHeight = this.$refs['input'].getNeedHeight()
         if (newHeight > this.nodeData.bounds.h) {
-          this.nodeData.bounds.h = newHeight
+          this.nodeData.bounds.h =
+            Math.ceil(newHeight / this.$wbState.snap) * this.$wbState.snap
         }
       })
     },

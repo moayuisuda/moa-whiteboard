@@ -281,6 +281,7 @@ export default {
           wbState.preAddNode.end.coords.x = snapX
           wbState.preAddNode.end.coords.y = snapY
         } else {
+          console.log(snapY)
           wbState.preAddNode.bounds.x = snapX
           wbState.preAddNode.bounds.y = snapY
         }

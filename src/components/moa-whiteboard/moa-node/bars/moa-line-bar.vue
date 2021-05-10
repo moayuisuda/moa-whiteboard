@@ -2,7 +2,7 @@
   <ul class="moa-basic-bar shadow">
     <li
       @mousedown.prevent="onStyleChange(i)"
-      :class="{ 'moa-basic-bar-item': true, 'moa-basic-bar-item--selected': model.style === i }"
+      :class="{ 'moa-basic-bar-item': true, 'moa-basic-bar-item--selected': $wbState.focusNode.nodeData.model.style === i }"
       v-for="i in ['stroke', 'dash']"
       :key="i"
     >
@@ -15,7 +15,7 @@
     <span class="separator">|</span>
     <li
       @mousedown.prevent="onTypeChange(i)"
-      :class="{ 'moa-basic-bar-item': true, 'moa-basic-bar-item--selected': model.type === i }"
+      :class="{ 'moa-basic-bar-item': true, 'moa-basic-bar-item--selected': $wbState.focusNode.nodeData.model.type === i }"
       v-for="i in ['group', 'bezier']"
       :key="i"
     >
@@ -28,7 +28,7 @@
     <span class="separator">|</span>
     <li
       @mousedown.prevent="onArrowChange"
-      :class="{ 'moa-basic-bar-item': true, 'moa-basic-bar-item--selected': model.arrow === 'true' }"
+      :class="{ 'moa-basic-bar-item': true, 'moa-basic-bar-item--selected': $wbState.focusNode.nodeData.model.arrow === 'true' }"
     >
       <img
         :src="require(`../../assets/arrow.svg`)"
@@ -43,19 +43,18 @@ export default {
   name: 'moa-line-bar',
   data() {
     return {
-      model: this.$wbState.focusNode.nodeData.model
     }
   },
   methods: {
     onStyleChange(style) {
-      this.model.style = style
+      this.$wbState.focusNode.nodeData.model.style = style
     },
     onTypeChange(type) {
-      this.model.type = type
+      this.$wbState.focusNode.nodeData.model.type = type
     },
     onArrowChange() {
-      if (this.model.arrow === 'true') this.model.arrow = 'false'
-      else this.model.arrow = 'true'
+      if (this.$wbState.focusNode.nodeData.model.arrow === 'true') this.$wbState.focusNode.nodeData.model.arrow = 'false'
+      else this.$wbState.focusNode.nodeData.model.arrow = 'true'
     }
   }
 }
