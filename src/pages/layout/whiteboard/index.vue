@@ -12,21 +12,33 @@
       v-if="$user.email"
       class="card moa-sidebar"
     >
+      <li class="hover-item center">
+        <input
+          @blur="changeName"
+          class="moa-sidebar__title hover-item--selected"
+          type="text"
+          v-model="name"
+        >
+      </li>
       <li
         @click="changeProject(project.id)"
         v-for="project in $wbState.projects"
         :key="project.id"
-        class="hover-item center"
+        class="hover-item"
         :class="{
           'hover-item--selected': rootData.id === project.id
         }"
       >
-        <span>{{ project.id }}</span>
-        <i
-          @click.stop="onDelete(project.id)"
-          class="moa-sidebar__dele"
-        >×</i>
-        <!-- <span>{{ project.owner }}</span> -->
+        <div
+          v-if="!(rootData.id === project.id)"
+          class="center moa-sidebar__item"
+        >
+          <span>{{ project.name }}</span>
+          <i
+            @click.stop="onDelete(project.id)"
+            class="moa-sidebar__dele"
+          >×</i>
+        </div>
       </li>
       <li
         class="hover-item moa-sidebar__add center"
@@ -63,6 +75,7 @@ export default {
   },
   data() {
     return {
+      name: '',
       rootData,
       stageBounds: {
         w: 1080,
@@ -162,14 +175,27 @@ export default {
       localStorage.setItem('TOKEN', '')
       this.$router.push('/layout/whiteboard/INIT')
       this.$wbState.projects = []
+    },
+    async changeName() {
+      await projectService.updateName(this.rootData.id, this.name)
+      this.$wbState.projects = await projectService.getProjectList()
+      console.log('[moa] 更新名称成功')
     }
   },
+
   // 切换项目
   async beforeRouteUpdate(to, from, next) {
     if (to.params.id !== 'INIT') {
-      this.rootData = await projectService.getProjectData(to.params.id)
+      const data = (this.rootData = await projectService.getProjectData(
+        to.params.id
+      ))
+      this.rootData = data.data
+      this.name = data.name
       userService.updateLastEditProjct(to.params.id)
-    } else this.rootData = rootData
+    } else {
+      this.rootData = rootData
+      this.name = '演示项目'
+    }
     next()
   },
   // 首次进入
@@ -192,7 +218,9 @@ export default {
     }
     // 初始指定了特定项目的情况，注意这里不需要跳转，本身就是特定链接了
     if (this._ifProvideId) {
-      this.rootData = await projectService.getProjectData(this.$route.params.id)
+      const data = await projectService.getProjectData(this.$route.params.id)
+      this.rootData = data.data
+      this.name = data.name
     }
   }
 }
@@ -208,11 +236,23 @@ export default {
 
 .moa-sidebar {
   position: absolute;
-  width: 200px;
+  width: 160px;
   right: 20px;
   top: 100px;
   max-height: calc(100vh - 200px);
   overflow-y: auto;
+
+  &__item {
+    justify-content: space-between;
+  }
+
+  &__title {
+    width: 100%;
+    font-weight: bold;
+    text-align: center;
+    border: none;
+  }
+
   &__add {
     font-size: 30px;
     font-weight: 400;

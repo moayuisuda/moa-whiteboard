@@ -52,7 +52,7 @@
         :transform="_gridTransform"
       >
         <circle
-          v-for="dot in dots"
+          v-for="dot in _dots"
           :key="dot.x + '' + dot.y"
           :cx="dot.x"
           :cy="dot.y"
@@ -102,8 +102,6 @@ export default {
   inject: ['root'],
   data() {
     return {
-      onCmd: false,
-      dots: []
     }
   },
   mounted() {
@@ -117,6 +115,19 @@ export default {
     }
   },
   computed: {
+    _dots() {
+      const re = []
+      for (let i = 0; i <= this.nodeData.bounds.h; i += wbState.snap) {
+        for (let j = 0; j <= this.nodeData.bounds.w; j += wbState.snap) {
+          re.push({
+            x: j,
+            y: i
+          })
+        }
+      }
+
+      return re
+    },
     _gridTransform() {
       const offsetX =
           Math.round(this.nodeData.panelData.panelOps.x / wbState.snap) *
@@ -177,15 +188,6 @@ export default {
       Object.assign(this.nodeData, {
         panelData: data.panelData
       })
-    }
-
-    for (let i = 0; i <= this.nodeData.bounds.h; i += wbState.snap) {
-      for (let j = 0; j <= this.nodeData.bounds.w; j += wbState.snap) {
-        this.dots.push({
-          x: j,
-          y: i
-        })
-      }
     }
   },
   methods: {
