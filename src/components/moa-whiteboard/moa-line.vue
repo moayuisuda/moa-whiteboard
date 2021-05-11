@@ -234,14 +234,15 @@ export default {
         for (let i = 1; i < this._dots.length; i++) {
           let curr = this._dots[i]
           if (
-            (pre.coords.x - coords.x) * (curr.coords.x - coords.x) < 2 &&
-            (pre.coords.y - coords.y) * (curr.coords.y - coords.y) < 2
+            (pre.coords.x - snapX) * (curr.coords.x - snapX) <= 0 &&
+            (pre.coords.y - snapY) * (curr.coords.y - snapY) <= 0
           ) {
             this.lineData.points.splice(i - 1, 0, {
               x: snapX,
               y: snapY
             })
             wbState.dragDot = this._dots[i]
+            break
           }
 
           pre = curr

@@ -23,7 +23,7 @@
       >
         <span>{{ project.id }}</span>
         <i
-          @click.stop="onDelete"
+          @click.stop="onDelete(project.id)"
           class="moa-sidebar__dele"
         >×</i>
         <!-- <span>{{ project.owner }}</span> -->
@@ -126,12 +126,12 @@ export default {
       this.stageBounds.w = document.documentElement.clientWidth
       this.stageBounds.h = document.documentElement.clientHeight
     },
-    async onDelete() {
+    async onDelete(id) {
       if (this.$wbState.projects.length === 1) {
         console.log('[moa] 最少保留一个项目')
         return
       }
-      await projectService.dele(this.rootData.id)
+      await projectService.dele(id)
       this.$wbState.projects = await projectService.getProjectList()
       this.$router.push(
         '/layout/whiteboard/' + this.$wbState.projects.last().id
