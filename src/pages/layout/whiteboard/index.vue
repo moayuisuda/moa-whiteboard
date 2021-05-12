@@ -114,7 +114,6 @@ export default {
       const span = document.createElement('span')
       document.body.appendChild(span)
       span.innerText = location.href
-      // debugger
       selectText(span)
       document.execCommand('copy')
       document.body.removeChild(span)

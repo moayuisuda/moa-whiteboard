@@ -102,6 +102,8 @@ export default {
       newLineData.id = uuidv4()
       newLineData.start = this.nodeData.id
       newLineData.end = newNodeData.id
+      newLineData.model.type = 'bezier'
+      newLineData.model.arrow = 'false'
 
       switch (dir) {
         case 'top':

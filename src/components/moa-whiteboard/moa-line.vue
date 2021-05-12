@@ -47,7 +47,7 @@
 <script>
 import { eventBus, wbState } from '~/state'
 import { getPoints, getSVGScale, getCoords } from '~/utils/coords'
-const MARGIN = 10
+const MARGIN = 20
 // 线的两端距离结点的距离
 
 export default {
@@ -94,16 +94,68 @@ export default {
         }
         return re
       } else {
-        const length = Math.abs(this._x1 - this._x2) * 0.6
-        if (this._x1 < this._x2) {
-          return `M${this._x1},${this._y1} C${this._x1 + length},${
-            this._y1
-          } ${this._x2 - length},${this._y2} ${this._x2},${this._y2}`
-        } else
-          return `M${this._x1},${this._y1} C${this._x1 - length},${
-            this._y1
-          } ${this._x2 + length},${this._y2} ${this._x2},${this._y2}`
+        return `M${this._x1},${this._y1} 
+          C${this._c1.x},${this._c1.y} ${this._c2.x},${this._c2.y} 
+          ${this._x2},${this._y2}`
       }
+    },
+    _c1() {
+      const lengthH = Math.abs(this._x1 - this._x2) * 0.6
+      const lengthV = Math.abs(this._y1 - this._y2) * 0.6
+
+      let cp = {}
+      switch (this.lineData.startP) {
+        case 'left':
+          cp.x = this._x1 - lengthH
+          cp.y = this._y1
+          break
+        case 'right':
+          cp.x = this._x1 + lengthH
+          cp.y = this._y1
+          break
+        case 'top':
+          cp.x = this._x1
+          cp.y = this._y1 - lengthV
+          break
+        case 'bottom':
+          cp.x = this._x1
+          cp.y = this._y1 + lengthV
+          break
+        default:
+          cp.x = this._x1
+          cp.y = this._y1
+      }
+
+      return cp
+    },
+    _c2() {
+      const lengthH = Math.abs(this._x1 - this._x2) * 0.6
+      const lengthV = Math.abs(this._y1 - this._y2) * 0.6
+
+      let cp = {}
+      switch (this.lineData.endP) {
+        case 'left':
+          cp.x = this._x2 - lengthH
+          cp.y = this._y2
+          break
+        case 'right':
+          cp.x = this._x2 + lengthH
+          cp.y = this._y2
+          break
+        case 'top':
+          cp.x = this._x2
+          cp.y = this._y2 - lengthV
+          break
+        case 'bottom':
+          cp.x = this._x2
+          cp.y = this._y2 + lengthV
+          break
+        default:
+          cp.x = this._x2
+          cp.y = this._y2
+      }
+
+      return cp
     },
     _x1() {
       const { _startBounds } = this
@@ -207,7 +259,7 @@ export default {
       return {
         type: 'line',
         model: {
-          type: 'bezier',
+          type: 'group',
           style: 'stroke',
           arrow: 'true'
         },

@@ -16,7 +16,7 @@
     <li
       @mousedown.prevent="onTypeChange(i)"
       :class="{ 'moa-basic-bar-item': true, 'moa-basic-bar-item--selected': $wbState.focusNode.nodeData.model.type === i }"
-      v-for="i in ['group', 'bezier']"
+      v-for="i in _types"
       :key="i"
     >
       <img
@@ -42,7 +42,11 @@
 export default {
   name: 'moa-line-bar',
   data() {
-    return {
+    return {}
+  },
+  computed: {
+    _types() {
+      return this.$wbState.focusNode._isLink ? ['group', 'bezier'] : ['group']
     }
   },
   methods: {
@@ -53,7 +57,8 @@ export default {
       this.$wbState.focusNode.nodeData.model.type = type
     },
     onArrowChange() {
-      if (this.$wbState.focusNode.nodeData.model.arrow === 'true') this.$wbState.focusNode.nodeData.model.arrow = 'false'
+      if (this.$wbState.focusNode.nodeData.model.arrow === 'true')
+        this.$wbState.focusNode.nodeData.model.arrow = 'false'
       else this.$wbState.focusNode.nodeData.model.arrow = 'true'
     }
   }

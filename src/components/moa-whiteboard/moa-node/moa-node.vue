@@ -105,6 +105,12 @@ export default {
     },
     _transform() {
       return `translate(${this.nodeData.bounds.x}, ${this.nodeData.bounds.y})`
+    },
+    _isLink() {
+      return (
+        typeof this.nodeData.start === 'string' &&
+        typeof this.nodeData.end === 'string'
+      )
     }
   },
   methods: {
