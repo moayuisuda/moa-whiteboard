@@ -1,11 +1,14 @@
 <template>
-  <g class="moa-pre-add">
+  <g
+    class="moa-pre-add"
+    :transform="_transform"
+  >
     <g
       class="moa-pre-add-dot"
       v-for="(item, index) in dotsPosition"
       :key="index"
       @click="onAdd(item.dir)"
-      @mousedown="onConnectPre"
+      @mousedown.stop="onConnectPre"
       @mouseleave="onConnectStart(item.dir)"
       :transform="`translate(${item.x - dotSize / 2}, ${item.y - dotSize / 2})`"
     >
@@ -33,16 +36,11 @@
 
 <script>
 import { v4 as uuidv4 } from 'uuid'
+import { hotKey, wbState } from '~/state'
 const MARGIN = 40
 
 export default {
   name: 'moa-pre-add',
-  inject: ['container'],
-  props: {
-    nodeData: {
-      type: Object
-    }
-  },
   data() {
     return {
       oldNodeData: {},
@@ -51,8 +49,9 @@ export default {
   },
   computed: {
     dotsPosition() {
-      let w = this.nodeData.bounds.w
-      let h = this.nodeData.bounds.h
+      const nodeData = wbState.focusNode.nodeData
+      let w = nodeData.bounds.w
+      let h = nodeData.bounds.h
       /*
       0   1   2
       |-------|
@@ -70,6 +69,11 @@ export default {
         { x: w / 2, y: h + MARGIN, dir: 'bottom' } // bottom
         // { x: w, y: h },
       ]
+    },
+    _transform() {
+      return `translate(${wbState.focusNode.nodeData.bounds.x}, ${
+        wbState.focusNode.nodeData.bounds.y
+      })`
     }
   },
   methods: {
@@ -83,15 +87,15 @@ export default {
       }
     },
     getNodeFromId(id) {
-      for (let node of this.container.$children) {
-        if (node.nodeData.id === id) return node
+      for (let node of wbState.focusNode.container.$children) {
+        if (node.nodeData && node.nodeData.id === id) return node
       }
     },
     async onAdd(dir) {
       this.connectPre = false
 
       const MARGIN = 100
-      const { bounds: origin, type } = this.nodeData
+      const { bounds: origin, type } = wbState.focusNode.nodeData
       const newNodeData = await this.$componentsConfig[
         `moa-${type}`
       ].defaultData()
@@ -100,10 +104,10 @@ export default {
 
       newNodeData.id = uuidv4()
       newLineData.id = uuidv4()
-      newLineData.start = this.nodeData.id
+      newLineData.start = wbState.focusNode.nodeData.id
       newLineData.end = newNodeData.id
       newLineData.model.type = 'bezier'
-      newLineData.model.arrow = 'false'
+      // newLineData.model.arrow = 'false'
 
       switch (dir) {
         case 'top':
@@ -131,7 +135,8 @@ export default {
           newLineData.endP = 'left'
       }
 
-      const nodes = this.container.nodeData.panelData.chartData
+      const nodes = wbState.focusNode.container.nodeData.panelData
+        .chartData
 
       nodes.push(newLineData)
       nodes.push(newNodeData)

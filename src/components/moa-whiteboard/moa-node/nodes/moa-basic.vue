@@ -71,8 +71,7 @@ export default {
           y: 0,
           w: 80,
           h: 80
-        },
-        lineTo: []
+        }
       }
     },
     onCompositionend(e) {},

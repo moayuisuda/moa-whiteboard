@@ -15,7 +15,6 @@ const wbState = {
   editNode: undefined, // 双击
   preAddNode: undefined, // 预添加的节点
   cursorBoard: undefined, // 当前鼠标所在的画板
-  editBoard: undefined, // 当前放大编辑的画板
   onBoard: undefined, // 当前有操作的画板
   dragDot: undefined,
   showRightPage: false,
@@ -30,6 +29,7 @@ Vue.prototype.$wbState = wbState;
 const reset = () => {
   Object.assign(wbState, {
     selectNodes: [],
+    editBoard: [],
     dragNode: undefined,
     focusNode: undefined,
     dragDot: undefined,

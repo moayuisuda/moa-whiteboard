@@ -11,9 +11,28 @@
         Login
         <login-panel @login="onLogin"></login-panel>
       </div>
-
     </li>
 
+    <li
+      v-if="$user.email && editable"
+      class="moa-bar__item moa-text"
+    >
+      <div
+        v-if="showTextPanel"
+        class="moa-text-panel center"
+      >
+        <input
+          placeholder="input like 'A,B,C'"
+          type="text"
+          v-model="text"
+        >
+        <button @click="generateFlow">Generate</button>
+      </div>
+      <img
+        @click="showTextPanel = (showTextPanel === true) ? false : true"
+        src="@/assets/text.svg"
+      />
+    </li>
     <li
       v-if="$user.email && editable"
       @click="save"
@@ -21,7 +40,6 @@
     >
       <img src="@/assets/save.svg" />
     </li>
-
     <li
       v-if="$user.email && editable"
       @click="share"
@@ -40,7 +58,10 @@ export default {
     loginPanel
   },
   data() {
-    return {}
+    return {
+      text: '',
+      showTextPanel: false
+    }
   },
   props: {
     editable: {
@@ -49,6 +70,10 @@ export default {
   },
   computed: {},
   methods: {
+    generateFlow() {
+      this.showTextPanel = false
+      this.$emit('generate-flow', this.text)
+    },
     logout() {
       this.$emit('logout')
     },
@@ -72,13 +97,22 @@ export default {
   &__item {
     img {
       display: block;
-      width: 36px
+      width: 36px;
     }
     padding: 10px;
     &:hover {
       cursor: pointer;
       background-color: $background-color;
     }
+  }
+}
+
+.moa-text {
+  position: relative;
+  &-panel {
+    position: absolute;
+    top: 100%;
+    right: 0;
   }
 }
 </style>

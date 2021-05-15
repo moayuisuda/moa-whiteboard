@@ -8,35 +8,53 @@
     },
     "chartData": [
       {
+        "id": "1",
+        "type": "line",
+        "model": {
+          "type": "bezier",
+          "style": "stroke",
+          "arrow": "true"
+        },
+        "start": "0",
+        "end": "2",
+        "startP": "right",
+        "endP": "left",
+        "points": []
+      },
+      {
         "id": "0",
-        "value": "this is 0",
         "type": "basic",
-        "style": {
+        "model": {
+          "value": "this is 0",
           "align": "center",
-          "color": "#8c28ff",
+          "color": "#8c28ffaa",
           "shape": "rect",
-          "border": "none"
+          "border": "none",
+          "size": "XL"
         },
         "bounds": {
           "x": 0,
           "y": 0,
-          "w": 150,
-          "h": 150
+          "w": 80,
+          "h": 80
         }
       },
       {
         "id": "2",
-        "value": "this is 2",
         "type": "basic",
-        "style": {
+        "model": {
+          "value": "this is 2",
           "shape": "rect",
-          "border": "none"
+          "color": "#FFFFFF",
+          "border": "none",
+          "align": "center",
+          "size": "M"
         },
         "bounds": {
           "x": 600,
           "y": 100,
-          "w": 100,
-          "h": 100
+          "w": 80,
+          "h": 80
         }
       }
     ]

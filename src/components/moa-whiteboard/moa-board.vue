@@ -36,7 +36,7 @@
           v-for="project in _projects"
           :key="project.id"
           :value="project.id"
-        >{{ project.id }}</option>
+        >{{ project.name }}</option>
         <option value="">NOT LINK</option>
       </select>
     </foreignObject>
@@ -52,8 +52,8 @@
         :transform="_gridTransform"
       >
         <circle
-          v-for="dot in _dots"
-          :key="dot.x + '' + dot.y"
+          v-for="(dot, index) in _dots"
+          :key="index"
           :cx="dot.x"
           :cy="dot.y"
           r="1"
@@ -65,12 +65,27 @@
         :key="nodeData.id"
         :nodeData="nodeData"
       ></moa-node>
+      <moa-pre-add
+        filter="url(#shadow)"
+        @connect-start="onConnectStart"
+        v-if="_isShowPreAdd"
+      />
       <moa-node
         style="pointer-events: none"
         v-if="_isShowPreAddNode"
         :nodeData="$wbState.preAddNode"
       ></moa-node>
     </svg>
+
+    <image
+      v-if="_ifShowZoom"
+      @mousedown="popEditBoard"
+      width=20
+      :x="nodeData.bounds.w / 2 - 10"
+      y=10
+      class="moa-board__zoom"
+      :xlink:href="require('@/assets/zoom.svg')"
+    />
   </g>
 </template>
 
@@ -84,6 +99,7 @@ const zoomMin = 0.3
 const zoomMax = 4
 const moveSpeed = 1
 const zoomSpeed = 0.002
+const MARGIN = 40
 
 export default {
   name: 'moa-board',
@@ -99,22 +115,51 @@ export default {
           container: this
         }
   },
-  inject: ['root'],
+  inject: ['root', 'container'],
   data() {
     return {
+      oldBounds: ''
     }
   },
   mounted() {
     this.initChart()
   },
   watch: {
-    isEdit: {
-      handler(v) {
-        console.log('editBoard', v)
+    '$wbState.editBoard.length': {
+      handler() {
+        if (this.isRoot) return
+
+        if (wbState.editBoard.includes(this)) {
+          this.oldBounds = JSON.stringify(this.nodeData.bounds)
+          const nodes = this.container.nodeData.panelData.chartData
+          const offset = this.container.nodeData.panelData.panelOps
+          const zoom = this.container.nodeData.panelData.panelOps.zoom
+
+          const { nodeData } = this
+          nodes.splice(
+            nodes.length,
+            0,
+            nodes.splice(nodes.indexOf(nodeData), 1)[0]
+          )
+
+          this.nodeData.bounds.x = offset.x + MARGIN
+          this.nodeData.bounds.y = offset.y + MARGIN
+          this.nodeData.bounds.w =
+            this.container.nodeData.bounds.w / zoom - MARGIN * 2
+          this.nodeData.bounds.h =
+            this.container.nodeData.bounds.h / zoom - MARGIN * 2
+        } else {
+          if (this.oldBounds) {
+            this.nodeData.bounds = JSON.parse(this.oldBounds)
+          }
+        }
       }
     }
   },
   computed: {
+    _ifShowZoom() {
+      return wbState.editBoard.last() === this && !this.isRoot
+    },
     _dots() {
       const re = []
       for (let i = 0; i <= this.nodeData.bounds.h; i += wbState.snap) {
@@ -139,6 +184,14 @@ export default {
     },
     _projects() {
       return this.$wbState.projects.filter(p => p.id !== this.root.nodeData.id)
+    },
+    _isShowPreAdd() {
+      return (
+        wbState.onBoard === this &&
+        wbState.focusNode &&
+        wbState.focusNode.nodeData.bounds &&
+        wbState.selectNodes.length < 2
+      )
     },
     _isShowPreAddNode() {
       return wbState.preAddNode && wbState.cursorBoard === this
@@ -167,23 +220,24 @@ export default {
     }
   },
   props: {
-    isEdit: Boolean,
+    isEditBoard: {
+      type: Boolean,
+      default: false
+    },
     isRoot: {
       type: Boolean,
       default: false
     },
     nodeData: {
-      type: Object,
-      default() {
-        return {}
-      }
+      type: Object
     }
   },
   async created() {
     if (!this.isRoot && this.nodeData.model.project) {
-      const data = await projectService.getProjectData(
-        this.nodeData.model.project
-      )
+      const data = (
+        await projectService.getProjectData(this.nodeData.model.project)
+      ).data
+
       data.panelData.panelOps.zoom = data.panelData.panelOps.zoom * 0.5
       Object.assign(this.nodeData, {
         panelData: data.panelData
@@ -191,6 +245,12 @@ export default {
     }
   },
   methods: {
+    popEditBoard() {
+      wbState.editBoard.pop()
+    },
+    onConnectStart(dir) {
+      wbState.focusNode.onConnectStart(dir)
+    },
     onMousedown() {},
     onMouseup(e) {},
     async linkProject() {
@@ -200,9 +260,9 @@ export default {
           panelData: defaultData.panelData
         })
       } else {
-        const data = await projectService.getProjectData(
-          this.nodeData.model.project
-        )
+        const data = (
+          await projectService.getProjectData(this.nodeData.model.project)
+        ).data
         data.panelData.panelOps.zoom = data.panelData.panelOps.zoom * 0.5
         Object.assign(this.nodeData, {
           panelData: data.panelData
@@ -233,10 +293,10 @@ export default {
       }
     },
     onBackClick(e) {
-      if (wbState.editBoard[wbState.editBoard.length - 1] === this) {
+      if (wbState.editBoard.last() === this) {
         wbState.selectNodes = []
         wbState.editNode = undefined
-        wbState.focusNode = false
+        wbState.focusNode = undefined
       }
     },
     onMouseenter() {
@@ -284,6 +344,9 @@ export default {
 
 <style lang="scss" scoped>
 .moa-board {
+  &__zoom {
+    cursor: pointer;
+  }
   &__title {
     font-size: 20px;
     border: none;

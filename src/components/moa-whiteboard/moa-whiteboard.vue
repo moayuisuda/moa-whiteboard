@@ -28,7 +28,7 @@
           orient="auto"
           markerWidth='4'
           markerHeight='4'
-          refX='3'
+          refX='2'
           refY='2'
         >
           <path
@@ -69,6 +69,7 @@ import { wbState, hotKey, reset, eventBus } from '~/state'
 import { getCoords } from '~/utils/coords'
 import { v4 as uuidv4 } from 'uuid'
 import Vue from 'vue'
+import wrapperVue from '../../sdk/wrapper.vue'
 
 export default {
   name: 'moa-whiteboard',
@@ -100,6 +101,11 @@ export default {
     }
   },
   watch: {
+    '$wbState.focusNode': {
+      handler(v) {
+        if (v) wbState.onBoard = wbState.focusNode.container
+      }
+    },
     rootData: {
       handler() {
         this.rootData.bounds = {
@@ -109,7 +115,7 @@ export default {
         Vue.observable(this.rootData.bounds)
         reset()
         this.$nextTick(() => {
-          wbState.editBoard = [this.$refs['root-board']] // 防止第一次没有mounted拿不到
+          wbState.editBoard.push(this.$refs['root-board']) // 防止第一次没有mounted拿不到
         })
       },
       immediate: true
@@ -172,15 +178,11 @@ export default {
     },
     getNodeFromId(id) {
       for (let node of wbState.cursorBoard.$children) {
-        if (node.nodeData.id === id) return node
+        if (node.nodeData && node.nodeData.id === id) return node
       }
     },
     onDragStart(e) {
-      this.dragStart = getCoords(
-        wbState.cursorBoard.svg,
-        wbState.cursorBoard.pt,
-        e
-      )
+      this.dragStart = getCoords(wbState.onBoard.svg, wbState.onBoard.pt, e)
     },
     onMousedown(e) {
       wbState.showRightPage = false
@@ -236,6 +238,8 @@ export default {
       const { type, name, data } = e
     },
     onMousemove(e) {
+      if (!wbState.cursorBoard) return
+
       const coords = getCoords(
         wbState.cursorBoard.svg,
         wbState.cursorBoard.pt,
@@ -243,6 +247,8 @@ export default {
       )
 
       if (wbState.dragNode) {
+        const coords = getCoords(wbState.onBoard.svg, wbState.onBoard.pt, e)
+
         wbState.dragNode.onDragMove = true
         const { dragStart: start } = this
         const disX = coords.x - start.x
@@ -281,7 +287,6 @@ export default {
           wbState.preAddNode.end.coords.x = snapX
           wbState.preAddNode.end.coords.y = snapY
         } else {
-          console.log(snapY)
           wbState.preAddNode.bounds.x = snapX
           wbState.preAddNode.bounds.y = snapY
         }

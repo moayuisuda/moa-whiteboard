@@ -48,6 +48,7 @@
 import { eventBus, wbState } from '~/state'
 import { getPoints, getSVGScale, getCoords } from '~/utils/coords'
 const MARGIN = 20
+const MIN_CONTROL_L = 50
 // 线的两端距离结点的距离
 
 export default {
@@ -100,8 +101,14 @@ export default {
       }
     },
     _c1() {
-      const lengthH = Math.abs(this._x1 - this._x2) * 0.6
-      const lengthV = Math.abs(this._y1 - this._y2) * 0.6
+      const lengthH = Math.max(
+        Math.abs(this._x1 - this._x2) * 0.6,
+        MIN_CONTROL_L
+      )
+      const lengthV = Math.max(
+        Math.abs(this._y1 - this._y2) * 0.6,
+        MIN_CONTROL_L
+      )
 
       let cp = {}
       switch (this.lineData.startP) {
@@ -129,8 +136,14 @@ export default {
       return cp
     },
     _c2() {
-      const lengthH = Math.abs(this._x1 - this._x2) * 0.6
-      const lengthV = Math.abs(this._y1 - this._y2) * 0.6
+      const lengthH = Math.max(
+        Math.abs(this._x1 - this._x2) * 0.6,
+        MIN_CONTROL_L
+      )
+      const lengthV = Math.max(
+        Math.abs(this._y1 - this._y2) * 0.6,
+        MIN_CONTROL_L
+      )
 
       let cp = {}
       switch (this.lineData.endP) {

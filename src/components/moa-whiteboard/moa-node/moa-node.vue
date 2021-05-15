@@ -8,10 +8,11 @@
   >
     <g
       @mouseup="onMouseup"
-      @mousedown="onMousedown"
-      @dblclick="onDblclick"
+      @mousedown.capture="onMousedown"
+      @dblclick.stop="onDblclick"
     >
       <component
+        ref="node"
         :is="`moa-${nodeData.type}`"
         :nodeData="nodeData"
         :isEdit="_isEdit"
@@ -23,13 +24,6 @@
         :dots-show="_isSelect"
       />
     </g>
-
-    <moa-pre-add
-      filter="url(#shadow)"
-      @connect-start="onConnectStart"
-      v-if="_isFocus && $wbState.selectNodes.length < 2"
-      :nodeData="nodeData"
-    />
     <moa-line-anchor
       filter="url(#shadow)"
       v-if="$wbState.dragDot && onAnchorHover"
@@ -51,8 +45,6 @@
 </template>
 
 <script>
-import { getPoints, getSVGScale, getCoords } from '~/utils/coords'
-import { move } from '~/utils/tween'
 import { wbState, hotKey, eventBus } from '~/state'
 import { v4 } from 'uuid'
 const moveThreshold = 10
@@ -132,7 +124,7 @@ export default {
     },
     getNodeFromId(id) {
       for (let node of this.container.$children) {
-        if (node.nodeData.id === id) return node
+        if (node.nodeData && node.nodeData.id === id) return node
       }
     },
     moveBack() {
@@ -200,8 +192,6 @@ export default {
       wbState.focusNode = this
       wbState.dragNode = this
       eventBus.$emit('drag-start', e)
-
-      e.stopPropagation() // 保证不冒泡选择到外层节点
     },
     move(movement) {
       if (!this.nodeData.bounds) return // line
@@ -223,7 +213,12 @@ export default {
         this.$componentsConfig[`moa-${this.nodeData.type}`].editable === false
       )
         return
-      wbState.editNode = this
+
+      if (this.nodeData.type === 'board') {
+        console.log('dbClick board')
+        wbState.editBoard.push(this.$refs['node'])
+      }
+      else wbState.editNode = this
     },
     dele() {
       if (wbState.focusNode === this) wbState.focusNode = undefined

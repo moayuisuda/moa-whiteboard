@@ -20,7 +20,6 @@ export default {
   data() {
     return {
       rootData,
-      projects: []
     }
   },
   props: {
@@ -70,6 +69,7 @@ export default {
         })
       ).data.data
     )
+    console.log(this.rootData)
   }
 }
 </script>

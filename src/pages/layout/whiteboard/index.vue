@@ -49,6 +49,7 @@
     </ul>
 
     <moa-bar
+      @generate-flow="onGenerateFlow"
       @logout="onLogout"
       @login="onLogin"
       @save="onSave"
@@ -67,6 +68,7 @@ import rootData from './data.json'
 import { eventBus } from '@/state'
 import { selectText } from '@/utils/text'
 import { toDataURL as QRCodeURL } from 'qrcode'
+import { v4 as uuidv4 } from 'uuid'
 
 export default {
   name: 'whiteboard',
@@ -110,6 +112,31 @@ export default {
     }
   },
   methods: {
+    async onGenerateFlow(str) {
+      const values = str.split(/[,，]/)
+      const nodes = []
+      const chartData = this.rootData.panelData.chartData
+
+      for (let i = 0; i < values.length; i++) {
+        const nodeData = this.$componentsConfig[`moa-basic`].defaultData()
+        nodeData.id = uuidv4()
+        nodeData.model.value = values[i]
+
+        if (i > 0) {
+          const lineData = this.$componentsConfig['moa-line'].defaultData()
+          lineData.id = uuidv4()
+          lineData.start = nodes[i - 1].id
+          lineData.startP = 'right'
+          lineData.end = nodeData.id
+          lineData.endP = 'left'
+          chartData.push(lineData)
+        }
+        nodeData.bounds.y = this.rootData.panelData.panelOps.y + 100
+        nodeData.bounds.x += this.rootData.panelData.panelOps.x + i * 200 + 100
+        nodes.push(nodeData)
+        chartData.push(nodeData)
+      }
+    },
     async onShare() {
       const span = document.createElement('span')
       document.body.appendChild(span)

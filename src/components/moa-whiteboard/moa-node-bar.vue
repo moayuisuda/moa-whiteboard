@@ -8,10 +8,6 @@
     class="moa-node-bar center"
   >
     <component :is="`moa-${$wbState.focusNode.nodeData.type}-bar`" />
-    <!-- <img
-      src="./assets/close.svg"
-      alt=""
-    /> -->
   </div>
 </template>
 
