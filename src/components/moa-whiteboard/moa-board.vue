@@ -320,6 +320,7 @@ export default {
       )
 
       if (wbState.editBoard.last() === this) {
+        wbState.choseFocus = true
         wbState.selectNodes = []
         wbState.editNode = undefined
         wbState.focusNode = undefined

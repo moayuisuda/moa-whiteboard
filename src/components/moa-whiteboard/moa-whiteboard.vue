@@ -26,15 +26,14 @@
         <marker
           id='arrow'
           orient="auto"
-          markerWidth='4'
-          markerHeight='4'
+          markerWidth='10'
+          markerHeight='10'
           refX='2'
           refY='2'
         >
           <path
             d='M0,0 L4,2 L0,4'
-            fill="transparent"
-            :stroke="$color['line']"
+            :fill="$color['line']"
             stroke-linejoin="round"
             stroke-linecap="round"
           />

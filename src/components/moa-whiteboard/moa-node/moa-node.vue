@@ -167,7 +167,7 @@ export default {
     },
     onMouseup() {},
     onMousedown(e) {
-      if (e.which === 3) return
+      // if (e.which === 3) return
       if (wbState.choseFocus) return
       if (wbState.preAddNode) {
         return

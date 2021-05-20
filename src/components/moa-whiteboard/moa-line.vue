@@ -48,7 +48,6 @@ import { eventBus, wbState } from '~/state'
 import { getPoints, getSVGScale, getCoords } from '~/utils/coords'
 const MARGIN = 20
 const MIN_CONTROL_L = 50
-// 线的两端距离结点的距离
 
 export default {
   name: 'moa-line',
