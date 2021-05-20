@@ -8,7 +8,7 @@
   >
     <!-- 边框样式 -->
     <rect
-      @click="onBackClick"
+      @mousedown="onBackMousedown"
       :rx="$style['radius']"
       :ry="$style['radius']"
       :width="nodeData.bounds.w"
@@ -75,6 +75,16 @@
         v-if="_isShowPreAddNode"
         :nodeData="$wbState.preAddNode"
       ></moa-node>
+      <rect
+        v-if="_ifShowSelectRect"
+        fill="transparent"
+        :stroke="$color['main']"
+        :stroke-width="$style['stroke-width']"
+        :x="selectBounds.x"
+        :y="selectBounds.y"
+        :width="selectBounds.w"
+        :height="selectBounds.h"
+      />
     </svg>
 
     <image
@@ -118,45 +128,35 @@ export default {
   inject: ['root', 'container'],
   data() {
     return {
-      oldBounds: ''
+      selecting: false,
+      oldBounds: '',
+      selectBounds: {
+        x: 0,
+        y: 0,
+        w: 0,
+        h: 0
+      }
     }
   },
   mounted() {
     this.initChart()
   },
   watch: {
-    '$wbState.editBoard.length': {
-      handler() {
-        if (this.isRoot) return
-
-        if (wbState.editBoard.includes(this)) {
-          this.oldBounds = JSON.stringify(this.nodeData.bounds)
-          const nodes = this.container.nodeData.panelData.chartData
-          const offset = this.container.nodeData.panelData.panelOps
-          const zoom = this.container.nodeData.panelData.panelOps.zoom
-
-          const { nodeData } = this
-          nodes.splice(
-            nodes.length,
-            0,
-            nodes.splice(nodes.indexOf(nodeData), 1)[0]
-          )
-
-          this.nodeData.bounds.x = offset.x + MARGIN
-          this.nodeData.bounds.y = offset.y + MARGIN
-          this.nodeData.bounds.w =
-            this.container.nodeData.bounds.w / zoom - MARGIN * 2
-          this.nodeData.bounds.h =
-            this.container.nodeData.bounds.h / zoom - MARGIN * 2
-        } else {
-          if (this.oldBounds) {
-            this.nodeData.bounds = JSON.parse(this.oldBounds)
-          }
-        }
+    selecting(v) {
+      if (v) {
+        this.selectBounds.w = 0
+        this.selectBounds.h = 0
       }
     }
   },
   computed: {
+    _ifShowSelectRect() {
+      let re = 0
+      if (this.selecting) re++
+      if (this.selectBounds.w > 10 || this.selectBounds.h > 10) re++
+      if (re === 2) return true
+      else return false
+    },
     _ifShowZoom() {
       return wbState.editBoard.last() === this && !this.isRoot
     },
@@ -245,7 +245,27 @@ export default {
     }
   },
   methods: {
+    saveBounds() {
+      this.oldBounds = JSON.stringify(this.nodeData.bounds)
+      const nodes = this.container.nodeData.panelData.chartData
+      const offset = this.container.nodeData.panelData.panelOps
+      const zoom = this.container.nodeData.panelData.panelOps.zoom
+
+      const { nodeData } = this
+      nodes.splice(nodes.length, 0, nodes.splice(nodes.indexOf(nodeData), 1)[0])
+
+      this.nodeData.bounds.x = offset.x + MARGIN
+      this.nodeData.bounds.y = offset.y + MARGIN
+      this.nodeData.bounds.w =
+        this.container.nodeData.bounds.w / zoom - MARGIN * 2
+      this.nodeData.bounds.h =
+        this.container.nodeData.bounds.h / zoom - MARGIN * 2
+    },
+    resetBounds() {
+      this.nodeData.bounds = JSON.parse(this.oldBounds)
+    },
     popEditBoard() {
+      this.resetBounds()
       wbState.editBoard.pop()
     },
     onConnectStart(dir) {
@@ -292,17 +312,44 @@ export default {
         }
       }
     },
-    onBackClick(e) {
+    onBackMousedown(e) {
+      const coords = getCoords(
+        wbState.cursorBoard.svg,
+        wbState.cursorBoard.pt,
+        e
+      )
+
       if (wbState.editBoard.last() === this) {
         wbState.selectNodes = []
         wbState.editNode = undefined
         wbState.focusNode = undefined
+
+        this.selecting = true
+        this.selectStart = coords
       }
     },
     onMouseenter() {
       wbState.cursorBoard = this
     },
-    onMousemove(e) {},
+    onMousemove(e) {
+      if (this.selecting) {
+        if (e.x < this.selectStart.x) {
+          this.selectBounds.x = e.x
+        } else {
+          this.selectBounds.x = this.selectStart.x
+        }
+
+        if (e.y < this.selectStart.y) {
+          this.selectBounds.y = e.y
+        } else {
+          this.selectBounds.y = this.selectStart.y
+        }
+
+        this.selectBounds.w = Math.abs(e.x - this.selectStart.x)
+        this.selectBounds.h = Math.abs(e.y - this.selectStart.y)
+        console.log(this.selectBounds)
+      }
+    },
     onMove(movement) {
       const scale = getSVGScale(this.svg)
       this.nodeData.panelData.panelOps.x -= movement.x * scale

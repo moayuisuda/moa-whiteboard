@@ -1,5 +1,6 @@
 <template>
   <g
+    @mousedown="onMousedown"
     :class="{ 'moa-line--drag': _dots.includes($wbState.dragDot) }"
     :stroke="$color['line']"
     stroke-linecap="round"
@@ -22,8 +23,6 @@
     </g>
     <path
       ref="path"
-      @dblclick.stop="onEdit"
-      @mousedown="onMousedown"
       :d="_d"
       stroke="transparent"
       stroke-width="10"
@@ -32,7 +31,7 @@
       <circle
         class="moa-line_dot"
         v-for="(dot, index) in _dots"
-        @mousedown.stop.prevent="onDotMousedown($event, dot, index)"
+        @mousedown="onDotMousedown($event, dot, index)"
         :cx="dot.coords.x"
         :cy="dot.coords.y"
         r=10
@@ -242,8 +241,23 @@ export default {
     }
   },
   methods: {
+    beautify() {
+      const midX =
+        Math.round((this._x1 + this._x2) / 2 / wbState.snap) * wbState.snap
+      this.lineData.points = [
+        {
+          x: midX,
+          y: this._y1
+        },
+        {
+          x: midX,
+          y: this._y2
+        }
+      ]
+    },
     deleDot(index) {},
     onDotMousedown(e, dot, index) {
+      e.stopPropagation() // 防止右键冒泡打开了右键面板
       if (this.lineData.model.type === 'group' && e.which === 3) {
         this.lineData.points.splice(index - 1, 1)
         return
@@ -289,6 +303,7 @@ export default {
     onMousedown(e) {
       this.$emit('path-click', e)
       if (e.which === 3) return
+
       if (this.isFocus && this.lineData.model.type === 'group') {
         const coords = getCoords(this.container.svg, this.container.pt, e)
         const snapX = Math.round(coords.x / wbState.snap) * wbState.snap,

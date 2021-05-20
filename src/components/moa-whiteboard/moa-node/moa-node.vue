@@ -8,7 +8,7 @@
   >
     <g
       @mouseup="onMouseup"
-      @mousedown.capture="onMousedown"
+      @mousedown="onMousedown"
       @dblclick.stop="onDblclick"
     >
       <component
@@ -26,13 +26,14 @@
     </g>
     <moa-line-anchor
       filter="url(#shadow)"
-      v-if="$wbState.dragDot && onAnchorHover"
+      v-if="_ifShowLineAnchor"
       :nodeData="nodeData"
     />
   </g>
 
   <moa-line
     v-else
+    ref="line"
     :lineData="nodeData"
     @delete="dele"
     @path-click="onMousedown"
@@ -59,6 +60,13 @@ export default {
     }
   },
   computed: {
+    _ifShowLineAnchor() {
+      return (
+        wbState.dragDot &&
+        this.onAnchorHover &&
+        wbState.focusNode.container === this.container
+      )
+    },
     _inLines() {
       const re = []
       const lines = this.container.nodeData.panelData.chartData.filter(n => {
@@ -159,13 +167,13 @@ export default {
     },
     onMouseup() {},
     onMousedown(e) {
+      if (e.which === 3) return
+      if (wbState.choseFocus) return
       if (wbState.preAddNode) {
         return
       }
-      if (wbState.showRightPage) wbState.showRightPage = false
-      else {
-        if (e.which === 3) eventBus.$emit('show-right-page', e)
-      }
+
+      wbState.choseFocus = true
 
       if (!wbState.selectNodes.includes(this)) {
         if (wbState.editNode) {
@@ -216,9 +224,10 @@ export default {
 
       if (this.nodeData.type === 'board') {
         console.log('dbClick board')
-        wbState.editBoard.push(this.$refs['node'])
-      }
-      else wbState.editNode = this
+        const board = this.$refs['node']
+        wbState.editBoard.push(board)
+        board.saveBounds()
+      } else wbState.editNode = this
     },
     dele() {
       if (wbState.focusNode === this) wbState.focusNode = undefined

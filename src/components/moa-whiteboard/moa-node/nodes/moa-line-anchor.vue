@@ -77,6 +77,7 @@ export default {
       if (node.nodeData.type === 'line' && wbState.dragDot) {
         node.nodeData[`${wbState.dragDot.anchor}P`] = dir
         node.nodeData[wbState.dragDot.anchor] = this.nodeData.id
+        node.$refs['line'].beautify()
       }
     }
   }

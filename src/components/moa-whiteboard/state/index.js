@@ -10,6 +10,7 @@ const eventBus = new Vue();
 
 const wbState = {
   selectNodes: [],
+  choseFocus: false,
   dragNode: undefined,
   focusNode: undefined,
   editNode: undefined, // 双击
@@ -30,6 +31,7 @@ const reset = () => {
   Object.assign(wbState, {
     selectNodes: [],
     editBoard: [],
+    choseFocus: false,
     dragNode: undefined,
     focusNode: undefined,
     dragDot: undefined,

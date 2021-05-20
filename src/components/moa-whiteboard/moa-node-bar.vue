@@ -2,7 +2,7 @@
   <div
     ref="moa-node-bar"
     :style="{
-    top: `${editBounds.top - 10}px`,
+    top: `${editBounds.top}px`,
     left: `${left}px`,
   }"
     class="moa-node-bar center"

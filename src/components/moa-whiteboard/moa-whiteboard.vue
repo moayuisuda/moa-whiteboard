@@ -102,7 +102,7 @@ export default {
   },
   watch: {
     '$wbState.focusNode': {
-      handler(v) {
+      handler(v, ov) {
         if (v) wbState.onBoard = wbState.focusNode.container
       }
     },
@@ -185,6 +185,7 @@ export default {
       this.dragStart = getCoords(wbState.onBoard.svg, wbState.onBoard.pt, e)
     },
     onMousedown(e) {
+      wbState.choseFocus = false
       wbState.showRightPage = false
 
       if (wbState.focusNode && e.which === 3) {
@@ -275,6 +276,7 @@ export default {
       const snapX = Math.round(coords.x / wbState.snap) * wbState.snap,
         snapY = Math.round(coords.y / wbState.snap) * wbState.snap
 
+      wbState.editBoard.last().onMousemove(coords)
       if (wbState.dragDot) {
         const dot = wbState.dragDot
         dot.coords.x = snapX
@@ -296,6 +298,7 @@ export default {
       }
     },
     onMouseup(e) {
+      wbState.editBoard.last().selecting = false
       wbState.focusNode && (wbState.focusNode.onDragMove = false)
       wbState.dragNode = undefined
       wbState.dragDot = undefined
