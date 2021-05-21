@@ -60,14 +60,10 @@ export default {
       5   6   7
       */
       return [
-        // { x: 0, y: 0 },
         { x: w / 2, y: 0 - MARGIN, dir: 'top' }, // top
-        // { x: w, y: 0 },
         { x: 0 - MARGIN, y: h / 2, dir: 'left' }, // left
         { x: w + MARGIN, y: h / 2, dir: 'right' }, // right
-        // { x: 0, y: h },
         { x: w / 2, y: h + MARGIN, dir: 'bottom' } // bottom
-        // { x: w, y: h },
       ]
     }
   },

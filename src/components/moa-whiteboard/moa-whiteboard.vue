@@ -74,6 +74,8 @@ export default {
   name: 'moa-whiteboard',
   data() {
     return {
+      e: {},
+      copyData: [],
       wbState,
       dragStart: {},
       cursor: {
@@ -198,6 +200,7 @@ export default {
     },
     init() {
       window.addEventListener('keydown', e => {
+        console.log(e.code)
         switch (e.code) {
           case 'MetaLeft':
             e.preventDefault()
@@ -207,10 +210,21 @@ export default {
             e.preventDefault()
             hotKey.AltLeft = true
             break
-          case 'Space': {
+          case 'Space':
             // e.preventDefault()
             hotKey.Space = true
-          }
+            break
+          case 'ControlLeft':
+            hotKey.ControlLeft = true
+            break
+          case 'KeyC':
+            hotKey.KeyC = true
+            hotKey.ControlLeft && this.copy()
+            break
+          case 'KeyV':
+            hotKey.KeyC = true
+            hotKey.ControlLeft && this.paste()
+            break
         }
       })
       window.addEventListener('keyup', e => {
@@ -224,14 +238,59 @@ export default {
             hotKey.AltLeft = false
             break
           case 'Space':
-            // e.preventDefault()
             hotKey.Space = false
+            break
+          case 'ControlLeft':
+            hotKey.ControlLeft = false
+            break
+          case 'KeyC':
+            hotKey.KeyC = false
+            break
+          case 'KeyV':
+            hotKey.KeyV = false
+            break
         }
       })
 
       eventBus.$on('node-event', this.nodeEventHandler)
       eventBus.$on('drag-start', this.onDragStart)
       eventBus.$on('show-right-page', this.showRightPage)
+    },
+    copy() {
+      for (let node of wbState.selectNodes) {
+        this.copyData.push(JSON.stringify(node.nodeData))
+      }
+    },
+    paste() {
+      if (this.copyData.length === 0) return
+      wbState.selectNodes = []
+      wbState.focusNode = undefined
+      const cache = {}
+      const parseNodes = this.copyData.map(data => JSON.parse(data))
+
+      for (let data of parseNodes) {
+        const id = uuidv4()
+        cache[data.id] = id
+        data.id = id
+        wbState.cursorBoard.nodeData.panelData.chartData.push(data)
+      }
+
+      for (let data of parseNodes) {
+        if (data.type === 'line') {
+          if (cache[data.start]) data.start = cache[data.start]
+          if (cache[data.end]) data.end = cache[data.end]
+        }
+      }
+
+      this.$nextTick(() => {
+        for (let data of parseNodes) {
+          const node = this.getNodeFromId(data.id)
+          node.move({ x: 20, y: 20 })
+          wbState.selectNodes.push(node)
+        }
+      })
+
+      this.copyData = []
     },
     nodeEventHandler(e) {
       console.log('on-event', e)
@@ -240,6 +299,7 @@ export default {
     onMousemove(e) {
       if (!wbState.cursorBoard) return
 
+      this.e = e
       const cursorCoords = getCoords(
         wbState.cursorBoard.svg,
         wbState.cursorBoard.pt,
@@ -275,15 +335,7 @@ export default {
       const snapX = Math.round(cursorCoords.x / wbState.snap) * wbState.snap,
         snapY = Math.round(cursorCoords.y / wbState.snap) * wbState.snap
 
-      wbState.editBoard
-        .last()
-        .onMousemove(
-          getCoords(
-            wbState.editBoard.last().svg,
-            wbState.editBoard.last().pt,
-            e
-          )
-        )
+      wbState.editBoard.last().onMousemove(e)
       if (wbState.dragDot) {
         const dot = wbState.dragDot
         dot.coords.x = snapX

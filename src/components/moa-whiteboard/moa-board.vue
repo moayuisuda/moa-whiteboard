@@ -143,7 +143,7 @@ export default {
   },
   watch: {
     selecting(v) {
-      if (v) {
+      if (!v) {
         this.selectBounds.w = 0
         this.selectBounds.h = 0
       }
@@ -334,24 +334,27 @@ export default {
     },
     onMousemove(e) {
       if (this.selecting) {
-        if (e.x < this.selectStart.x) {
-          this.selectBounds.x = e.x
+        const coords = getCoords(this.svg, this.pt, e)
+
+        if (coords.x < this.selectStart.x) {
+          this.selectBounds.x = coords.x
         } else {
           this.selectBounds.x = this.selectStart.x
         }
 
-        if (e.y < this.selectStart.y) {
-          this.selectBounds.y = e.y
+        if (coords.y < this.selectStart.y) {
+          this.selectBounds.y = coords.y
         } else {
           this.selectBounds.y = this.selectStart.y
         }
 
-        this.selectBounds.w = Math.abs(e.x - this.selectStart.x)
-        this.selectBounds.h = Math.abs(e.y - this.selectStart.y)
+        this.selectBounds.w = Math.abs(coords.x - this.selectStart.x)
+        this.selectBounds.h = Math.abs(coords.y - this.selectStart.y)
         this.caculateSelectNodes()
       }
     },
     caculateSelectNodes() {
+      if (this.selectBounds.w < 10 && this.selectBounds.h < 10) return
       const { selectBounds } = this
       for (let nodeData of this.nodeData.panelData.chartData) {
         const node = this.getNodeFromId(nodeData.id)
@@ -369,6 +372,7 @@ export default {
             }
           }
         } else {
+          // debugger
           if (
             !(
               nodeData.bounds.x > selectBounds.x + selectBounds.w ||

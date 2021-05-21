@@ -253,16 +253,32 @@ export default {
     beautify() {
       const midX =
         Math.round((this._x1 + this._x2) / 2 / wbState.snap) * wbState.snap
-      this.lineData.points = [
-        {
-          x: midX,
-          y: this._y1
-        },
-        {
-          x: midX,
-          y: this._y2
-        }
-      ]
+      const midY =
+        Math.round((this._y1 + this._y2) / 2 / wbState.snap) * wbState.snap
+
+      if (Math.abs(this._x1 - this._x2) > Math.abs(this._y1 - this._y2)) {
+        this.lineData.points = [
+          {
+            x: midX,
+            y: this._y1
+          },
+          {
+            x: midX,
+            y: this._y2
+          }
+        ]
+      } else {
+        this.lineData.points = [
+          {
+            y: midY,
+            x: this._x1
+          },
+          {
+            y: midY,
+            x: this._x2
+          }
+        ]
+      }
     },
     deleDot(index) {},
     onDotMousedown(e, dot, index) {
