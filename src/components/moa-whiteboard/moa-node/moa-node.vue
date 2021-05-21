@@ -202,9 +202,13 @@ export default {
       eventBus.$emit('drag-start', e)
     },
     move(movement) {
-      if (!this.nodeData.bounds) return // line
-      this.nodeData.bounds.x += movement.x
-      this.nodeData.bounds.y += movement.y
+      if (this.nodeData.type === 'line') {
+        this.$refs['line'].move(movement)
+      } // line
+      else {
+        this.nodeData.bounds.x += movement.x
+        this.nodeData.bounds.y += movement.y
+      }
     },
     // 聚焦节点跟随主拖拽节点移动，此时相当于这个拖拽节点是所有聚焦节点的controller，控制流：root-board -> focusNode -> selectNodes
     onDrag(movement) {

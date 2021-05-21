@@ -30,13 +30,13 @@
           "color": "#8c28ffaa",
           "shape": "rect",
           "border": "none",
-          "size": "XL"
+          "size": "L"
         },
         "bounds": {
           "x": 0,
           "y": 0,
-          "w": 80,
-          "h": 80
+          "w": 160,
+          "h": 160
         }
       },
       {

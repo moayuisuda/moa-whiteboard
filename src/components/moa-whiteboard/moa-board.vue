@@ -348,7 +348,46 @@ export default {
 
         this.selectBounds.w = Math.abs(e.x - this.selectStart.x)
         this.selectBounds.h = Math.abs(e.y - this.selectStart.y)
-        console.log(this.selectBounds)
+        this.caculateSelectNodes()
+      }
+    },
+    caculateSelectNodes() {
+      const { selectBounds } = this
+      for (let nodeData of this.nodeData.panelData.chartData) {
+        const node = this.getNodeFromId(nodeData.id)
+        if (nodeData.type === 'line') {
+          for (let dot of node.$refs['line']._dots) {
+            if (
+              dot.coords.x > selectBounds.x &&
+              dot.coords.x < selectBounds.x + selectBounds.w &&
+              dot.coords.y > selectBounds.y &&
+              dot.coords.y < selectBounds.y + selectBounds.h
+            ) {
+              if (!wbState.selectNodes.includes(node))
+                wbState.selectNodes.push(node)
+              break
+            }
+          }
+        } else {
+          if (
+            !(
+              nodeData.bounds.x > selectBounds.x + selectBounds.w ||
+              nodeData.bounds.x + nodeData.bounds.w < selectBounds.x ||
+              nodeData.bounds.y > selectBounds.y + selectBounds.h ||
+              nodeData.bounds.y + nodeData.bounds.h < selectBounds.y
+            )
+          ) {
+            if (!wbState.selectNodes.includes(node))
+              wbState.selectNodes.push(node)
+          }
+        }
+
+        // console.log(wbState.selectNodes)
+      }
+    },
+    getNodeFromId(id) {
+      for (let node of this.$children) {
+        if (node.nodeData && node.nodeData.id === id) return node
       }
     },
     onMove(movement) {

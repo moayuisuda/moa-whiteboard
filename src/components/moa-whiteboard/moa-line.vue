@@ -27,7 +27,7 @@
       stroke="transparent"
       stroke-width="10"
     />
-    <g v-if="isFocus || $wbState.preAddNode === lineData">
+    <g v-if="isFocus || isSelect || $wbState.preAddNode === lineData">
       <circle
         class="moa-line_dot"
         v-for="(dot, index) in _dots"
@@ -240,6 +240,16 @@ export default {
     }
   },
   methods: {
+    move(e) {
+      for (let point of this._dots) {
+        if (
+          !(point.anchor && typeof this.lineData[point.anchor] === 'string')
+        ) {
+          point.coords.x += e.x
+          point.coords.y += e.y
+        }
+      }
+    },
     beautify() {
       const midX =
         Math.round((this._x1 + this._x2) / 2 / wbState.snap) * wbState.snap

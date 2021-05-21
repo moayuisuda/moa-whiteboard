@@ -240,7 +240,7 @@ export default {
     onMousemove(e) {
       if (!wbState.cursorBoard) return
 
-      const coords = getCoords(
+      const cursorCoords = getCoords(
         wbState.cursorBoard.svg,
         wbState.cursorBoard.pt,
         e
@@ -272,10 +272,18 @@ export default {
         wbState.editNode = undefined
       }
 
-      const snapX = Math.round(coords.x / wbState.snap) * wbState.snap,
-        snapY = Math.round(coords.y / wbState.snap) * wbState.snap
+      const snapX = Math.round(cursorCoords.x / wbState.snap) * wbState.snap,
+        snapY = Math.round(cursorCoords.y / wbState.snap) * wbState.snap
 
-      wbState.editBoard.last().onMousemove(coords)
+      wbState.editBoard
+        .last()
+        .onMousemove(
+          getCoords(
+            wbState.editBoard.last().svg,
+            wbState.editBoard.last().pt,
+            e
+          )
+        )
       if (wbState.dragDot) {
         const dot = wbState.dragDot
         dot.coords.x = snapX
