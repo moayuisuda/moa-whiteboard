@@ -305,24 +305,30 @@ export default {
         wbState.cursorBoard.pt,
         e
       )
+      let onBoardCoords, onBoardSnapX, onBoardSnapY
+      const snapX = Math.round(cursorCoords.x / wbState.snap) * wbState.snap,
+        snapY = Math.round(cursorCoords.y / wbState.snap) * wbState.snap
+      if (wbState.onBoard) {
+        onBoardCoords = getCoords(wbState.onBoard.svg, wbState.onBoard.pt, e)
+        onBoardSnapX = Math.round(onBoardCoords.x / wbState.snap) * wbState.snap
+        onBoardSnapY = Math.round(onBoardCoords.y / wbState.snap) * wbState.snap
+      }
 
       if (wbState.dragNode) {
-        const coords = getCoords(wbState.onBoard.svg, wbState.onBoard.pt, e)
-
         wbState.dragNode.onDragMove = true
         const { dragStart: start } = this
-        const disX = coords.x - start.x
-        const disY = coords.y - start.y
+        const disX = onBoardCoords.x - start.x
+        const disY = onBoardCoords.y - start.y
         // debugger
         if (Math.abs(disX) >= wbState.snap) {
-          start.x = coords.x
+          start.x = onBoardCoords.x
           wbState.dragNode.onDrag({
             x: Math.round(disX / wbState.snap) * wbState.snap,
             y: 0
           })
         }
         if (Math.abs(disY) >= wbState.snap) {
-          start.y = coords.y
+          start.y = onBoardCoords.y
           wbState.dragNode.onDrag({
             x: 0,
             y: Math.round(disY / wbState.snap) * wbState.snap
@@ -332,14 +338,11 @@ export default {
         wbState.editNode = undefined
       }
 
-      const snapX = Math.round(cursorCoords.x / wbState.snap) * wbState.snap,
-        snapY = Math.round(cursorCoords.y / wbState.snap) * wbState.snap
-
       wbState.editBoard.last().onMousemove(e)
       if (wbState.dragDot) {
         const dot = wbState.dragDot
-        dot.coords.x = snapX
-        dot.coords.y = snapY
+        dot.coords.x = onBoardSnapX
+        dot.coords.y = onBoardSnapY
       }
       if (wbState.preAddNode) {
         if (wbState.preAddNode.type === 'line') {
